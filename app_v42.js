@@ -12115,7 +12115,7 @@ function renderProfilePage(container) {
                             <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Telefonnummer</label>
                             <input type="text" id="prof-phone" class="input-field" value="${u.phone || ''}" required style="margin:0;">
                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
-                                <input type="checkbox" id="prof-hidephone" ${u.hidePhone ? 'checked' : ''} style="cursor: pointer; width: auto; margin: 0; scale: 1.3; transform-origin: left center; margin-right: 0.15rem;">
+                                <input type="checkbox" id="prof-hidephone" ${u.hidePhone ? 'checked' : ''} style="cursor: pointer; width: auto; margin: 0; scale: 1.3; transform-origin: left center; margin-right: 0.15rem; accent-color: ${isMusician ? '#7c3aed' : '#2563eb'} !important;">
                                 <label for="prof-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
                             </div>
                         </div>
@@ -13384,6 +13384,31 @@ function renderMyEventsContent(container) {
     const isLimitReached = allMyEvents.length >= 200;
 
 
+    const activeId = state.activeEventId;
+    const isAllSelected = activeId === 'all';
+    const selectedEvent = (!isAllSelected && activeId) ? allMyEvents.find(e => e.id === activeId) : null;
+
+    let displayActiveEvents = activeEvents;
+    let displayDeactivatedEvents = deactivatedEvents;
+    let sectionTitle = `Meine Events (${activeEvents.length})`;
+    let inactiveSectionTitle = `Inaktive Events (${deactivatedEvents.length})`;
+
+    if (selectedEvent) {
+        sectionTitle = 'Mein Event-Profil';
+        if (isEventActive(selectedEvent)) {
+            displayActiveEvents = [selectedEvent];
+            displayDeactivatedEvents = [];
+        } else {
+            displayActiveEvents = [];
+            displayDeactivatedEvents = [selectedEvent];
+            inactiveSectionTitle = 'Mein inaktives Event-Profil';
+        }
+    } else if (!isAllSelected) {
+        if (allMyEvents.length <= 1) {
+            sectionTitle = 'Mein Event-Profil';
+        }
+    }
+
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap: 1.5rem; margin-top: 0;">
             <!-- Active Events -->
@@ -13394,20 +13419,20 @@ function renderMyEventsContent(container) {
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3>Meine Events (${activeEvents.length})</h3>
+                            <h3>${sectionTitle}</h3>
                         </div>
                     </div>
                 </div>
                 
                 <div class="my-events-list">
-                    ${activeEvents.length === 0 ? `
+                    ${displayActiveEvents.length === 0 ? `
                         <div style="padding:4rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-calendar-days" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
-                            <p>Keine aktiven Events vorhanden.</p>
+                            <p>${selectedEvent ? 'Dieses Event-Profil ist aktuell nicht aktiv.' : 'Keine aktiven Events vorhanden.'}</p>
                         </div>
                     ` : `
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
-                            ${activeEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
+                            ${displayActiveEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
                         </div>
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
@@ -13419,7 +13444,7 @@ function renderMyEventsContent(container) {
             </div>
 
             <!-- Deactivated / Finished Events -->
-            ${deactivatedEvents.length > 0 ? `
+            ${displayDeactivatedEvents.length > 0 ? `
             <div class="profile-section-card" style="opacity:0.9; border: none !important; border-top: none !important;">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
@@ -13427,7 +13452,7 @@ function renderMyEventsContent(container) {
                             <i class="fa-solid fa-calendar-minus"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3 style="color: #475569 !important;">Inaktive Events (${deactivatedEvents.length})</h3>
+                            <h3 style="color: #475569 !important;">${inactiveSectionTitle}</h3>
                             <p>Diese Events sind aktuell im Markt nicht sichtbar.</p>
                         </div>
                     </div>
@@ -13435,7 +13460,7 @@ function renderMyEventsContent(container) {
                 
                 <div class="my-events-list">
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
-                        ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
+                        ${displayDeactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
                     </div>
                 </div>
             </div>
@@ -13905,25 +13930,25 @@ function renderMyMusicianItem(m, isActive) {
                     </div>
 
                     <!-- Collapsible details wrapper (standardmäßig eingeklappt) -->
-                    <div id="collapsible-details-${m.id}" style="display: none; flex-direction: column; gap: 0.45rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
-                        <!-- 5. Genres -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
-                        </div>
-                        <!-- 6. Instrumente -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(m.instruments || (m.category ? [m.category] : ['Gesang', 'Gitarre']), themeColor, m.id, 'instruments')}</span>
-                        </div>
-                        <!-- 7. Spielzeit -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${durationDisplay}</span>
-                        </div>
-                        <!-- 8. Publikum, 9. Technik, 10. Gage + Social Links rechts daneben -->
-                        <div style="display: flex; align-items: stretch; justify-content: space-between; gap: 0.5rem;">
+                    <div id="collapsible-details-${m.id}" style="display: none; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                        <!-- 5. Genres bis 10. Gage + Social Links rechts daneben (startend ab Genres) -->
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
                             <div style="display: flex; flex-direction: column; gap: 0.45rem; flex: 1; min-width: 0;">
+                                <!-- 5. Genres -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                    <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
+                                </div>
+                                <!-- 6. Instrumente -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                    <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${formatTruncatedValue(m.instruments || (m.category ? [m.category] : ['Gesang', 'Gitarre']), themeColor, m.id, 'instruments')}</span>
+                                </div>
+                                <!-- 7. Spielzeit -->
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                                    <span>${durationDisplay}</span>
+                                </div>
                                 <!-- 8. Publikum -->
                                 <div style="display: flex; align-items: center; gap: 0.6rem;">
                                     <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -13983,6 +14008,31 @@ function renderMyMusiciansContent(container) {
     const deactivatedMusicians = allMyMusicians.filter(m => (m.isActive === false || m.status === 'inactive') && !m.isDeleted && !m.deleted && m.status !== 'deleted');
     const isLimitReached = allMyMusicians.length >= 5;
 
+    const activeId = state.activeMusicianId;
+    const isAllSelected = activeId === 'all';
+    const selectedMusician = (!isAllSelected && activeId) ? allMyMusicians.find(m => m.id === activeId) : null;
+
+    let displayActiveMusicians = activeMusicians;
+    let displayDeactivatedMusicians = deactivatedMusicians;
+    let sectionTitle = `Meine Musiker (${activeMusicians.length})`;
+    let inactiveSectionTitle = `Inaktive Musiker (${deactivatedMusicians.length})`;
+
+    if (selectedMusician) {
+        sectionTitle = 'Mein Musiker-Profil';
+        if (selectedMusician.isActive !== false && selectedMusician.status !== 'inactive') {
+            displayActiveMusicians = [selectedMusician];
+            displayDeactivatedMusicians = [];
+        } else {
+            displayActiveMusicians = [];
+            displayDeactivatedMusicians = [selectedMusician];
+            inactiveSectionTitle = 'Mein inaktives Musiker-Profil';
+        }
+    } else if (!isAllSelected) {
+        if (allMyMusicians.length <= 1) {
+            sectionTitle = 'Mein Musiker-Profil';
+        }
+    }
+
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap: 1.5rem; margin-top: 0;">
             <!-- Active Musicians -->
@@ -13993,20 +14043,20 @@ function renderMyMusiciansContent(container) {
                             <i class="fa-solid fa-guitar"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3>Meine Musiker (${activeMusicians.length})</h3>
+                            <h3>${sectionTitle}</h3>
                         </div>
                     </div>
                 </div>
                 
                 <div class="my-musicians-list">
-                    ${activeMusicians.length === 0 ? `
+                    ${displayActiveMusicians.length === 0 ? `
                         <div style="padding:4rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-guitar" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
-                            <p>Keine aktiven Musiker vorhanden.</p>
+                            <p>${selectedMusician ? 'Dieses Musiker-Profil ist aktuell pausiert.' : 'Keine aktiven Musiker vorhanden.'}</p>
                         </div>
                     ` : `
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
-                            ${activeMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
+                            ${displayActiveMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
                         </div>
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
@@ -14018,7 +14068,7 @@ function renderMyMusiciansContent(container) {
             </div>
 
             <!-- Paused / Inactive Musicians -->
-            ${deactivatedMusicians.length > 0 ? `
+            ${displayDeactivatedMusicians.length > 0 ? `
             <div class="profile-section-card" style="opacity:0.9; border: none !important; border-top: none !important;">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
@@ -14026,7 +14076,7 @@ function renderMyMusiciansContent(container) {
                             <i class="fa-solid fa-pause"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3 style="color: #475569 !important;">Inaktive Musiker (${deactivatedMusicians.length})</h3>
+                            <h3 style="color: #475569 !important;">${inactiveSectionTitle}</h3>
                             <p>Diese Musiker sind aktuell im Markt ausgeblendet.</p>
                         </div>
                     </div>
@@ -14034,7 +14084,7 @@ function renderMyMusiciansContent(container) {
                 
                 <div class="my-musicians-list">
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
-                        ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
+                        ${displayDeactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
                     </div>
                 </div>
             </div>
@@ -19932,18 +19982,25 @@ window.updateHeaderActionPills = function() {
         const organizerEventFallback = (u && u.eventName) || (state && state.events && state.events.find(e => e && (e.creatorId === (u ? u.id : null) || e.id === (u ? u.profileId : null)))?.name) || 'Mein Event';
         const fallbackProfileTitle = isMusicianRole ? ((u && u.bandName) || 'Mein Profil') : organizerEventFallback;
         const currentActiveProfile = userProfiles.find(p => p.id === activeProfileId);
-        const activeProfileName = currentActiveProfile ? (currentActiveProfile.name || currentActiveProfile.title || currentActiveProfile.contactName || fallbackProfileTitle) : fallbackProfileTitle;
+        let activeProfileName = fallbackProfileTitle;
+        if (activeProfileId === 'all') {
+            activeProfileName = 'Alle Profile';
+        } else if (currentActiveProfile) {
+            activeProfileName = currentActiveProfile.name || currentActiveProfile.title || currentActiveProfile.contactName || fallbackProfileTitle;
+        }
         const shortActiveProfileName = truncateProfileLabel(activeProfileName, 18);
 
         const themeColor = isMusicianRole ? '#7c3aed' : '#2563eb';
-        const profileItemsHtml = (userProfiles.length === 0)
-            ? `
+        let profileItemsHtml = '';
+        if (userProfiles.length === 0) {
+            profileItemsHtml = `
                 <button type="button" class="header-profile-dropdown-item active" data-profile-id="none">
                     <span class="header-profile-item-name">${fallbackProfileTitle}</span>
                     <i class="fa-solid fa-check" style="color: ${themeColor}; font-size: 0.85rem;"></i>
                 </button>
-            `
-            : userProfiles.map(p => {
+            `;
+        } else {
+            profileItemsHtml = userProfiles.map(p => {
                 const rawName = p.name || p.title || p.contactName || (isMusicianRole ? 'Mein Profil' : 'Mein Event');
                 const shortName = truncateProfileLabel(rawName, 22);
                 const isActive = p.id === activeProfileId;
@@ -19954,6 +20011,17 @@ window.updateHeaderActionPills = function() {
                     </button>
                 `;
             }).join('');
+            if (userProfiles.length > 1) {
+                const isAllActive = activeProfileId === 'all';
+                profileItemsHtml += `
+                    <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 0.35rem 0;"></div>
+                    <button type="button" class="header-profile-dropdown-item ${isAllActive ? 'active' : ''}" data-profile-id="all">
+                        <span class="header-profile-item-name">Alle Profile</span>
+                        ${isAllActive ? `<i class="fa-solid fa-check" style="color: ${themeColor}; font-size: 0.85rem;"></i>` : ''}
+                    </button>
+                `;
+            }
+        }
 
         authArea.innerHTML = `
             <div class="header-action-pills ${themeClass}" style="position: relative;">
@@ -23231,35 +23299,35 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     </div>
 
                     <!-- Collapsible details wrapper (opens on click with all remaining infos) -->
-                    <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
+                    <div id="collapsible-details-${item.id}" style="display: none; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
                         ${(Array.isArray(item.musicianTypes) && item.musicianTypes.length > 1) ? `
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.5rem;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(item.musicianTypes.join(', '), themeColor, item.id, 'allmusicians')}</span>
                         </div>
                         ` : ''}
 
-                        <!-- 5. Genres -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
-                        </div>
-
-                        <!-- 6. Instrumente -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
-                        </div>
-
-                        <!-- 7. Spielzeit -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
-                        </div>
-
-                        <!-- 8. Publikum, 9. Technik, 10. Gage + Social Links rechts daneben -->
-                        <div style="display: flex; align-items: stretch; justify-content: space-between; gap: 0.5rem;">
+                        <!-- 5. Genres bis 10. Gage + Social Links rechts daneben (startend ab Genres) -->
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
                             <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-width: 0;">
+                                <!-- 5. Genres -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                    <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
+                                </div>
+
+                                <!-- 6. Instrumente -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                    <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                                </div>
+
+                                <!-- 7. Spielzeit -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                    <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
+                                </div>
+
                                 <!-- 8. Publikum -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
                                     <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
