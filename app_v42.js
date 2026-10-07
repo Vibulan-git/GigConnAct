@@ -803,6 +803,61 @@ window.sanitizeVideos = function(rawVideos) {
                     });
 };
 
+window.validateSocialUrl = function(platform, rawUrl) {
+    if (!rawUrl || typeof rawUrl !== 'string') return { valid: true, cleanUrl: '' };
+    let url = rawUrl.trim();
+    if (!url) return { valid: true, cleanUrl: '' };
+
+    // Auto-prefix https:// if missing protocol
+    if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+    }
+
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+
+        if (platform === 'youtube') {
+            const isYt = host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be' || host.endsWith('.youtu.be');
+            if (!isYt) {
+                return {
+                    valid: false,
+                    cleanUrl: '',
+                    error: 'Bitte gib einen gültigen YouTube-Link ein (z. B. https://youtube.com/... oder https://youtu.be/...)'
+                };
+            }
+            return { valid: true, cleanUrl: url };
+        } else if (platform === 'spotify') {
+            const isSpot = host === 'spotify.com' || host.endsWith('.spotify.com') || host === 'spotify.link' || host.endsWith('.spotify.link');
+            if (!isSpot) {
+                return {
+                    valid: false,
+                    cleanUrl: '',
+                    error: 'Bitte gib einen gültigen Spotify-Link ein (z. B. https://open.spotify.com/...)'
+                };
+            }
+            return { valid: true, cleanUrl: url };
+        } else if (platform === 'soundcloud') {
+            const isSc = host === 'soundcloud.com' || host.endsWith('.soundcloud.com') || host === 'snd.sc' || host.endsWith('.snd.sc');
+            if (!isSc) {
+                return {
+                    valid: false,
+                    cleanUrl: '',
+                    error: 'Bitte gib einen gültigen SoundCloud-Link ein (z. B. https://soundcloud.com/...)'
+                };
+            }
+            return { valid: true, cleanUrl: url };
+        }
+        return { valid: true, cleanUrl: url };
+    } catch (e) {
+        return {
+            valid: false,
+            cleanUrl: '',
+            error: 'Bitte gib eine gültige URL ein.'
+        };
+    }
+};
+
 window.jumpToComboGallerySlide = function(itemId, slideIndex) {
     const s = document.getElementById('combo-slider-' + itemId);
     if (!s) return;
@@ -5017,7 +5072,7 @@ class StateManager {
         }
 
         try {
-            db.collection('musicians').doc(musicianId).update(cleanData)
+            db.collection('musicians').doc(musicianId).set(cleanData, { merge: true })
                 .catch(err => {
                     console.error("updateMusician Firestore write failed async:", err);
                     const isSizeError = err.message.toLowerCase().includes("size") || err.message.toLowerCase().includes("large") || err.message.toLowerCase().includes("exceeds");
@@ -5038,6 +5093,7 @@ class StateManager {
             });
         }
 
+        this.saveState();
         this.notify();
         return { success: true };
     }
@@ -13826,7 +13882,7 @@ function renderMyMusicianItem(m, isActive) {
                                     <span>${budgetDisplay}</span>
                                 </div>
                             </div>
-                            ${renderTileMusicianSocialIcons(m, Boolean(state && state.currentUser && state.currentUser.role === 'organizer'))}
+                            ${renderTileMusicianSocialIcons(m, Boolean(state && state.currentUser && (state.currentUser.role === 'organizer' || m.creatorId === state.currentUser.id || m.userId === state.currentUser.id || state.currentUser.id === m.id)))}
                         </div>
                     </div>
                 </div>
@@ -14036,12 +14092,21 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         audios: musicianObj?.audio ? [...musicianObj.audio] : []
     };
 
-    // Extract current types
-    const currentTypes = musicianObj?.type ? musicianObj.type.split(',').map(s => s.trim()) : [];
+    // Extract current types with fallback
+    let currentTypes = [];
+    const rawTypesSource = musicianObj?.type || musicianObj?.musicianTypes || musicianObj?.musicianType;
+    if (Array.isArray(rawTypesSource)) {
+        currentTypes = rawTypesSource.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof rawTypesSource === 'string' && rawTypesSource.trim()) {
+        currentTypes = rawTypesSource.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (currentTypes.length === 0) {
+        currentTypes = ['Solokünstler'];
+    }
 
-    // Helper to check if weekday availability day is active
-    const isDayActive = (dayKey) => {
-        if (!musicianObj) return true; // Default to checked for new profiles, exactly like registration
+    // Helper to check if weekday availability day is active with fallback
+    const isDayActiveRaw = (dayKey) => {
+        if (!musicianObj) return true; // Default to checked for new profiles
         const avail = musicianObj.availability;
         if (!avail) return false;
         if (Array.isArray(avail)) {
@@ -14052,7 +14117,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 'so': ['sunday', 'so', 'sonntag']
             };
             const searchTerms = dayNames[dayKey] || [];
-            return avail.some(val => searchTerms.includes(val.toLowerCase()));
+            return avail.some(val => searchTerms.includes(String(val).toLowerCase()));
         }
         if (typeof avail === 'object') {
             if (dayKey === 'mo_do') {
@@ -14064,6 +14129,14 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         }
         return false;
     };
+    const activeDaysMap = {
+        'mo_do': isDayActiveRaw('mo_do'),
+        'fr': isDayActiveRaw('fr'),
+        'sa': isDayActiveRaw('sa'),
+        'so': isDayActiveRaw('so')
+    };
+    const hasAnyDayActive = Object.values(activeDaysMap).some(Boolean);
+    const isDayActive = (dayKey) => hasAnyDayActive ? activeDaysMap[dayKey] : true;
 
     // Helper to get prefilled start/end time
     const getDayTime = (dayKey, type) => {
@@ -14071,7 +14144,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         const defEnd = '23:59';
         const defVal = type === 'start' ? defStart : defEnd;
         
-        if (!musicianObj) return defVal; // Default pre-filled times for new profiles, exactly like registration
+        if (!musicianObj) return defVal;
         const avail = musicianObj.availability;
         if (!avail || Array.isArray(avail) || typeof avail !== 'object') return defVal;
         
@@ -14088,7 +14161,53 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     };
 
     const musCleanTypeStr = s => String(s || '').replace(/[\u2013\u2014]/g, '-').trim().toLowerCase();
-    const musEventTypes = (musicianObj?.eventTypes || []).map(musCleanTypeStr);
+    let currentEventTypes = [];
+    const rawEvtSource = musicianObj?.eventTypes || musicianObj?.orgEventTypes;
+    if (Array.isArray(rawEvtSource)) {
+        currentEventTypes = rawEvtSource.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof rawEvtSource === 'string' && rawEvtSource.trim()) {
+        currentEventTypes = rawEvtSource.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (currentEventTypes.length === 0) {
+        currentEventTypes = ['Geburtstag', 'Hochzeit – Party', 'Firmenfeier'];
+    }
+    const musEventTypes = currentEventTypes.map(musCleanTypeStr);
+
+    let currentGenres = [];
+    const rawGenresSource = musicianObj?.genres || musicianObj?.genre || musicianObj?.orgGenres;
+    if (Array.isArray(rawGenresSource)) {
+        currentGenres = rawGenresSource.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof rawGenresSource === 'string' && rawGenresSource.trim()) {
+        currentGenres = rawGenresSource.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (currentGenres.length === 0) {
+        currentGenres = ['Pop', 'Rock'];
+    }
+    const cleanGenres = currentGenres.map(g => g.toLowerCase());
+
+    let currentInstruments = [];
+    const rawInstSource = musicianObj?.instruments || musicianObj?.instrument || musicianObj?.orgInstruments;
+    if (Array.isArray(rawInstSource)) {
+        currentInstruments = rawInstSource.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof rawInstSource === 'string' && rawInstSource.trim()) {
+        currentInstruments = rawInstSource.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (currentInstruments.length === 0) {
+        currentInstruments = ['Gesang'];
+    }
+    const cleanInstruments = currentInstruments.map(i => i.toLowerCase());
+
+    let currentTechnik = [];
+    const rawTechSource = musicianObj?.technik;
+    if (Array.isArray(rawTechSource)) {
+        currentTechnik = rawTechSource.map(s => String(s).trim()).filter(Boolean);
+    } else if (typeof rawTechSource === 'string' && rawTechSource.trim()) {
+        currentTechnik = rawTechSource.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (currentTechnik.length === 0) {
+        currentTechnik = ['Technik vorhanden'];
+    }
+    const cleanTechnik = currentTechnik.map(t => t.toLowerCase());
 
     modalWrapper.innerHTML = `
         <div class="modal-content" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
@@ -14152,9 +14271,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                         <div class="checkbox-tag-grid" id="grid-musician-types">
                             ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => {
-                                const isChecked = currentTypes.includes(t);
+                                const isChecked = currentTypes.some(ct => ct.toLowerCase() === t.toLowerCase());
                                 return `
-                                    <label class="tag-pill-checkbox">
+                                    <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="musicianTypes" value="${t}" ${isChecked ? 'checked' : ''}>
                                         <span>${t}</span>
                                     </label>
@@ -14173,7 +14292,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
                                 const isChecked = musEventTypes.includes(musCleanTypeStr(evt));
                                 return `
-                                    <label class="tag-pill-checkbox">
+                                    <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="eventTypes" value="${evt}" ${isChecked ? 'checked' : ''}>
                                         <span>${evt}</span>
                                     </label>
@@ -14194,9 +14313,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <span>Beliebig</span>
                             </label>
                             ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
-                                const isChecked = musicianObj?.genres?.includes(g);
+                                const isChecked = cleanGenres.includes(g.toLowerCase());
                                 return `
-                                    <label class="tag-pill-checkbox">
+                                    <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="genres" value="${g}" ${isChecked ? 'checked' : ''}>
                                         <span>${g}</span>
                                     </label>
@@ -14217,7 +14336,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <span>Beliebig</span>
                             </label>
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
-                                const isChecked = (musicianObj?.instruments || []).some(i => i === ins || (ins === 'Sonstiges' && (i === 'Sonstige' || i === 'Sonstiges')) || (ins === 'Sonstige' && (i === 'Sonstige' || i === 'Sonstiges')));
+                                const isChecked = cleanInstruments.some(i => i === ins.toLowerCase() || (ins.toLowerCase().startsWith('sonstig') && i.startsWith('sonstig')));
                                 return `
                                     <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="instruments" value="${ins}" ${isChecked ? 'checked' : ''}>
@@ -14264,11 +14383,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                         <div class="checkbox-tag-grid" id="grid-technik">
                             ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
-                                const isChecked = Array.isArray(musicianObj?.technik) 
-                                    ? musicianObj.technik.includes(t) 
-                                    : musicianObj?.technik === t;
+                                const isChecked = cleanTechnik.includes(t.toLowerCase());
                                 return `
-                                    <label class="tag-pill-checkbox">
+                                    <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="musTechnik" value="${t}" ${isChecked ? 'checked' : ''}>
                                         <span>${t}</span>
                                     </label>
@@ -14336,19 +14453,19 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
                             <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link
                         </label>
-                        <input type="url" name="youtube" class="input-field" placeholder="https://www.youtube.com/..." value="${musicianObj?.youtube || musicianObj?.socialLinks?.youtube || ''}">
+                        <input type="text" inputmode="url" name="youtube" class="input-field" placeholder="https://www.youtube.com/..." value="${musicianObj?.youtube || musicianObj?.socialLinks?.youtube || ''}">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
                             <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link
                         </label>
-                        <input type="url" name="spotify" class="input-field" placeholder="https://open.spotify.com/..." value="${musicianObj?.spotify || musicianObj?.socialLinks?.spotify || ''}">
+                        <input type="text" inputmode="url" name="spotify" class="input-field" placeholder="https://open.spotify.com/..." value="${musicianObj?.spotify || musicianObj?.socialLinks?.spotify || ''}">
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
                             <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link
                         </label>
-                        <input type="url" name="soundcloud" class="input-field" placeholder="https://soundcloud.com/..." value="${musicianObj?.soundcloud || musicianObj?.socialLinks?.soundcloud || ''}">
+                        <input type="text" inputmode="url" name="soundcloud" class="input-field" placeholder="https://soundcloud.com/..." value="${musicianObj?.soundcloud || musicianObj?.socialLinks?.soundcloud || ''}">
                     </div>
 
                     <div style="display: flex; justify-content: ${isInactiveMusician ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
@@ -14876,6 +14993,31 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             endTime: isSoChecked ? (form.querySelector('input[name="availEnd_so"]')?.value || '23:59') : ''
         };
 
+        const rawYt = (formData.get('youtube') || '').trim();
+        const rawSp = (formData.get('spotify') || '').trim();
+        const rawSc = (formData.get('soundcloud') || '').trim();
+
+        const ytRes = window.validateSocialUrl('youtube', rawYt);
+        if (!ytRes.valid) {
+            showToast({ title: "Ungültiger YouTube-Link ⚠️", message: ytRes.error, type: "error" });
+            markInvalid(form.querySelector('input[name="youtube"]'));
+            return;
+        }
+
+        const spRes = window.validateSocialUrl('spotify', rawSp);
+        if (!spRes.valid) {
+            showToast({ title: "Ungültiger Spotify-Link ⚠️", message: spRes.error, type: "error" });
+            markInvalid(form.querySelector('input[name="spotify"]'));
+            return;
+        }
+
+        const scRes = window.validateSocialUrl('soundcloud', rawSc);
+        if (!scRes.valid) {
+            showToast({ title: "Ungültiger SoundCloud-Link ⚠️", message: scRes.error, type: "error" });
+            markInvalid(form.querySelector('input[name="soundcloud"]'));
+            return;
+        }
+
         const data = {
             name: formData.get('bandName'),
             type: Array.from(form.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ') || 'Solo',
@@ -14902,13 +15044,13 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             availability: availability,
             minPublikum: parseInt(form.querySelector('#edit-input-publikum-min')?.value) || 0,
             maxPublikum: parseInt(form.querySelector('#edit-input-publikum-max')?.value) || 500,
-            youtube: (formData.get('youtube') || '').trim(),
-            spotify: (formData.get('spotify') || '').trim(),
-            soundcloud: (formData.get('soundcloud') || '').trim(),
+            youtube: ytRes.cleanUrl,
+            spotify: spRes.cleanUrl,
+            soundcloud: scRes.cleanUrl,
             socialLinks: {
-                youtube: (formData.get('youtube') || '').trim(),
-                spotify: (formData.get('spotify') || '').trim(),
-                soundcloud: (formData.get('soundcloud') || '').trim()
+                youtube: ytRes.cleanUrl,
+                spotify: spRes.cleanUrl,
+                soundcloud: scRes.cleanUrl
             }
         };
 
@@ -14929,6 +15071,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         }
 
         if (isEdit) {
+            Object.assign(musicianObj, data);
             state.updateMusician(musicianObj.id, data);
             showToast({
                 title: "Musiker aktualisiert!",
@@ -14959,7 +15102,14 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
         closeModal();
         const mainContainer = document.getElementById('app-main');
-        renderMyMusicians(mainContainer);
+        if (window.location.hash.includes('profile')) {
+            renderProfilePage(mainContainer);
+        } else if (window.location.hash.includes('matches')) {
+            if (typeof window.matchesUpdate === 'function') window.matchesUpdate();
+            else if (typeof handleRouting === 'function') handleRouting();
+        } else {
+            renderMyMusicians(mainContainer);
+        }
     });
 }
 
@@ -16363,19 +16513,19 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
                                 <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link
                             </label>
-                            <input type="url" name="musYoutube" class="input-field" placeholder="https://www.youtube.com/...">
+                            <input type="text" inputmode="url" name="musYoutube" class="input-field" placeholder="https://www.youtube.com/...">
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
                                 <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link
                             </label>
-                            <input type="url" name="musSpotify" class="input-field" placeholder="https://open.spotify.com/...">
+                            <input type="text" inputmode="url" name="musSpotify" class="input-field" placeholder="https://open.spotify.com/...">
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
                                 <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link
                             </label>
-                            <input type="url" name="musSoundcloud" class="input-field" placeholder="https://soundcloud.com/...">
+                            <input type="text" inputmode="url" name="musSoundcloud" class="input-field" placeholder="https://soundcloud.com/...">
                         </div>
                     </div>
 
@@ -17871,16 +18021,33 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     url: typeof a === 'string' ? a : String(a.url || ''),
                     title: typeof a === 'string' ? '' : String(a.title || '')
                 }));
-            const musYoutube = (registerForm.elements.musYoutube?.value || '').trim();
-            const musSpotify = (registerForm.elements.musSpotify?.value || '').trim();
-            const musSoundcloud = (registerForm.elements.musSoundcloud?.value || '').trim();
-            payload.youtube = musYoutube;
-            payload.spotify = musSpotify;
-            payload.soundcloud = musSoundcloud;
+            const rawMusYoutube = (registerForm.elements.musYoutube?.value || '').trim();
+            const rawMusSpotify = (registerForm.elements.musSpotify?.value || '').trim();
+            const rawMusSoundcloud = (registerForm.elements.musSoundcloud?.value || '').trim();
+
+            const musYtRes = window.validateSocialUrl('youtube', rawMusYoutube);
+            if (!musYtRes.valid) {
+                showValidationError(registerForm.elements.musYoutube, null, musYtRes.error);
+                return;
+            }
+            const musSpRes = window.validateSocialUrl('spotify', rawMusSpotify);
+            if (!musSpRes.valid) {
+                showValidationError(registerForm.elements.musSpotify, null, musSpRes.error);
+                return;
+            }
+            const musScRes = window.validateSocialUrl('soundcloud', rawMusSoundcloud);
+            if (!musScRes.valid) {
+                showValidationError(registerForm.elements.musSoundcloud, null, musScRes.error);
+                return;
+            }
+
+            payload.youtube = musYtRes.cleanUrl;
+            payload.spotify = musSpRes.cleanUrl;
+            payload.soundcloud = musScRes.cleanUrl;
             payload.socialLinks = {
-                youtube: musYoutube,
-                spotify: musSpotify,
-                soundcloud: musSoundcloud
+                youtube: musYtRes.cleanUrl,
+                spotify: musSpRes.cleanUrl,
+                soundcloud: musScRes.cleanUrl
             };
         } else {
             payload.eventName = registerForm.elements.eventName.value.trim();
@@ -23053,7 +23220,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                                     <span style="flex: 1;">${budgetDisplay}</span>
                                 </div>
                             </div>
-                            ${renderTileMusicianSocialIcons(item, isOrganizerUser)}
+                            ${renderTileMusicianSocialIcons(item, isOrganizerUser || Boolean(state && state.currentUser && (item.creatorId === state.currentUser.id || item.userId === state.currentUser.id || state.currentUser.id === item.id)))}
                         </div>
                     </div>
                     `}
