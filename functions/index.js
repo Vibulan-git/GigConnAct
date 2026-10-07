@@ -3137,12 +3137,38 @@ exports.requestMoreRecommendations = functions
             }
             const med = medDoc.data();
 
-            const adminSubject = `[WEITERE SUCHE] Veranstalter wünscht weitere Musiker für: ${med.eventName}`;
+            const musicianIds = med.musicianIds || [];
+            let latestMusicianNames = [];
+            try {
+                if (musicianIds.length > 0) {
+                    const recentIds = musicianIds.slice(-5);
+                    const docs = await Promise.all(
+                        recentIds.map(id => admin.firestore().collection('musicians').doc(id).get())
+                    );
+                    latestMusicianNames = docs.filter(d => d.exists).map(d => d.data()?.name || d.id);
+                }
+            } catch (fetchErr) {
+                console.warn("Could not fetch musician names for email:", fetchErr);
+            }
+
+            const proposalsUrl = `https://gigconnact.web.app/#/proposals?mediationId=${mediationId}`;
+            const adminSubject = `[AUTOMATISCH ERGÄNZT] Weitere Musiker-Vorschläge für: ${med.eventName}`;
             const adminHtml = `
-                <h3>Weitere Vorschläge gewünscht!</h3>
-                <p>Der Veranstalter von Event <strong>"${med.eventName}"</strong> (${med.organizerEmail}) wünscht weitere Musiker-Vorschläge.</p>
-                <p>Bitte suche nach zusätzlichen passenden Acts und füge sie der Vorschlagsliste hinzu.</p>
+                <h3>Weitere Musiker-Vorschläge wurden automatisch hinzugefügt</h3>
+                <p>Der Veranstalter von Event <strong>"${med.eventName}"</strong> (${med.organizerEmail || 'Keine E-Mail angegeben'}) hat auf <strong>„Weitere Vorschläge“</strong> geklickt.</p>
+                <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 4px; margin: 15px 0; color: #1e3a8a;">
+                    <strong>Automatische Freischaltung erfolgt:</strong><br>
+                    Das System hat automatisch die nächsten passenden Top-Match-Acts ermittelt und für den Veranstalter freigeschaltet. Du musst diese <u>nicht mehr manuell</u> heraussuchen oder hinzufügen.
+                </div>
+                ${latestMusicianNames.length > 0 ? `
+                <p><strong>Zuletzt automatisch hinzugefügte Acts (bis zu 5):</strong><br>
+                ${latestMusicianNames.join(', ')}</p>
+                ` : ''}
+                <p><strong>Gesamtanzahl vorgeschlagener Acts:</strong> ${musicianIds.length}</p>
                 <p><strong>Mediation ID:</strong> ${mediationId}</p>
+                <p style="margin-top: 25px;">
+                    <a href="${proposalsUrl}" style="background: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Zur Vorschlagsseite</a>
+                </p>
             `;
             await sendEmail({ to: 'info@gigconnact.de', subject: adminSubject, html: adminHtml });
 
