@@ -9491,6 +9491,61 @@ function renderMarket(container, type, onNavigate) {
         });
     }
 
+    // Dynamic positioning of floating filter button centered over the market grid on desktop/laptop
+    window.updateFloatingFilterPillPosition = function() {
+        const pill = document.getElementById('btn-floating-market-filter');
+        if (!pill) return;
+        if (window.innerWidth <= 900) {
+            pill.style.left = '';
+            return;
+        }
+        const grid = document.getElementById('market-items-grid');
+        if (grid) {
+            const rect = grid.getBoundingClientRect();
+            if (rect && rect.width > 0) {
+                const centerX = rect.left + (rect.width / 2);
+                pill.style.left = `${Math.round(centerX)}px`;
+                return;
+            }
+        }
+        pill.style.left = '';
+    };
+
+    if (!window._marketPillResizeListenerAttached) {
+        window._marketPillResizeListenerAttached = true;
+        window.addEventListener('resize', () => {
+            if (typeof window.updateFloatingFilterPillPosition === 'function') {
+                window.updateFloatingFilterPillPosition();
+            }
+        });
+    }
+
+    const marketGridEl = container.querySelector('#market-items-grid');
+    if (window.ResizeObserver && marketGridEl) {
+        try {
+            const ro = new ResizeObserver(() => {
+                if (typeof window.updateFloatingFilterPillPosition === 'function') {
+                    window.updateFloatingFilterPillPosition();
+                }
+            });
+            ro.observe(marketGridEl);
+        } catch (e) {
+            console.warn('[FloatingFilter] ResizeObserver error:', e);
+        }
+    }
+
+    window.updateFloatingFilterPillPosition();
+    requestAnimationFrame(() => {
+        if (typeof window.updateFloatingFilterPillPosition === 'function') {
+            window.updateFloatingFilterPillPosition();
+        }
+    });
+    setTimeout(() => {
+        if (typeof window.updateFloatingFilterPillPosition === 'function') {
+            window.updateFloatingFilterPillPosition();
+        }
+    }, 150);
+
     toggleBtn?.addEventListener('click', function() {
         if (!filterWrapper.classList.contains('open')) {
             window.lastMarketScrollBeforeFilter = window.scrollY || document.documentElement.scrollTop;
@@ -10486,6 +10541,9 @@ function renderMarket(container, type, onNavigate) {
         updateFilterIconGlow(isFilterActiveCurrently);
 
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
+        if (typeof window.updateFloatingFilterPillPosition === 'function') {
+            window.updateFloatingFilterPillPosition();
+        }
         if (typeof window.updateBottomBar === 'function') {
             window.updateBottomBar();
         }

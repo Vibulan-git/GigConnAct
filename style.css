@@ -6064,6 +6064,23 @@ body[data-page="favorites"] #btn-market-bottom-reset {
     }
 }
 
+/* Desktop & Laptop (> 900px):
+   Die Filter-Sidebar ist links ausgeklappt (280px + 3rem Gap = 328px).
+   Der Filter-Button soll genau mittig über dem Event- und Musiker-Markt (den Kacheln rechts) schweben,
+   nicht über den gesamten Bildschirm. Der Mittelpunkt des Marktes liegt bei calc(50% + 164px). */
+@media (min-width: 901px) {
+    .market-floating-filter-pill {
+        left: calc(50% + 164px);
+        transform: translateX(-50%);
+    }
+    .market-floating-filter-pill:hover {
+        transform: translateX(-50%) translateY(-2px);
+    }
+    .market-floating-filter-pill:active {
+        transform: translateX(-50%) scale(0.96);
+    }
+}
+
 /* Profile Top Actions Bar (über der Kachel "Meine Musiker/Events") */
 .profile-top-actions-bar {
     display: flex;
