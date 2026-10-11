@@ -16,16 +16,50 @@ const getPlatformFeedbackEmailHtml = require('./templates/platformFeedbackTempla
 admin.initializeApp();
 
 // Admin Email Configuration & Helper
-const ADMIN_EMAILS = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+const ADMIN_EMAILS = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com'];
 
 function isAdminEmail(email) {
-    if (!email || typeof email !== 'string') return false;
-    return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+    if (!email) return false;
+    if (Array.isArray(email)) {
+        return email.some(e => isAdminEmail(e));
+    }
+    if (typeof email !== 'string') return false;
+    const clean = email.trim().toLowerCase();
+    return ADMIN_EMAILS.some(adminEmail => clean === adminEmail.toLowerCase()) ||
+           clean.includes('gigconnact@gmail.com') ||
+           clean.includes('info@gigconnact.de');
 }
 
 // Helper to send email via Resend
 async function sendEmail({ to, subject, html, headers = {} }) {
     try {
+        if (!to) {
+            console.warn("sendEmail: No recipient specified.");
+            return;
+        }
+
+        // Hard Guardrail: Never send automated match, digest, or radius emails to admin addresses
+        const recipients = Array.isArray(to) ? to : [to];
+        const hasAdminRecipient = recipients.some(r => isAdminEmail(r));
+
+        if (hasAdminRecipient) {
+            const sub = String(subject || '').toLowerCase();
+            const isAutomatedDigestOrMatch = 
+                sub.includes('top-match') ||
+                sub.includes('top match') ||
+                sub.includes('match') ||
+                sub.includes('umgebung') ||
+                sub.includes('neues event in deiner') ||
+                sub.includes('vorschlag') ||
+                sub.includes('vorschläge') ||
+                sub.includes('matches auf gigconnact');
+
+            if (isAutomatedDigestOrMatch) {
+                console.log(`[GUARD] Blocked automated match/digest email to admin recipient (${recipients.join(', ')}): "${subject}"`);
+                return;
+            }
+        }
+
         const apiKey = process.env.RESEND_API_KEY;
         if (!apiKey) {
             console.error("Resend API Key is not set in process.env.RESEND_API_KEY");
@@ -518,6 +552,14 @@ exports.dailyRadiusAlertsCheck = functions
             if (isAdminEmail(musician.email) || musician.creatorId === 'info-gigconnact-admin') {
                 return null;
             }
+            if (musician.creatorId) {
+                try {
+                    const creatorDoc = await admin.firestore().collection('users').doc(musician.creatorId).get();
+                    if (creatorDoc.exists && isAdminEmail(creatorDoc.data().email)) {
+                        return null;
+                    }
+                } catch (e) {}
+            }
             const matchedEvents = [];
             
             newEvents.forEach(event => {
@@ -594,6 +636,14 @@ exports.dailyTopMatchesCheck = functions
             if (isAdminEmail(musician.email) || musician.creatorId === 'info-gigconnact-admin') {
                 return;
             }
+            if (musician.creatorId) {
+                try {
+                    const creatorDoc = await admin.firestore().collection('users').doc(musician.creatorId).get();
+                    if (creatorDoc.exists && isAdminEmail(creatorDoc.data().email)) {
+                        return;
+                    }
+                } catch (e) {}
+            }
             const topMatches = [];
             newEvents.forEach(event => {
                 if (!isEventActive(event)) return;
@@ -637,6 +687,14 @@ exports.dailyTopMatchesCheck = functions
             if (event.isAgencyRequest || event.isMediation || event.contactType === 'mediation') return;
             if (event.creatorId === 'info-gigconnact-admin') return;
             if (isAdminEmail(event.clientEmail) || isAdminEmail(event.email)) return;
+            if (event.creatorId) {
+                try {
+                    const creatorDoc = await admin.firestore().collection('users').doc(event.creatorId).get();
+                    if (creatorDoc.exists && isAdminEmail(creatorDoc.data().email)) {
+                        return;
+                    }
+                } catch (e) {}
+            }
 
             const topMatches = [];
             newMusicians.forEach(musician => {
