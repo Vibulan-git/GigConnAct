@@ -7822,6 +7822,11 @@ window.renderInfoPage = function(container, type) {
             <!-- 1. Top Section: Slogan "2 Wege. ..." + Buttons darunter -->
             <div class="info-top-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin-top: 0.5rem; margin-bottom: 1.5rem; box-sizing: border-box;">
                 
+                <!-- Back to Homepage Link -->
+                <button type="button" onclick="window.appNavigate('')" style="align-self: flex-start; background: none; border: none; color: ${themeColor}; cursor: pointer; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0; margin-bottom: 0.8rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                    <i class="fa-solid fa-arrow-left"></i> Zurück zur Startseite
+                </button>
+
                 <!-- Slogan: 2 Wege. Mehr Gigs / Dein Act (bleibt permanent oben stehen) -->
                 <h1 style="margin: 0 0 1.65rem; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; line-height: 1.2;">
                     2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
@@ -7931,7 +7936,10 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
+                <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.9rem; flex-wrap: wrap; pointer-events: auto;">
+                    <button type="button" onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: clamp(0.82rem, 2vw, 0.92rem); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.95rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.24)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück</span>
+                    </button>
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Musiker?
                     </a>
@@ -7959,7 +7967,10 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
+                <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.9rem; flex-wrap: wrap; pointer-events: auto;">
+                    <button type="button" onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: clamp(0.82rem, 2vw, 0.92rem); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.95rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.24)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück</span>
+                    </button>
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Veranstalter?
                     </a>
@@ -11991,6 +12002,457 @@ function showSubscriptionChangeSuccessModal() {
 }
 window.showSubscriptionChangeSuccessModal = showSubscriptionChangeSuccessModal;
 
+// --- ADMIN KPI & ANALYTICS HELPER FUNCTIONS ---
+window.downloadAdminCsv = function(type) {
+    const data = window.__adminKpiData;
+    if (!data) {
+        if (typeof showToast === 'function') {
+            showToast({ title: "Hinweis", message: "Daten werden noch geladen...", type: "info" });
+        }
+        return;
+    }
+
+    const escapeCsv = (val) => {
+        if (val === null || val === undefined) return '""';
+        let str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+    };
+
+    const triggerDownload = (filename, headers, rows) => {
+        const csvContent = '\uFEFF' + [
+            headers.map(escapeCsv).join(';'),
+            ...rows.map(row => row.map(escapeCsv).join(';'))
+        ].join('\r\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${filename}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const formatDateStr = (val) => {
+        if (!val) return '';
+        try {
+            if (typeof val === 'object' && val.toDate) {
+                return val.toDate().toLocaleString('de-DE');
+            }
+            if (typeof val === 'number') {
+                return new Date(val > 1e11 ? val : val * 1000).toLocaleString('de-DE');
+            }
+            const d = new Date(val);
+            return isNaN(d.getTime()) ? String(val) : d.toLocaleString('de-DE');
+        } catch {
+            return String(val);
+        }
+    };
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    if (type === 'musicians') {
+        const headers = ['Musiker-ID', 'Band/Künstlername', 'Kontaktname', 'E-Mail', 'Telefon', 'Künstler-Typ', 'Genres', 'Wohnort', 'Aktiv', 'Tarif', 'Registriert/Aktualisiert'];
+        const userMap = new Map((data.users || []).map(u => [u.id, u]));
+        const rows = (data.realMusicians || []).map(m => {
+            const u = userMap.get(m.creatorId) || {};
+            return [
+                m.id || '',
+                m.name || '',
+                m.contactName || `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+                m.email || u.email || '',
+                m.phone || u.phone || '',
+                m.type || '',
+                (m.genres || []).join(', '),
+                m.location || '',
+                m.isActive !== false ? 'Ja' : 'Nein',
+                u.subscriptionPlan || m.subscriptionPlan || 'flex',
+                formatDateStr(m.updatedAt || u.createdAt)
+            ];
+        });
+        triggerDownload(`musiker_export_${dateStr}`, headers, rows);
+    } else if (type === 'organizers') {
+        const headers = ['User-ID', 'Vorname', 'Nachname', 'Organisation/Firma', 'Veranstalter-Typ', 'E-Mail', 'Telefon', 'Telefon verborgen', 'Registriert am'];
+        const rows = (data.organizerUsers || []).map(u => [
+            u.id || '',
+            u.firstName || '',
+            u.lastName || '',
+            u.company || '',
+            u.organizerType || '',
+            u.email || '',
+            u.phone || '',
+            u.hidePhone ? 'Ja' : 'Nein',
+            formatDateStr(u.createdAt)
+        ]);
+        triggerDownload(`veranstalter_export_${dateStr}`, headers, rows);
+    } else if (type === 'mediations') {
+        const headers = ['Vermittlungs-ID', 'Event-Name', 'Veranstalter E-Mail', 'Event-Datum', 'Ort', 'Budget (€)', 'Status', 'Vorgeschlagene Musiker', 'Zusagen', 'Absagen', 'Erstellt am'];
+        const rows = (data.mediations || []).map(m => {
+            const statuses = m.musicianStatuses || {};
+            const accepted = Object.values(statuses).filter(s => s === 'accepted').length;
+            const declined = Object.values(statuses).filter(s => s === 'declined').length;
+            return [
+                m.id || '',
+                m.eventName || '',
+                m.organizerEmail || m.clientEmail || m.email || '',
+                m.eventDate || m.date || '',
+                m.location || '',
+                m.budget || m.minBudget || '',
+                m.status || 'pending',
+                (m.musicianIds || []).length,
+                accepted,
+                declined,
+                formatDateStr(m.createdAt)
+            ];
+        });
+        triggerDownload(`vermittlungen_export_${dateStr}`, headers, rows);
+    } else if (type === 'pending') {
+        const headers = ['E-Mail', 'Rolle', 'Vorname', 'Nachname', 'Telefon', 'Band / Event', 'Veranstalter-Typ', 'Tarif', 'Registrierungs-Schritt'];
+        const rows = (data.pending || []).map(p => [
+            p.email || '',
+            p.role || '',
+            p.firstName || '',
+            p.lastName || '',
+            p.phone || '',
+            p.bandName || p.eventName || '',
+            p.organizerType || '',
+            p.subscriptionPlan || '',
+            p.currentStep || 'E-Mail-Verifizierung ausstehend'
+        ]);
+        triggerDownload(`ausstehende_registrierungen_${dateStr}`, headers, rows);
+    }
+};
+
+function renderAdminKpiCards(contentEl, stats) {
+    contentEl.innerHTML = `
+        <!-- 1. Community & Accounts -->
+        <div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
+                <i class="fa-solid fa-users"></i> 1. Community & Benutzer-Wachstum
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+                <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Echte Musiker</span>
+                        <i class="fa-solid fa-guitar" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #7c3aed; line-height: 1.1;">${stats.musiciansCount}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem; display: flex; justify-content: space-between;">
+                        <span>Aktiv: <strong style="color: #10b981;">${stats.activeMusiciansCount}</strong></span>
+                        <span>Demo: ${stats.demoMusiciansCount}</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Veranstalter</span>
+                        <i class="fa-solid fa-building" style="color: #2563eb; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #2563eb; line-height: 1.1;">${stats.organizersCount}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>Events: <strong>${stats.realEventsCount}</strong></span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Gesamt-Accounts</span>
+                        <i class="fa-solid fa-id-badge" style="color: #10b981; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #10b981; line-height: 1.1;">${stats.usersCount}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>In Firestore registriert</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Offene Registrierungen</span>
+                        <i class="fa-solid fa-hourglass-half" style="color: #f59e0b; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #f59e0b; line-height: 1.1;">${stats.pendingCount}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>E-Mail noch nicht bestätigt</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Vermittlungs-Performance & Reaktionen -->
+        <div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
+                <i class="fa-solid fa-handshake"></i> 2. Vermittlungs-Performance & Reaktionen
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+                <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Vermittlungen gesamt</span>
+                        <i class="fa-solid fa-calendar-check" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #7c3aed; line-height: 1.1;">${stats.mediationsTotal}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>Vermittelt: <strong style="color: #10b981;">${stats.completedMediations}</strong> | Offen: ${stats.openMediations}</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Musiker: Angenommen</span>
+                        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #10b981; line-height: 1.1;">${stats.acceptedResponses}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>Positive Rückmeldungen</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Musiker: Abgesagt</span>
+                        <i class="fa-solid fa-circle-xmark" style="color: #ef4444; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #ef4444; line-height: 1.1;">${stats.declinedResponses}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>Absagen auf Anfragen</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Annahme-Quote</span>
+                        <i class="fa-solid fa-chart-pie" style="color: #6366f1; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #6366f1; line-height: 1.1;">${stats.totalResponses > 0 ? stats.acceptanceRate + '%' : '–'}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>${stats.acceptedResponses} von ${stats.totalResponses} Reaktionen</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Kommunikation & Postfach -->
+        <div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
+                <i class="fa-solid fa-comments"></i> 3. Postfach & Kommunikation
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem;">
+                <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Echte Konversationen</span>
+                        <i class="fa-solid fa-message" style="color: #0ea5e9; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #0ea5e9; line-height: 1.1;">${stats.realChatsCount}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>Zwischen Musikern & Veranstaltern</span>
+                    </div>
+                </div>
+                <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Gesendete Nachrichten</span>
+                        <i class="fa-solid fa-paper-plane" style="color: #0ea5e9; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #0ea5e9; line-height: 1.1;">${stats.totalMessages}</div>
+                    <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                        <span>In allen Chats ausgetauscht</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Musiker-Tarife -->
+        <div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
+                <i class="fa-solid fa-credit-card"></i> 4. Musiker-Tarife & Abonnements
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 120px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Flex (9,99 €)</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;">${stats.plans.flex}</div>
+                </div>
+                <div style="flex: 1; min-width: 120px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Plus (7,99 €)</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;">${stats.plans.plus}</div>
+                </div>
+                <div style="flex: 1; min-width: 120px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Pro (5,99 €)</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;">${stats.plans.pro}</div>
+                </div>
+                <div style="flex: 1; min-width: 120px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Premium (Promo)</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #7c3aed; margin-top: 0.2rem;">${stats.plans.premium}</div>
+                </div>
+                <div style="flex: 1; min-width: 120px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Gekündigt</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #ef4444; margin-top: 0.2rem;">${stats.cancelledSubs}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. CSV Exporte -->
+        <div style="background: rgba(124, 58, 237, 0.03); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 1.2rem; box-sizing: border-box;">
+            <div style="font-size: 0.85rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.45rem;">
+                <i class="fa-solid fa-file-csv"></i> 5. 1-Klick Datenexport (.CSV für Excel & Numbers)
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('musicians')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.6rem 1.1rem; font-size: 0.84rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer;">
+                    <i class="fa-solid fa-file-arrow-down" style="color: #7c3aed;"></i> Musiker exportieren (.csv)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('organizers')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.6rem 1.1rem; font-size: 0.84rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer;">
+                    <i class="fa-solid fa-file-arrow-down" style="color: #2563eb;"></i> Veranstalter exportieren (.csv)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('mediations')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.6rem 1.1rem; font-size: 0.84rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer;">
+                    <i class="fa-solid fa-file-arrow-down" style="color: #10b981;"></i> Vermittlungen exportieren (.csv)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('pending')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.6rem 1.1rem; font-size: 0.84rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer;">
+                    <i class="fa-solid fa-file-arrow-down" style="color: #f59e0b;"></i> Ausstehende Registrierungen (.csv)
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+async function initAdminKpiDashboard(container) {
+    const cardEl = container.querySelector('#admin-kpi-card');
+    if (!cardEl) return;
+    const loadingEl = cardEl.querySelector('#admin-kpi-loading');
+    const contentEl = cardEl.querySelector('#admin-kpi-content');
+    const refreshBtn = cardEl.querySelector('#btn-refresh-admin-kpis');
+
+    const loadData = async () => {
+        if (loadingEl) loadingEl.style.display = 'block';
+        if (contentEl) contentEl.style.display = 'none';
+
+        try {
+            const [usersSnap, musSnap, evtSnap, medSnap, pendingSnap, chatsSnap] = await Promise.all([
+                db.collection('users').get().catch(err => { console.warn("Admin KPI users load failed:", err); return { docs: [] }; }),
+                db.collection('musicians').get().catch(err => { console.warn("Admin KPI musicians load failed:", err); return { docs: [] }; }),
+                db.collection('events').get().catch(err => { console.warn("Admin KPI events load failed:", err); return { docs: [] }; }),
+                db.collection('mediations').get().catch(err => { console.warn("Admin KPI mediations load failed:", err); return { docs: [] }; }),
+                db.collection('pendingRegistrations').get().catch(err => { console.warn("Admin KPI pendingRegistrations load failed:", err); return { docs: [] }; }),
+                db.collection('chats').get().catch(err => { console.warn("Admin KPI chats load failed:", err); return { docs: [] }; })
+            ]);
+
+            const users = (usersSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const musicians = (musSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const events = (evtSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const mediations = (medSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const pending = (pendingSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const chats = (chatsSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+
+            const isDemoM = (m) => {
+                if (!m) return false;
+                const id = String(m.id || '');
+                return m.isDemo === true || id.startsWith('mus_1') || id.startsWith('mus_2') || id.startsWith('mus_gen_') || id.startsWith('demo_');
+            };
+            const isDemoE = (e) => {
+                if (!e) return false;
+                const id = String(e.id || '');
+                return e.isDemo === true || id.startsWith('evt_1') || id.startsWith('evt_2') || id.startsWith('evt_gen_') || id.startsWith('demo_');
+            };
+
+            const realMusicians = musicians.filter(m => !isDemoM(m));
+            const demoMusicians = musicians.filter(m => isDemoM(m));
+            const activeRealMusicians = realMusicians.filter(m => m.isActive !== false);
+
+            const realEvents = events.filter(e => !isDemoE(e));
+            const organizerUsers = users.filter(u => u.role === 'organizer');
+            const musicianUsers = users.filter(u => u.role === 'musician');
+
+            let acceptedResponses = 0;
+            let declinedResponses = 0;
+            let pendingResponses = 0;
+            mediations.forEach(m => {
+                const statuses = m.musicianStatuses || {};
+                Object.values(statuses).forEach(st => {
+                    if (st === 'accepted') acceptedResponses++;
+                    else if (st === 'declined') declinedResponses++;
+                    else if (st === 'pending') pendingResponses++;
+                });
+            });
+            const completedMediations = mediations.filter(m => m.status === 'completed').length;
+            const openMediations = mediations.filter(m => m.status === 'pending' || !m.status).length;
+            const expiredMediations = mediations.filter(m => m.status === 'expired').length;
+            const totalResponses = acceptedResponses + declinedResponses;
+            const acceptanceRate = totalResponses > 0 ? Math.round((acceptedResponses / totalResponses) * 100) : 0;
+
+            const realChats = chats.filter(c => c && c.participants && !c.participants.includes('system'));
+            const totalMessages = realChats.reduce((sum, c) => sum + ((c.messages && Array.isArray(c.messages)) ? c.messages.length : 0), 0);
+
+            const plans = { flex: 0, plus: 0, pro: 0, premium: 0, free: 0, other: 0 };
+            let cancelledSubs = 0;
+            musicianUsers.forEach(u => {
+                const p = (u.subscriptionPlan || 'free').toLowerCase();
+                if (plans[p] !== undefined) plans[p]++;
+                else plans.other++;
+                if (u.subscriptionCancelled) cancelledSubs++;
+            });
+
+            window.__adminKpiData = {
+                realMusicians,
+                demoMusicians,
+                organizerUsers,
+                events: realEvents,
+                mediations,
+                pending,
+                users,
+                realChats
+            };
+
+            renderAdminKpiCards(contentEl, {
+                usersCount: users.length,
+                musiciansCount: realMusicians.length,
+                demoMusiciansCount: demoMusicians.length,
+                activeMusiciansCount: activeRealMusicians.length,
+                organizersCount: organizerUsers.length,
+                realEventsCount: realEvents.length,
+                pendingCount: pending.length,
+                mediationsTotal: mediations.length,
+                completedMediations,
+                openMediations,
+                expiredMediations,
+                acceptedResponses,
+                declinedResponses,
+                acceptanceRate,
+                totalResponses,
+                realChatsCount: realChats.length,
+                totalMessages,
+                plans,
+                cancelledSubs
+            });
+
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (contentEl) {
+                contentEl.style.display = 'flex';
+                contentEl.style.flexDirection = 'column';
+                contentEl.style.gap = '1.5rem';
+            }
+        } catch (err) {
+            console.error("Admin KPI load error:", err);
+            if (loadingEl) {
+                loadingEl.innerHTML = `
+                    <div style="color: var(--color-red); padding: 1.5rem; text-align: center;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.8rem; margin-bottom: 0.5rem; display: block;"></i>
+                        <div>Fehler beim Laden der KPIs: ${err.message}</div>
+                    </div>
+                `;
+            }
+        }
+    };
+
+    if (refreshBtn) {
+        refreshBtn.onclick = () => {
+            refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aktualisiere...';
+            loadData().finally(() => {
+                refreshBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Aktualisieren';
+            });
+        };
+    }
+
+    loadData();
+}
+
 function renderProfilePage(container) {
     if (!state.currentUser) {
         navigate('');
@@ -12152,6 +12614,34 @@ function renderProfilePage(container) {
                 </form>
             </div>
 
+            ${isAdmin ? `
+            <!-- Admin KPI Dashboard & Data Export -->
+            <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #7c3aed; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem; box-shadow: var(--shadow-lg);">
+                <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Admin KPI & Analytics Dashboard</h3>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Echtzeit-Kennzahlen, Vermittlungen & Datenexport</span>
+                        </div>
+                    </div>
+                    <button type="button" id="btn-refresh-admin-kpis" class="btn btn-secondary btn-sm" style="margin: 0; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 8px; font-weight: 700; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); cursor: pointer;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Aktualisieren
+                    </button>
+                </div>
+
+                <div id="admin-kpi-loading" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.9rem;"></i>
+                    <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Lade Live-KPIs aus Firestore...</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Musiker, Veranstalter, Vermittlungen & Chats werden analysiert</div>
+                </div>
+
+                <div id="admin-kpi-content" style="display: none; flex-direction: column; gap: 1.5rem;"></div>
+            </div>
+            ` : ''}
+
             ${(u.role === 'musician' && !isAdmin) ? `
             <div class="profile-section-card subscription-manage">
                 <div class="profile-section-header">
@@ -12281,6 +12771,7 @@ function renderProfilePage(container) {
             </div>
             ` : ''}
 
+            ${!isAdmin ? `
             <!-- DSGVO Datenschutz & Kontoverwaltung Sektion -->
             <div class="profile-section-card privacy-manage">
                 <div class="profile-section-header">
@@ -12294,7 +12785,7 @@ function renderProfilePage(container) {
                     </div>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
-                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst deine Cookie-Einstellungen anpassen${!isAdmin ? ', dein Benutzerkonto unwiderruflich löschen' : ''} oder einen manuellen Datenexport anfordern.
+                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst deine Cookie-Einstellungen anpassen, dein Benutzerkonto unwiderruflich löschen oder einen manuellen Datenexport anfordern.
                 </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="btn btn-secondary btn-sm" id="btn-cookie-settings-profile" onclick="window.showCookieSettings()" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
@@ -12305,16 +12796,15 @@ function renderProfilePage(container) {
                         <i class="fa-solid fa-credit-card"></i> Zahlungsdaten
                     </button>
                     ` : ''}
-                    ${!isAdmin ? `
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto löschen
                     </button>
-                    ` : ''}
                 </div>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
                     Für eine Auskunft oder einen Export deiner Daten sende bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: #2563eb; text-decoration: underline;">info@gigconnact.de</a>.
                 </p>
             </div>
+            ` : ''}
 
             </div>
             </div>
@@ -12824,6 +13314,10 @@ function renderProfilePage(container) {
         } else {
             renderMyEventsContent(myItemsContainer);
         }
+    }
+
+    if (isAdmin) {
+        initAdminKpiDashboard(container);
     }
 }
 
@@ -20634,8 +21128,8 @@ function handleRouting() {
         }
     }
     
-    // Redirect logged-in users away from the landing and matchmaking-choice pages
-    if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/' || page === 'matchmaking-choice')) {
+    // Redirect logged-in users away from legacy matchmaking-choice page
+    if (state && state.currentUser && state.currentUser.id && page === 'matchmaking-choice') {
         if (state.currentUser.role === 'musician') {
             navigate('events');
         } else {
@@ -20833,17 +21327,13 @@ function initGigConnActApp() {
                 // On standalone recommendation pages, stay on the view
                 return;
             }
-            let targetHash = '#/';
-            if (state && state.currentUser) {
-                if (state.currentUser.role === 'musician') {
-                    targetHash = '#/events';
-                } else if (state.currentUser.role === 'organizer') {
-                    targetHash = '#/musicians';
-                }
-            }
+            const targetHash = '#/';
+            window.heroCtaMode = 'initial';
             
-            if (window.location.hash === targetHash) {
-                handleRouting();
+            if (window.location.hash === targetHash || window.location.hash === '' || window.location.hash === '#') {
+                if (typeof handleRouting === 'function') {
+                    handleRouting();
+                }
             } else {
                 window.location.hash = targetHash;
             }
@@ -24839,11 +25329,6 @@ function renderImpressumPage(container) {
                 <p>
                     Telefon: +49 15788703998<br>
                     E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline; word-break: break-all;">info@gigconnact.de</a>
-                </p>
-
-                <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Umsatzsteuer-Identifikationsnummer (USt-IdNr.)</h3>
-                <p style="color: var(--text-muted); font-style: italic;">
-                    [Hier nach der Gewerbeanmeldung deine USt-IdNr. eintragen, z. B. DE123456789]
                 </p>
 
                 <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">EU-Streitschlichtung</h3>
