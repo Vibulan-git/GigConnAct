@@ -17295,7 +17295,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </div>
 
                         <div class="form-group">
-                            <label>Standard-Uhrzeit</label>
+                            <label>Uhrzeit</label>
                             <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
                                 <div style="width: 120px; flex-shrink: 0;">
                                      <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Startzeit</span>
@@ -22743,7 +22743,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     </div>
 
                     <div class="form-group">
-                        <label>Standard-Uhrzeit</label>
+                        <label>Uhrzeit</label>
                         <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
                             <div style="width: 120px; flex-shrink: 0;">
                                  <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Startzeit</span>
