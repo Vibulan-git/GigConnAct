@@ -15167,21 +15167,21 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <!-- Social Media Links (YouTube, Spotify, SoundCloud) -->
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
-                            <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link
+                            <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(optional)</span>
                         </label>
-                        <input type="text" inputmode="url" name="youtube" class="input-field" placeholder="https://www.youtube.com/..." value="${musicianObj?.youtube || musicianObj?.socialLinks?.youtube || ''}">
+                        <input type="text" inputmode="url" name="youtube" data-optional="true" class="input-field" placeholder="https://www.youtube.com/..." value="${musicianObj?.youtube || musicianObj?.socialLinks?.youtube || ''}">
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
-                            <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link
+                            <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(optional)</span>
                         </label>
-                        <input type="text" inputmode="url" name="spotify" class="input-field" placeholder="https://open.spotify.com/..." value="${musicianObj?.spotify || musicianObj?.socialLinks?.spotify || ''}">
+                        <input type="text" inputmode="url" name="spotify" data-optional="true" class="input-field" placeholder="https://open.spotify.com/..." value="${musicianObj?.spotify || musicianObj?.socialLinks?.spotify || ''}">
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
-                            <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link
+                            <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(optional)</span>
                         </label>
-                        <input type="text" inputmode="url" name="soundcloud" class="input-field" placeholder="https://soundcloud.com/..." value="${musicianObj?.soundcloud || musicianObj?.socialLinks?.soundcloud || ''}">
+                        <input type="text" inputmode="url" name="soundcloud" data-optional="true" class="input-field" placeholder="https://soundcloud.com/..." value="${musicianObj?.soundcloud || musicianObj?.socialLinks?.soundcloud || ''}">
                     </div>
 
                     <div style="display: flex; justify-content: ${isInactiveMusician ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
@@ -16905,6 +16905,15 @@ window.prefillRegistrationFormFromPending = function(preferredPlan) {
                     chk.checked = types.includes(chk.value);
                 });
             }
+            if (regForm.elements.musYoutube && (pending.youtube || pending.socialLinks?.youtube)) {
+                regForm.elements.musYoutube.value = pending.youtube || pending.socialLinks.youtube;
+            }
+            if (regForm.elements.musSpotify && (pending.spotify || pending.socialLinks?.spotify)) {
+                regForm.elements.musSpotify.value = pending.spotify || pending.socialLinks.spotify;
+            }
+            if (regForm.elements.musSoundcloud && (pending.soundcloud || pending.socialLinks?.soundcloud)) {
+                regForm.elements.musSoundcloud.value = pending.soundcloud || pending.socialLinks.soundcloud;
+            }
 
             regForm.querySelectorAll('.checkbox-tag-grid').forEach(g => window.syncSelectAllPill(g));
 
@@ -17227,21 +17236,21 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <!-- Social Media Links (YouTube, Spotify, SoundCloud) -->
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
-                                <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link
+                                <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(optional)</span>
                             </label>
-                            <input type="text" inputmode="url" name="musYoutube" class="input-field" placeholder="https://www.youtube.com/...">
+                            <input type="text" inputmode="url" name="musYoutube" data-optional="true" class="input-field" placeholder="https://www.youtube.com/...">
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
-                                <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link
+                                <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(optional)</span>
                             </label>
-                            <input type="text" inputmode="url" name="musSpotify" class="input-field" placeholder="https://open.spotify.com/...">
+                            <input type="text" inputmode="url" name="musSpotify" data-optional="true" class="input-field" placeholder="https://open.spotify.com/...">
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
-                                <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link
+                                <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link <span style="font-weight: 400; font-size: 0.75rem; color: var(--text-muted);">(optional)</span>
                             </label>
-                            <input type="text" inputmode="url" name="musSoundcloud" class="input-field" placeholder="https://soundcloud.com/...">
+                            <input type="text" inputmode="url" name="musSoundcloud" data-optional="true" class="input-field" placeholder="https://soundcloud.com/...">
                         </div>
                     </div>
 
@@ -17960,9 +17969,12 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     });
 
     function toggleRequired(container, isRequired) {
+        const optionalNames = ['musLocation', 'orgLocationSearch', 'musYoutube', 'musSpotify', 'musSoundcloud', 'youtube', 'spotify', 'soundcloud'];
         container.querySelectorAll('input, select, textarea').forEach(el => {
             if (isRequired) {
-                if (el.type !== 'checkbox' && el.type !== 'hidden' && el.name !== 'musLocation' && el.name !== 'orgLocationSearch' && el.id !== 'input-org-location-search') {
+                if (optionalNames.includes(el.name) || el.hasAttribute('data-optional') || el.id === 'input-org-location-search' || el.id === 'input-mus-location-search') {
+                    el.removeAttribute('required');
+                } else if (el.type !== 'checkbox' && el.type !== 'hidden') {
                     if (el.id === 'reg-org-company-input') {
                         const dynamicContainer = document.getElementById('reg-org-company-dynamic-container');
                         if (dynamicContainer && !dynamicContainer.classList.contains('hidden')) {
@@ -18741,17 +18753,17 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             const rawMusSpotify = (registerForm.elements.musSpotify?.value || '').trim();
             const rawMusSoundcloud = (registerForm.elements.musSoundcloud?.value || '').trim();
 
-            const musYtRes = window.validateSocialUrl('youtube', rawMusYoutube);
+            const musYtRes = rawMusYoutube ? window.validateSocialUrl('youtube', rawMusYoutube) : { valid: true, cleanUrl: '' };
             if (!musYtRes.valid) {
                 showValidationError(registerForm.elements.musYoutube, null, musYtRes.error);
                 return;
             }
-            const musSpRes = window.validateSocialUrl('spotify', rawMusSpotify);
+            const musSpRes = rawMusSpotify ? window.validateSocialUrl('spotify', rawMusSpotify) : { valid: true, cleanUrl: '' };
             if (!musSpRes.valid) {
                 showValidationError(registerForm.elements.musSpotify, null, musSpRes.error);
                 return;
             }
-            const musScRes = window.validateSocialUrl('soundcloud', rawMusSoundcloud);
+            const musScRes = rawMusSoundcloud ? window.validateSocialUrl('soundcloud', rawMusSoundcloud) : { valid: true, cleanUrl: '' };
             if (!musScRes.valid) {
                 showValidationError(registerForm.elements.musSoundcloud, null, musScRes.error);
                 return;
