@@ -78,7 +78,7 @@ window.updateRegMediaPreview = function(role) {
         photosContainer.innerHTML = photos.length === 0 
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
             : photos.map((p, idx) => {
-                if (p === 'loading') {
+                if (typeof p === 'string' && p.startsWith('loading')) {
                     return `
                         <div style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
                             <i class="fa-solid fa-circle-notch fa-spin" style="color: #a855f7; font-size: 1.2rem;"></i>
@@ -340,16 +340,16 @@ window.addRegMedia = function(role, type) {
     window.addEventListener('focus', cleanup);
     
     if (type === 'photo') {
-        fileInput.accept = 'image/png, image/jpeg, image/webp';
+        fileInput.accept = 'image/*';
         fileInput.addEventListener('change', () => {
             const files = Array.from(fileInput.files);
             if (files.length === 0) return;
             const validFiles = [];
             for (const file of files) {
-                if (file.size > 10 * 1024 * 1024) {
+                if (file.size > 20 * 1024 * 1024) {
                     showToast({
                         title: "Foto zu groß ⚠️",
-                        message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                        message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 20 MB.`
                     });
                 } else {
                     validFiles.push(file);
@@ -368,15 +368,20 @@ window.addRegMedia = function(role, type) {
                     message: `Es wurden nur die ersten ${remaining} Fotos ausgewählt, um das Limit nicht zu überschreiten.`
                 });
             }
-            toProcess.forEach(file => {
-                const placeholderIdx = list.length;
-                list.push('loading');
+            toProcess.forEach((file, fIdx) => {
+                const placeholderToken = `loading_${Date.now()}_${fIdx}_${Math.random().toString(36).slice(2, 7)}`;
+                list.push(placeholderToken);
                 window.updateRegMediaPreview(role);
                 validateAndProcessPhoto(file, (dataUrl) => {
-                    list[placeholderIdx] = dataUrl;
+                    const idx = list.indexOf(placeholderToken);
+                    if (idx !== -1) {
+                        list[idx] = dataUrl;
+                    } else if (list.length < limit) {
+                        list.push(dataUrl);
+                    }
                     window.updateRegMediaPreview(role);
                 }, () => {
-                    const idx = list.indexOf('loading');
+                    const idx = list.indexOf(placeholderToken);
                     if (idx !== -1) list.splice(idx, 1);
                     window.updateRegMediaPreview(role);
                 });
@@ -512,7 +517,7 @@ window.deleteRegMedia = function(role, type, idx) {
 
 window.cropRegPhoto = function(role, idx) {
     const list = window.registrationMedia[role] ? window.registrationMedia[role].photos : null;
-    if (!list || !list[idx] || list[idx] === 'loading') return;
+    if (!list || !list[idx] || (typeof list[idx] === 'string' && list[idx].startsWith('loading'))) return;
     if (typeof window.openImageCropperModal === 'function') {
         window.openImageCropperModal(list[idx], (newUrl) => {
             list[idx] = newUrl;
@@ -15217,7 +15222,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
             : localMedia.photos.map((p, idx) => `
                 <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;">
-                    ${p === 'loading' ? `
+                    ${(typeof p === 'string' && p.startsWith('loading')) ? `
                         <i class="fa-solid fa-spinner fa-spin" style="color: #a855f7; font-size: 1.1rem;"></i>
                     ` : `
                         <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
@@ -15260,7 +15265,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const idx = parseInt(btn.getAttribute('data-idx'));
-                if (localMedia.photos[idx] && localMedia.photos[idx] !== 'loading') {
+                if (localMedia.photos[idx] && !(typeof localMedia.photos[idx] === 'string' && localMedia.photos[idx].startsWith('loading'))) {
                     window.openImageCropperModal(localMedia.photos[idx], (newUrl) => {
                         localMedia.photos[idx] = newUrl;
                         updateLocalMediaPreview();
@@ -15320,10 +15325,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 if (fileInput.files.length > 0) {
                     const validFiles = [];
                     for (const file of Array.from(fileInput.files)) {
-                        if (file.size > 10 * 1024 * 1024) {
+                        if (file.size > 20 * 1024 * 1024) {
                             showToast({
                                 title: "Foto zu groß ⚠️",
-                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 20 MB.`
                             });
                         } else {
                             validFiles.push(file);
@@ -15340,8 +15345,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
                         });
                     }
-                    filesToProcess.forEach(file => {
-                        const placeholderVal = 'loading';
+                    filesToProcess.forEach((file, fIdx) => {
+                        const placeholderVal = `loading_${Date.now()}_${fIdx}_${Math.random().toString(36).slice(2, 7)}`;
                         localMedia.photos.push(placeholderVal);
                         updateLocalMediaPreview();
 
@@ -15352,23 +15357,26 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 updateLocalMediaPreview();
                                 return;
                             }
-                            const alreadyExists = localMedia.photos.some((p, pIdx) => p === dataUrl && pIdx !== localMedia.photos.indexOf(placeholderVal));
+                            const pIdx = localMedia.photos.indexOf(placeholderVal);
+                            const alreadyExists = localMedia.photos.some((p, idx) => p === dataUrl && idx !== pIdx);
                             if (alreadyExists) {
                                 showToast({
                                     title: "Bild existiert bereits",
                                     message: "Dieses Bild wurde bereits hinzugefügt."
                                 });
-                                const pIdx = localMedia.photos.indexOf(placeholderVal);
                                 if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
                                 updateLocalMediaPreview();
                                 return;
                             }
-                            const pIdx = localMedia.photos.indexOf(placeholderVal);
                             if (pIdx !== -1) {
                                 localMedia.photos[pIdx] = dataUrl;
-                            } else {
+                            } else if (localMedia.photos.length < 5) {
                                 localMedia.photos.push(dataUrl);
                             }
+                            updateLocalMediaPreview();
+                        }, () => {
+                            const pIdx = localMedia.photos.indexOf(placeholderVal);
+                            if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
                             updateLocalMediaPreview();
                         });
                     });
@@ -15664,9 +15672,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             eventTypes: Array.from(form.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value),
             description: formData.get('description'),
             technik: Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value),
-            profilePic: (localMedia.photos.filter(p => p && p !== 'loading')[0]) || selectedBase64 || '',
-            image: (localMedia.photos.filter(p => p && p !== 'loading')[0]) || selectedBase64 || '',
-            photos: localMedia.photos.filter(p => p !== 'loading'),
+            profilePic: (localMedia.photos.filter(p => p && !(typeof p === 'string' && p.startsWith('loading')))[0]) || selectedBase64 || '',
+            image: (localMedia.photos.filter(p => p && !(typeof p === 'string' && p.startsWith('loading')))[0]) || selectedBase64 || '',
+            photos: localMedia.photos.filter(p => p && !(typeof p === 'string' && p.startsWith('loading'))),
             videos: localMedia.videos.filter(v => v.url !== 'loading'),
             audio: (localMedia.audios || []).filter(a => a.url !== 'loading'),
             contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
@@ -16222,7 +16230,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
             : localMedia.photos.map((p, idx) => `
                 <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;">
-                    ${p === 'loading' ? `
+                    ${(typeof p === 'string' && p.startsWith('loading')) ? `
                         <i class="fa-solid fa-spinner fa-spin" style="color: #2563eb; font-size: 1.1rem;"></i>
                     ` : `
                         <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
@@ -16261,7 +16269,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const idx = parseInt(btn.getAttribute('data-idx'));
-                if (localMedia.photos[idx] && localMedia.photos[idx] !== 'loading') {
+                if (localMedia.photos[idx] && !(typeof localMedia.photos[idx] === 'string' && localMedia.photos[idx].startsWith('loading'))) {
                     window.openImageCropperModal(localMedia.photos[idx], (newUrl) => {
                         localMedia.photos[idx] = newUrl;
                         updateLocalEventMediaPreview();
@@ -16317,16 +16325,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.multiple = true;
-            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.accept = 'image/*';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
                     const validFiles = [];
                     for (const file of Array.from(fileInput.files)) {
-                        if (file.size > 10 * 1024 * 1024) {
+                        if (file.size > 20 * 1024 * 1024) {
                             showToast({
                                 title: "Foto zu groß ⚠️",
-                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 20 MB.`
                             });
                         } else {
                             validFiles.push(file);
@@ -16343,8 +16351,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
                         });
                     }
-                    filesToProcess.forEach(file => {
-                        const placeholderVal = 'loading';
+                    filesToProcess.forEach((file, fIdx) => {
+                        const placeholderVal = `loading_${Date.now()}_${fIdx}_${Math.random().toString(36).slice(2, 7)}`;
                         localMedia.photos.push(placeholderVal);
                         updateLocalEventMediaPreview();
 
@@ -16355,21 +16363,20 @@ function showEventModal(eventObj = null, isDuplication = false) {
                                 updateLocalEventMediaPreview();
                                 return;
                             }
-                            const alreadyExists = localMedia.photos.some((p, pIdx) => p === dataUrl && pIdx !== localMedia.photos.indexOf(placeholderVal));
+                            const pIdx = localMedia.photos.indexOf(placeholderVal);
+                            const alreadyExists = localMedia.photos.some((p, idx) => p === dataUrl && idx !== pIdx);
                             if (alreadyExists) {
                                 showToast({
                                     title: "Bild existiert bereits",
                                     message: "Dieses Bild wurde bereits hinzugefügt."
                                 });
-                                const pIdx = localMedia.photos.indexOf(placeholderVal);
                                 if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
                                 updateLocalEventMediaPreview();
                                 return;
                             }
-                            const pIdx = localMedia.photos.indexOf(placeholderVal);
                             if (pIdx !== -1) {
                                 localMedia.photos[pIdx] = dataUrl;
-                            } else {
+                            } else if (localMedia.photos.length < 5) {
                                 localMedia.photos.push(dataUrl);
                             }
                             updateLocalEventMediaPreview();
@@ -16537,9 +16544,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"],
             description: formData.get('orgDescription'),
-            photos: localMedia.photos.filter(p => p && p !== 'loading'),
-            image: (localMedia.photos || []).filter(p => p && p !== 'loading')[0] || '',
-            profilePic: (localMedia.photos || []).filter(p => p && p !== 'loading')[0] || '',
+            photos: localMedia.photos.filter(p => p && !(typeof p === 'string' && p.startsWith('loading'))),
+            image: (localMedia.photos || []).filter(p => p && !(typeof p === 'string' && p.startsWith('loading')))[0] || '',
+            profilePic: (localMedia.photos || []).filter(p => p && !(typeof p === 'string' && p.startsWith('loading')))[0] || '',
             videos: localMedia.videos.filter(v => v && v.url !== 'loading'),
             audio: (localMedia.audios || []).filter(a => a && a.url !== 'loading'),
             contactName: state.currentUser ? `${state.currentUser.firstName || ''} ${state.currentUser.lastName || ''}`.trim() : '',
@@ -18651,7 +18658,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             payload.maxPublikum = registerForm.querySelector('#input-publikum-max')?.value || 500;
             payload.availability = availability;
             payload.photos = (window.registrationMedia.musician.photos || [])
-                .filter(p => typeof p === 'string' && p !== 'loading' && p.trim().length > 0);
+                .filter(p => typeof p === 'string' && !p.startsWith('loading') && p.trim().length > 0);
             payload.videos = (window.registrationMedia.musician.videos || [])
                 .filter(v => v && v.url && v.url !== 'loading')
                 .map(v => ({
@@ -18713,7 +18720,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             payload.orgMaxBudget = registerForm.querySelector('input[name="orgMaxBudget"]').value;
             payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
             payload.photos = (window.registrationMedia.organizer.photos || [])
-                .filter(p => typeof p === 'string' && p !== 'loading' && p.trim().length > 0);
+                .filter(p => typeof p === 'string' && !p.startsWith('loading') && p.trim().length > 0);
             payload.videos = (window.registrationMedia.organizer.videos || [])
                 .filter(v => v && v.url && v.url !== 'loading')
                 .map(v => ({
@@ -21768,22 +21775,54 @@ function renderPostbox(container) {
 
                             let name = "System";
                             let avatar = "https://picsum.photos/id/1025/100/100";
+                            let subtitle = isSys ? "Offizielle Mitteilung" : "";
+
+                            const formatEventDateLabel = (evt) => {
+                                if (!evt) return "";
+                                const formatSingle = (dStr) => {
+                                    if (!dStr || typeof dStr !== 'string') return '';
+                                    const trimmed = dStr.trim();
+                                    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+                                        const [y, m, d] = trimmed.split('-');
+                                        return `${d}.${m}.${y}`;
+                                    }
+                                    return trimmed;
+                                };
+                                if (Array.isArray(evt.dates) && evt.dates.length > 0) {
+                                    const formatted = evt.dates.map(formatSingle).filter(Boolean);
+                                    if (formatted.length === 0) return "";
+                                    if (formatted.length <= 2) return formatted.join(', ');
+                                    return `${formatted[0]} (+${formatted.length - 1})`;
+                                }
+                                if (evt.date) {
+                                    return formatSingle(String(evt.date));
+                                }
+                                return "";
+                            };
 
                             if (!isSys) {
                                 const counterMus = (state.musicians || []).find(m => m && m.id === counterpartyId);
-                                const counterOrg = (state.events || []).find(e => e && (e.id === counterpartyId || e.creatorId === counterpartyId));
+                                const counterOrg = (state.events || []).find(e => e && ((c.eventId && e.id === c.eventId) || e.id === counterpartyId || e.creatorId === counterpartyId));
                                 if (counterMus) {
                                     name = counterMus.name;
                                     avatar = (counterMus.photos && counterMus.photos.length > 0 && counterMus.photos[0])
                                         || counterMus.profilePic
                                         || counterMus.image
                                         || "https://picsum.photos/id/453/100/100";
+                                    const musType = counterMus.type || counterMus.musicianType || "Musiker";
+                                    const musLoc = counterMus.location || (Array.isArray(counterMus.locations) && counterMus.locations.length > 0 ? counterMus.locations.join(', ') : "");
+                                    subtitle = [musType, musLoc].filter(Boolean).join(' • ');
                                 } else if (counterOrg) {
                                     name = counterOrg.name || counterOrg.contactName || "Veranstalter";
                                     avatar = (counterOrg.photos && counterOrg.photos.length > 0 && counterOrg.photos[0])
                                         || counterOrg.profilePic
                                         || counterOrg.image
                                         || "https://picsum.photos/id/111/100/100";
+                                    const evtType = (Array.isArray(counterOrg.eventTypes) && counterOrg.eventTypes.length > 0)
+                                        ? counterOrg.eventTypes.join(', ')
+                                        : (counterOrg.type || counterOrg.organizerType || "Event");
+                                    const evtDateStr = formatEventDateLabel(counterOrg);
+                                    subtitle = [evtType, evtDateStr].filter(Boolean).join(' • ');
                                 } else {
                                     name = "Gelöschter Nutzer";
                                     avatar = "https://picsum.photos/id/1025/100/100";
@@ -21912,7 +21951,10 @@ function renderPostbox(container) {
                                     <div style="display: flex; align-items: center; gap: 0.8rem; width: 100%;">
                                         <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                                         <div style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                                            <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem;">
+                                                <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                                ${subtitle ? `<span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(subtitle)}</span>` : ''}
+                                            </div>
                                             ${isUnread ? `<span class="unread-dot" style="width: 9px; height: 9px; border-radius: 50%; background: ${tileColor}; box-shadow: 0 0 6px ${tileColor}; display: inline-block; flex-shrink: 0;" title="Ungelesen"></span>` : ''}
                                         </div>
                                     </div>
@@ -21937,22 +21979,54 @@ function renderPostbox(container) {
                         const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0] || '';
                         let name = "System";
                         let avatar = "https://picsum.photos/id/1025/100/100";
+                        let headerSubtitle = isSys ? "Offizielle Mitteilung" : (isMusician ? "Veranstalter" : "Musiker");
+
+                        const formatHeaderEventDate = (evt) => {
+                            if (!evt) return "";
+                            const formatSingle = (dStr) => {
+                                if (!dStr || typeof dStr !== 'string') return '';
+                                const trimmed = dStr.trim();
+                                if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+                                    const [y, m, d] = trimmed.split('-');
+                                    return `${d}.${m}.${y}`;
+                                }
+                                return trimmed;
+                            };
+                            if (Array.isArray(evt.dates) && evt.dates.length > 0) {
+                                const formatted = evt.dates.map(formatSingle).filter(Boolean);
+                                if (formatted.length === 0) return "";
+                                if (formatted.length <= 2) return formatted.join(', ');
+                                return `${formatted[0]} (+${formatted.length - 1})`;
+                            }
+                            if (evt.date) {
+                                return formatSingle(String(evt.date));
+                            }
+                            return "";
+                        };
 
                         if (!isSys) {
                             const counterMus = (state.musicians || []).find(m => m && m.id === counterpartyId);
-                            const counterOrg = (state.events || []).find(e => e && (e.id === counterpartyId || e.creatorId === counterpartyId));
+                            const counterOrg = (state.events || []).find(e => e && ((activeChat.eventId && e.id === activeChat.eventId) || e.id === counterpartyId || e.creatorId === counterpartyId));
                             if (counterMus) {
                                 name = counterMus.name;
                                 avatar = (counterMus.photos && counterMus.photos.length > 0 && counterMus.photos[0])
                                     || counterMus.profilePic
                                     || counterMus.image
                                     || "https://picsum.photos/id/453/100/100";
+                                const musType = counterMus.type || counterMus.musicianType || "Musiker";
+                                const musLoc = counterMus.location || (Array.isArray(counterMus.locations) && counterMus.locations.length > 0 ? counterMus.locations.join(', ') : "");
+                                headerSubtitle = [musType, musLoc].filter(Boolean).join(' • ');
                             } else if (counterOrg) {
                                 name = counterOrg.name || counterOrg.contactName || "Veranstalter";
                                 avatar = (counterOrg.photos && counterOrg.photos.length > 0 && counterOrg.photos[0])
                                     || counterOrg.profilePic
                                     || counterOrg.image
                                     || "https://picsum.photos/id/111/100/100";
+                                const evtType = (Array.isArray(counterOrg.eventTypes) && counterOrg.eventTypes.length > 0)
+                                    ? counterOrg.eventTypes.join(', ')
+                                    : (counterOrg.type || counterOrg.organizerType || "Event");
+                                const evtDateStr = formatHeaderEventDate(counterOrg);
+                                headerSubtitle = [evtType, evtDateStr].filter(Boolean).join(' • ');
                             } else {
                                 name = "Gelöschter Nutzer";
                                 avatar = "https://picsum.photos/id/1025/100/100";
@@ -21979,7 +22053,7 @@ function renderPostbox(container) {
                                 <img src="${avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                 <div>
                                     <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">${name}</h4>
-                                    <span style="font-size: 0.72rem; color: var(--text-muted);">${isSys ? 'Offizielle Mitteilung' : (isMusician ? 'Veranstalter' : 'Musiker')}</span>
+                                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${escapeHtml(headerSubtitle)}</span>
                                 </div>
                             </div>
 
@@ -24708,9 +24782,14 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
         modalOverlay.querySelector('#cropper-btn-cancel').addEventListener('click', handleCancel);
 
         // Apply Crop
-        modalOverlay.querySelector('#cropper-btn-apply').addEventListener('click', () => {
+        const applyBtn = modalOverlay.querySelector('#cropper-btn-apply');
+        applyBtn.addEventListener('click', async () => {
+            if (applyBtn.disabled) return;
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Speichere...`;
+
             const outCanvas = document.createElement('canvas');
-            const outW = currentAspect === 1.0 ? 800 : 900;
+            const outW = currentAspect === 1.0 ? 720 : 800;
             const outH = Math.round(outW / currentAspect);
             outCanvas.width = outW;
             outCanvas.height = outH;
@@ -24733,9 +24812,45 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
             outCtx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
             outCtx.restore();
 
-            const croppedDataUrl = outCanvas.toDataURL('image/jpeg', 0.78);
+            const croppedDataUrl = outCanvas.toDataURL('image/jpeg', 0.72);
+            let finalUrl = croppedDataUrl;
+
+            try {
+                const blob = await new Promise(res => outCanvas.toBlob(res, 'image/jpeg', 0.78));
+                if (blob) {
+                    const userId = (typeof auth !== 'undefined' && auth && auth.currentUser) ? auth.currentUser.uid : 'anonymous';
+                    const rand = Math.random().toString(36).slice(2, 8);
+                    const filePath = `photos/${userId}/${Date.now()}_${rand}.jpg`;
+                    const bucket = "gigconnact.firebasestorage.app";
+                    const uploadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o?uploadType=media&name=${encodeURIComponent(filePath)}`;
+                    const headers = { 'Content-Type': 'image/jpeg' };
+                    if (typeof auth !== 'undefined' && auth && auth.currentUser) {
+                        try {
+                            const idToken = await auth.currentUser.getIdToken();
+                            if (idToken) headers['Authorization'] = `Firebase ${idToken}`;
+                        } catch (_) {}
+                    }
+                    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+                    const resp = await fetch(uploadUrl, {
+                        method: 'POST',
+                        headers,
+                        body: blob,
+                        signal: controller ? controller.signal : undefined
+                    });
+                    if (timeoutId) clearTimeout(timeoutId);
+                    if (resp && resp.ok) {
+                        const data = await resp.json();
+                        const token = data.downloadTokens ? `&token=${data.downloadTokens}` : '';
+                        finalUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(filePath)}?alt=media${token}`;
+                    }
+                }
+            } catch (uploadErr) {
+                console.warn("Photo Storage upload fallback to compressed DataURL:", uploadErr);
+            }
+
             cleanup();
-            onCrop(croppedDataUrl);
+            onCrop(finalUrl);
         });
     };
 
@@ -24752,13 +24867,14 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
 };
 
 function validateAndProcessPhoto(file, callback, errorCallback) {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    const maxSize = 10 * 1024 * 1024; // 10 MB
+    const isImageMime = file.type && file.type.startsWith('image/');
+    const isImageExt = /\.(jpg|jpeg|png|webp|gif|heic|heif|avif|bmp)$/i.test(file.name || '');
+    const maxSize = 20 * 1024 * 1024; // 20 MB raw file size before downscaling
 
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp)$/i)) {
+    if (!isImageMime && !isImageExt) {
         showToast({
             title: "Fehler beim Fotoupload ❌",
-            message: "Ungültiges Dateiformat. Erlaubt sind JPG, JPEG, PNG und WebP."
+            message: "Ungültiges Dateiformat. Bitte wähle eine gültige Bilddatei (JPG, PNG, WebP, HEIC)."
         });
         if (errorCallback) errorCallback();
         return;
@@ -24767,7 +24883,7 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
     if (file.size > maxSize) {
         showToast({
             title: "Fehler beim Fotoupload ❌",
-            message: "Die Datei ist zu groß. Maximale Größe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+            message: "Die Datei ist zu groß. Maximale Größe ist 20 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
         if (errorCallback) errorCallback();
         return;
@@ -24992,9 +25108,16 @@ window.showMediaModal = function(itemId, isEvents) {
     modal.style.zIndex = '100000';
     modal.style.backdropFilter = 'blur(8px)';
 
-    const photos = item.photos || [item.profilePic || item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://picsum.photos/id/453/300/300')];
-    const videos = item.videos || [];
-    const audios = item.audio || [];
+    if (!Array.isArray(item.photos)) {
+        const initialPic = item.profilePic || item.image;
+        item.photos = initialPic ? [initialPic] : [];
+    }
+    if (!Array.isArray(item.videos)) item.videos = [];
+    if (!Array.isArray(item.audio)) item.audio = [];
+
+    const photos = item.photos;
+    const videos = item.videos;
+    const audios = item.audio;
 
     modal.innerHTML = `
         <div class="modal-card" style="width: 450px; max-width: 90%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; animation: modalFadeIn 0.3s ease;">
@@ -25009,7 +25132,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 20 MB&#10;Auflösung: mind. 300 px"></i></span>
                         ${photos.length < 5 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
@@ -25093,7 +25216,8 @@ window.showMediaModal = function(itemId, isEvents) {
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
             const maxPhotos = 5;
-            if (photos.length >= maxPhotos) {
+            const remainingSlots = maxPhotos - photos.length;
+            if (remainingSlots <= 0) {
                 showToast({
                     title: "Fotos-Limit erreicht 📷",
                     message: `Es sind maximal ${maxPhotos} Fotos erlaubt.`
@@ -25102,23 +25226,42 @@ window.showMediaModal = function(itemId, isEvents) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = 'image/png, image/jpeg, image/webp';
+            fileInput.multiple = true;
+            fileInput.accept = 'image/*';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    if (file.size > 10 * 1024 * 1024) {
-                        showToast({
-                            title: "Foto zu groß ⚠️",
-                            message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
-                        });
+                    const validFiles = [];
+                    for (const file of Array.from(fileInput.files)) {
+                        if (file.size > 20 * 1024 * 1024) {
+                            showToast({
+                                title: "Foto zu groß ⚠️",
+                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 20 MB.`
+                            });
+                        } else {
+                            validFiles.push(file);
+                        }
+                    }
+                    if (validFiles.length === 0) {
                         fileInput.value = '';
                         return;
                     }
-                    validateAndProcessPhoto(file, (dataUrl) => {
-                        photos.push(dataUrl);
-                        close();
-                        window.showMediaModal(itemId, isEvents);
+                    const filesToProcess = validFiles.slice(0, remainingSlots);
+                    if (validFiles.length > remainingSlots) {
+                        showToast({
+                            title: "Fotos-Limit 📷",
+                            message: `Es wurden nur die ersten ${remainingSlots} Fotos ausgewählt (maximal ${maxPhotos} erlaubt).`
+                        });
+                    }
+                    filesToProcess.forEach(file => {
+                        validateAndProcessPhoto(file, (dataUrl) => {
+                            if (dataUrl && photos.length < maxPhotos) {
+                                photos.push(dataUrl);
+                                item.photos = photos;
+                            }
+                            close();
+                            window.showMediaModal(itemId, isEvents);
+                        });
                     });
                 }
             });
