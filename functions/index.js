@@ -1750,6 +1750,15 @@ exports.stripeWebhook = functions
 
                 if (userId && planKey) {
                     try {
+                    if (session.payment_status && session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') {
+                        console.warn(`Ignoring checkout.session.completed for user ${userId}: payment_status is ${session.payment_status}`);
+                        return res.json({ received: true, ignored: true });
+                    }
+                    if (!session.subscription) {
+                        console.warn(`Ignoring checkout.session.completed for user ${userId}: no subscription attached to session.`);
+                        return res.json({ received: true, ignored: true });
+                    }
+
                     console.log(`Processing successful subscription for user ${userId}, plan: ${planKey}`);
                     
                     const updateData = {
@@ -1761,18 +1770,21 @@ exports.stripeWebhook = functions
                         subscriptionEndDate: admin.firestore.FieldValue.delete()
                     };
 
-                    if (session.subscription) {
-                        try {
-                            const sub = await stripe.subscriptions.retrieve(session.subscription);
-                            updateData.subscriptionCreated = sub.created;
-                            updateData.subscriptionPeriodStart = sub.current_period_start;
-                            updateData.subscriptionPeriodEnd = sub.current_period_end;
-                            updateData.subscriptionTrialStart = sub.trial_start || null;
-                            updateData.subscriptionTrialEnd = sub.trial_end || null;
-                            updateData.subscriptionStatus = sub.status;
-                        } catch (subErr) {
-                            console.error(`Failed to retrieve Stripe subscription details for ${session.subscription}:`, subErr);
+                    try {
+                        const sub = await stripe.subscriptions.retrieve(session.subscription);
+                        if (sub.status !== 'active' && sub.status !== 'trialing') {
+                            console.warn(`Ignoring checkout.session.completed for user ${userId}: subscription ${session.subscription} status is ${sub.status}`);
+                            return res.json({ received: true, ignored: true });
                         }
+                        updateData.subscriptionCreated = sub.created;
+                        updateData.subscriptionPeriodStart = sub.current_period_start;
+                        updateData.subscriptionPeriodEnd = sub.current_period_end;
+                        updateData.subscriptionTrialStart = sub.trial_start || null;
+                        updateData.subscriptionTrialEnd = sub.trial_end || null;
+                        updateData.subscriptionStatus = sub.status;
+                    } catch (subErr) {
+                        console.error(`Failed to retrieve Stripe subscription details for ${session.subscription}:`, subErr);
+                        return res.status(500).send("Subscription verification failed");
                     }
                     
                     // Update or create user doc in Firestore
@@ -1798,7 +1810,8 @@ exports.stripeWebhook = functions
                         if (userData.profileId && userData.role === 'musician') {
                             await admin.firestore().collection('musicians').doc(userData.profileId).set({
                                 isPremium: true,
-                                subscriptionPlan: planKey
+                                subscriptionPlan: planKey,
+                                isActive: true
                             }, { merge: true });
                         }
                     } else {
@@ -2041,7 +2054,7 @@ exports.stripeWebhook = functions
                 if (!usersSnapshot.empty) {
                     for (const doc of usersSnapshot.docs) {
                         const userId = doc.id;
-                        console.log(`Subscription ${subscription.id} deleted. Demoting user ${userId} to free/flex.`);
+                        console.log(`Subscription ${subscription.id} deleted. Demoting user ${userId} to inactive.`);
                         
                         await admin.firestore().collection('users').doc(userId).update({
                             isPremium: false,
@@ -2053,8 +2066,13 @@ exports.stripeWebhook = functions
                         if (userData.profileId && userData.role === 'musician') {
                             await admin.firestore().collection('musicians').doc(userData.profileId).update({
                                 isPremium: false,
+                                isActive: false,
                                 subscriptionPlan: 'flex'
-                            });
+                            }).catch(() => {});
+                        }
+                        const creatorMusSnap = await admin.firestore().collection('musicians').where('creatorId', '==', userId).get();
+                        for (const mDoc of creatorMusSnap.docs) {
+                            await mDoc.ref.update({ isPremium: false, isActive: false }).catch(() => {});
                         }
                     }
                 }

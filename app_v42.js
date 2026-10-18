@@ -2901,12 +2901,23 @@ class StateManager {
                 }
             }
 
+            const isInitialOrDemoMusician = (id, data) => {
+                if (!id) return false;
+                if (data && data.isDemo === true) return true;
+                if (id.startsWith('mus_gen_') || id.startsWith('demo_') || id === 'mus_1_dup') return true;
+                if (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === id)) return true;
+                return false;
+            };
+
             const musList = [];
             musSnap.forEach(doc => {
                 if (this.deletedMusicianIds && this.deletedMusicianIds.has(doc.id)) return;
                 const d = doc.data();
                 if (d.isDeleted || d.deleted || d.status === 'deleted') return;
-                musList.push({ id: doc.id, ...d });
+                const isDemo = isInitialOrDemoMusician(doc.id, d);
+                // Block any non-demo musician profile that has not completed payment (isPremium !== true)
+                if (!isDemo && d.isPremium !== true) return;
+                musList.push({ id: doc.id, ...d, ...(isDemo ? { isDemo: true } : {}) });
             });
             musList.forEach(item => {
                 const idx = this.musicians.findIndex(m => m.id === item.id);
@@ -2953,21 +2964,31 @@ class StateManager {
         try {
             console.log("[DEBUG] StateManager.fetchMusicians() called");
             const snapshot = await db.collection('musicians').where('isActive', '==', true).limit(150).get();
+            const isInitialOrDemoMusician = (id, data) => {
+                if (!id) return false;
+                if (data && data.isDemo === true) return true;
+                if (id.startsWith('mus_gen_') || id.startsWith('demo_') || id === 'mus_1_dup') return true;
+                if (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === id)) return true;
+                return false;
+            };
             const list = [];
             snapshot.forEach(doc => {
                 if (this.deletedMusicianIds && this.deletedMusicianIds.has(doc.id)) return;
                 const d = doc.data();
                 if (d.isDeleted || d.deleted || d.status === 'deleted') return;
-                list.push({ id: doc.id, ...d });
+                const isDemo = isInitialOrDemoMusician(doc.id, d);
+                // Block any non-demo musician profile that has not completed payment (isPremium !== true)
+                if (!isDemo && d.isPremium !== true) return;
+                list.push({ id: doc.id, ...d, ...(isDemo ? { isDemo: true } : {}) });
             });
             
             list.forEach(item => {
                 const idx = this.musicians.findIndex(m => m.id === item.id);
                 if (idx > -1) {
-                    const wasDemo = Boolean(this.musicians[idx].isDemo || (this.musicians[idx].id && (this.musicians[idx].id.startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === this.musicians[idx].id)))));
+                    const wasDemo = Boolean(this.musicians[idx].isDemo || isInitialOrDemoMusician(this.musicians[idx].id, this.musicians[idx]));
                     this.musicians[idx] = { ...this.musicians[idx], ...item, ...(wasDemo ? { isDemo: true } : {}) };
                 } else {
-                    const isGen = item.id && (item.id.startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === item.id)));
+                    const isGen = isInitialOrDemoMusician(item.id, item);
                     this.musicians.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
@@ -2976,9 +2997,10 @@ class StateManager {
                 if (!m) return false;
                 if (this.deletedMusicianIds && this.deletedMusicianIds.has(m.id)) return false;
                 if (m.isDeleted || m.deleted || m.status === 'deleted') return false;
-                const isDemo = Boolean(m.isDemo || (m.id && (m.id.startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === m.id)))));
+                const isDemo = Boolean(m.isDemo || isInitialOrDemoMusician(m.id, m));
+                if (!isDemo && m.isPremium !== true) return false;
                 if (!isDemo && !liveDocIds.has(m.id)) {
-                    if (this.currentUser && m.creatorId === this.currentUser.id) {
+                    if (this.currentUser && m.creatorId === this.currentUser.id && this.currentUser.isPremium === true) {
                         return true;
                     }
                     return false;
@@ -4990,6 +5012,16 @@ class StateManager {
     addMusician(musicianData) {
         if (!this.currentUser) return { success: false };
 
+        const isAdminUser = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+        if (!isAdminUser && (this.currentUser.isPremium !== true || (!this.currentUser.subscriptionId && !this.currentUser.stripeCustomerId))) {
+            showToast({
+                title: "Aktives Abonnement erforderlich ⚠️",
+                message: "Ein Musiker-Profil kann erst erstellt werden, nachdem der Bezahlvorgang für dein Abonnement vollständig abgeschlossen wurde.",
+                type: "warning"
+            });
+            return { success: false, message: "Kein aktives Abonnement vorhanden." };
+        }
+
         const myMusiciansCount = (this.musicians || []).filter(m => m && m.creatorId === this.currentUser.id).length;
         if (myMusiciansCount >= 5) {
             showToast({
@@ -5018,6 +5050,8 @@ class StateManager {
             audio: [],
             socialLinks: { spotify: "", youtube: "", soundcloud: "" },
             isActive: true,
+            isPremium: true,
+            subscriptionPlan: this.currentUser.subscriptionPlan || 'flex',
             favorites: [],
             ...cleanMusicianData
         };
@@ -5815,7 +5849,11 @@ class StateManager {
         const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
         if (!snapshot.empty) {
             const doc = snapshot.docs[0];
-            this.currentUser = { id: doc.id, ...doc.data() };
+            const data = doc.data();
+            if (data.role === 'musician' && (!data.isPremium || (!data.subscriptionId && !data.stripeCustomerId))) {
+                return { success: false, message: "Der Bezahlvorgang für dieses Musiker-Profil wurde noch nicht abgeschlossen." };
+            }
+            this.currentUser = { id: doc.id, ...data };
             if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                 this.currentUser.role = 'organizer';
             }
@@ -5828,84 +5866,24 @@ class StateManager {
             }
             this.notify();
             return { success: true };
-        } else {
-            const mockUid = "demo_" + Date.now();
-            const profileId = "mus_" + mockUid;
-            const newUser = {
-                id: mockUid,
-                role: 'musician',
-                firstName: 'Demo-Musiker',
-                lastName: 'Gast',
-                company: 'Privatperson',
-                phone: '+49 170 1234567',
-                email: email,
-                profileId: profileId,
-                isPremium: true,
-                credits: 0,
-                unlockedContacts: [],
-                successfulGigs: 0,
-                contactRequests: 0,
-                favorites: [],
-                interests: []
-            };
-            await db.collection('users').doc(mockUid).set(newUser);
-            
-            const newMusician = {
-                id: profileId,
-                name: "Demo Musiker",
-                bluffName: "Akustik-Solo-Künstler",
-                type: "Solo",
-                location: "München",
-                locations: ["München"],
-                radius: 100,
-                genres: ["Pop", "Rock"],
-                instruments: ["Gesang", "Akustikgitarre"],
-                minDuration: 1,
-                maxDuration: 3,
-                minBudget: 150,
-                maxBudget: 1000,
-                eventTypes: ["Geburtstag", "Sommerfest"],
-                availability: {
-                    friday: { available: true, startTime: '18:00', endTime: '23:59' },
-                    saturday: { available: true, startTime: '00:01', endTime: '23:59' }
-                },
-                minPublikum: 0,
-                maxPublikum: 500,
-                description: "Professioneller Solo-Künstler für Events aller Art.",
-                technik: ["Technik vorhanden"],
-                company: "Privatperson",
-                contactName: "Demo-Musiker Gast",
-                phone: "+49 170 1234567",
-                email: email,
-                isPremium: false,
-                subscriptionPlan: "flex",
-                credits: 0,
-                unlockedContacts: [],
-                socialLinks: { spotify: "", youtube: "", instagram: "" },
-                photos: [],
-                videos: [],
-                audio: [],
-                creatorId: mockUid
-            };
-            await db.collection('musicians').doc(profileId).set(newMusician);
-            
-            this.currentUser = newUser;
-            this.notify();
-            return { success: true };
         }
+        return { success: false, message: "Konto nicht gefunden." };
     }
 
     async registerOnTheFly(email, role) {
+        if (role === 'musician') {
+            return { success: false, message: "Musiker-Profile können erst nach vollständig abgeschlossenem Bezahlvorgang erstellt werden." };
+        }
         const mockUid = "demo_" + Date.now();
-        const profileId = role === 'musician' ? 'mus_' + mockUid : 'evt_' + mockUid;
+        const profileId = 'evt_' + mockUid;
         
         const newUser = {
             id: mockUid,
             role: role,
-            firstName: role === 'musician' ? 'Demo-Musiker' : 'Demo-Veranstalter',
+            firstName: 'Demo-Veranstalter',
             lastName: 'Gast',
             company: 'Privatperson',
-            organizerType: role === 'organizer' ? 'Privater Veranstalter' : '',
+            organizerType: 'Privater Veranstalter',
             phone: '+49 170 1234567',
             email: email,
             profileId: profileId,
@@ -5920,78 +5898,36 @@ class StateManager {
 
         try {
             await db.collection('users').doc(mockUid).set(newUser);
-            
-            if (role === 'musician') {
-                const newMusician = {
-                    id: profileId,
-                    name: "Demo Musiker",
-                    bluffName: "Akustik-Solo-Künstler",
-                    type: "Solo",
-                    location: "München",
-                    locations: ["München"],
-                    radius: 100,
-                    genres: ["Pop", "Rock"],
-                    instruments: ["Gesang", "Akustikgitarre"],
-                    minDuration: 1,
-                    maxDuration: 3,
-                    minBudget: 150,
-                    maxBudget: 1000,
-                    eventTypes: ["Geburtstag", "Sommerfest"],
-                    availability: {
-                        friday: { available: true, startTime: '18:00', endTime: '23:59' },
-                        saturday: { available: true, startTime: '00:01', endTime: '23:59' }
-                    },
-                    minPublikum: 0,
-                    maxPublikum: 500,
-                    description: "Professioneller Solo-Künstler für Events aller Art.",
-                    technik: ["Technik vorhanden"],
-                    company: "Privatperson",
-                    contactName: "Demo-Musiker Gast",
-                    phone: "+49 170 1234567",
-                    email: email,
-                    isPremium: false,
-                    subscriptionPlan: "flex",
-                    credits: 0,
-                    unlockedContacts: [],
-                    socialLinks: { spotify: "", youtube: "", instagram: "" },
-                    photos: [],
-                    videos: [],
-                    audio: [],
-                    creatorId: mockUid
-                };
-                await db.collection('musicians').doc(profileId).set(newMusician);
-            } else {
-                const newEvent = {
-                    id: profileId,
-                    name: "Demo Veranstaltung",
-                    type: "Geburtstag",
-                    eventTypes: ["Geburtstag"],
-                    date: "2026-08-15",
-                    dates: ["2026-08-15"],
-                    location: "München",
-                    locations: ["München"],
-                    genres: ["Pop", "Rock"],
-                    instruments: ["Gesang", "Akustikgitarre"],
-                    minDuration: 2.0,
-                    maxDuration: 4.0,
-                    duration: 4.0,
-                    minPublikum: 50,
-                    maxPublikum: 150,
-                    publikum: "50 - 150",
-                    minBudget: 300,
-                    maxBudget: 800,
-                    description: "Private Feier in München. Wir suchen einen netten Live-Act.",
-                    technik: ["Technik ist noch unklar"],
-                    company: "Privatperson",
-                    organizerType: "Privater Veranstalter",
-                    contactName: "Demo-Veranstalter Gast",
-                    phone: "+49 170 1234567",
-                    email: email,
-                    isOnline: true,
-                    creatorId: mockUid
-                };
-                await db.collection('events').doc(profileId).set(newEvent);
-            }
+            const newEvent = {
+                id: profileId,
+                name: "Demo Veranstaltung",
+                type: "Geburtstag",
+                eventTypes: ["Geburtstag"],
+                date: "2026-08-15",
+                dates: ["2026-08-15"],
+                location: "München",
+                locations: ["München"],
+                genres: ["Pop", "Rock"],
+                instruments: ["Gesang", "Akustikgitarre"],
+                minDuration: 2.0,
+                maxDuration: 4.0,
+                duration: 4.0,
+                minPublikum: 50,
+                maxPublikum: 150,
+                publikum: "50 - 150",
+                minBudget: 300,
+                maxBudget: 800,
+                description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                technik: ["Technik ist noch unklar"],
+                company: "Privatperson",
+                organizerType: "Privater Veranstalter",
+                contactName: "Demo-Veranstalter Gast",
+                phone: "+49 170 1234567",
+                email: email,
+                isOnline: true,
+                creatorId: mockUid
+            };
+            await db.collection('events').doc(profileId).set(newEvent);
             this.currentUser = newUser;
             this.notify();
             return { success: true };
@@ -6113,7 +6049,14 @@ class StateManager {
             }
             
             if (!matchedUser) {
-                return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert." };
+                return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert oder der Bezahlvorgang wurde noch nicht abgeschlossen." };
+            }
+
+            if (matchedUser.role === 'musician' && (!matchedUser.isPremium || (!matchedUser.subscriptionId && !matchedUser.stripeCustomerId))) {
+                return {
+                    success: false,
+                    message: "Dein Bezahlvorgang für das Musiker-Abonnement wurde noch nicht abgeschlossen. Bitte schließe zuerst die Registrierung und Zahlung vollständig ab."
+                };
             }
 
             // Direct instant sign-in for seamless experience!
@@ -6162,14 +6105,16 @@ class StateManager {
         const pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
         if (!pendingReg) return { success: false, message: "Keine ausstehende Registrierung gefunden." };
 
-        const email = pendingReg.email.toLowerCase();
-        // Create user in users and musicians/events
+        if (pendingReg.role === 'musician') {
+            return { success: false, message: "Musiker-Profile werden ausschließlich nach erfolgreichem Stripe-Bezahlvorgang aktiviert." };
+        }
+
         const mockUid = "demo_" + Date.now();
-        const profileId = pendingReg.role === 'musician' ? 'mus_' + mockUid : 'evt_' + mockUid;
+        const profileId = 'evt_' + mockUid;
 
         const newUser = {
             id: mockUid,
-            role: pendingReg.role,
+            role: 'organizer',
             firstName: pendingReg.firstName,
             lastName: pendingReg.lastName,
             company: pendingReg.company || "Privatperson",
@@ -6178,8 +6123,8 @@ class StateManager {
             hidePhone: pendingReg.hidePhone || false,
             email: pendingReg.email,
             profileId: profileId,
-            isPremium: pendingReg.role === "musician" ? pendingReg.sepaConsent : true,
-            subscriptionPlan: pendingReg.subscriptionPlan || "free",
+            isPremium: true,
+            subscriptionPlan: "free",
             successfulGigs: 0,
             contactRequests: 0,
             favorites: [],
@@ -6188,80 +6133,40 @@ class StateManager {
 
         try {
             await db.collection('users').doc(mockUid).set(newUser);
-
-            if (pendingReg.role === 'musician') {
-                const newMusician = {
-                    id: profileId,
-                    name: pendingReg.bandName,
-                    bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres[0] || 'Musik'})`,
-                    type: pendingReg.musicianType,
-                    location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
-                    locations: pendingReg.locations || [pendingReg.location || 'München'],
-                    radius: parseInt(pendingReg.radius) || 50,
-                    genres: pendingReg.genres,
-                    instruments: pendingReg.instruments,
-                    minDuration: parseFloat(pendingReg.minDuration) || 1,
-                    maxDuration: parseFloat(pendingReg.maxDuration) || 3,
-                    minBudget: parseFloat(pendingReg.minBudget) || 150,
-                    maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
-                    eventTypes: pendingReg.eventTypes,
-                    availability: pendingReg.availability,
-                    minPublikum: parseInt(pendingReg.minPublikum) || 0,
-                    maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
-                    description: pendingReg.description,
-                    technik: pendingReg.technik || ["Technik ist noch unklar"],
-                    company: newUser.company || "Privatperson",
-                    contactName: `${newUser.firstName} ${newUser.lastName}`,
-                    phone: newUser.phone,
-                    hidePhone: pendingReg.hidePhone || false,
-                    email: newUser.email,
-                    isPremium: newUser.isPremium,
-                    subscriptionPlan: pendingReg.subscriptionPlan || "flex",
-                    credits: 0,
-                    unlockedContacts: [],
-                    socialLinks: { spotify: "", youtube: "", instagram: "" },
-                    photos: pendingReg.photos || [],
-                    videos: pendingReg.videos || [],
-                    audio: [],
-                    creatorId: mockUid
-                };
-                await db.collection('musicians').doc(profileId).set(newMusician);
-            } else {
-                const newEvent = {
-                    id: profileId,
-                    name: pendingReg.eventName,
-                    type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
-                    eventTypes: pendingReg.orgEventTypes || [],
-                    date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
-                    dates: pendingReg.eventDates || [],
-                    eventStartTime: pendingReg.eventStartTime || "18:00",
-                    eventEndTime: pendingReg.eventEndTime || "22:00",
-                    location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
-                    locations: pendingReg.orgLocations || [],
-                    genres: pendingReg.orgGenres || [],
-                    instruments: pendingReg.orgInstruments || [],
-                    minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                    maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
-                    duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                    minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
-                    maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
-                    publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
-                    minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
-                    maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
-                    budget: parseFloat(pendingReg.orgMinBudget) || 300,
-                    description: pendingReg.orgDescription || "",
-                    technik: pendingReg.technik || ["Technik ist noch unklar"],
-                    company: newUser.company || "Privatperson",
-                    organizerType: newUser.organizerType || "Privater Veranstalter",
-                    contactName: `${newUser.firstName} ${newUser.lastName}`,
-                    phone: newUser.phone,
-                    hidePhone: pendingReg.hidePhone || false,
-                    email: newUser.email,
-                    isOnline: true,
-                    creatorId: mockUid
-                };
-                await db.collection('events').doc(profileId).set(newEvent);
-            }
+            const newEvent = {
+                id: profileId,
+                name: pendingReg.eventName,
+                type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
+                eventTypes: pendingReg.orgEventTypes || [],
+                date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
+                dates: pendingReg.eventDates || [],
+                eventStartTime: pendingReg.eventStartTime || "18:00",
+                eventEndTime: pendingReg.eventEndTime || "22:00",
+                location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
+                locations: pendingReg.orgLocations || [],
+                genres: pendingReg.orgGenres || [],
+                instruments: pendingReg.orgInstruments || [],
+                minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
+                duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
+                maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
+                publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
+                minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
+                maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
+                budget: parseFloat(pendingReg.orgMinBudget) || 300,
+                description: pendingReg.orgDescription || "",
+                technik: pendingReg.technik || ["Technik ist noch unklar"],
+                company: newUser.company || "Privatperson",
+                organizerType: newUser.organizerType || "Privater Veranstalter",
+                contactName: `${newUser.firstName} ${newUser.lastName}`,
+                phone: newUser.phone,
+                hidePhone: pendingReg.hidePhone || false,
+                email: newUser.email,
+                isOnline: true,
+                creatorId: mockUid
+            };
+            await db.collection('events').doc(profileId).set(newEvent);
             window.localStorage.removeItem('GigConnAct_pending_registration');
             this.currentUser = newUser;
             this.notify();
@@ -12212,7 +12117,7 @@ window.downloadAdminCsv = function(type) {
         triggerDownload(`GigConnAct_Chats_Export_${dateStr}`, headers, rows);
     } else if (type === 'subscriptions') {
         const headers = ['User-ID', 'Name / Band', 'E-Mail-Adresse', 'Telefon', 'Rolle', 'Tarif', 'Abo-Status', 'Kündigungsdatum', 'Vertragsstart', 'Vertragsende', 'Stripe Customer-ID'];
-        const rows = (data.users || []).filter(u => u.role === 'musician').map(u => [
+        const rows = (data.users || []).filter(u => u.role === 'musician' && u.isPremium === true && (u.subscriptionId || u.stripeCustomerId)).map(u => [
             u.id || '',
             u.bandName || `${u.firstName || ''} ${u.lastName || ''}`.trim(),
             u.email || '',
@@ -12237,7 +12142,7 @@ window.downloadAdminCsv = function(type) {
             p.bandName || p.eventName || '',
             p.organizerType || '',
             p.subscriptionPlan || '',
-            'E-Mail-Verifizierung ausstehend'
+            p.role === 'musician' ? 'Bezahlvorgang / Verifizierung ausstehend' : 'E-Mail-Verifizierung ausstehend'
         ]);
         triggerDownload(`GigConnAct_Ausstehende_Registrierungen_${dateStr}`, headers, rows);
     }
@@ -12396,7 +12301,7 @@ function renderAdminKpiCards(contentEl, stats) {
                         { label: 'Pro (5,99 €)', value: stats.plans.pro, color: '#3b82f6' },
                         { label: 'Premium (Promo)', value: stats.plans.premium, color: '#ec4899' },
                         { label: 'Free / Basis', value: stats.plans.free, color: '#94a3b8' }
-                    ], { centerText: stats.musiciansCount, centerSub: 'Tarife' })}
+                    ], { centerText: stats.activeSubs + stats.cancelledSubs, centerSub: 'Tarife' })}
                 </div>
 
                 <!-- Kuchendiagramm 2: Vertragsstatus -->
@@ -12445,22 +12350,32 @@ async function initAdminKpiDashboard(container) {
             const isDemoM = (m) => {
                 if (!m) return false;
                 const id = String(m.id || '');
-                return m.isDemo === true || id.startsWith('mus_1') || id.startsWith('mus_2') || id.startsWith('mus_gen_') || id.startsWith('demo_');
+                if (m.isDemo === true || id.startsWith('mus_gen_') || id.startsWith('demo_') || id === 'mus_1_dup') return true;
+                if (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === id)) return true;
+                if (/^mus_([1-9]|zero|five)$/.test(id)) return true;
+                return false;
             };
             const isDemoE = (e) => {
                 if (!e) return false;
                 const id = String(e.id || '');
-                return e.isDemo === true || id.startsWith('evt_1') || id.startsWith('evt_2') || id.startsWith('evt_gen_') || id.startsWith('demo_');
+                if (e.isDemo === true || id.startsWith('evt_gen_') || id.startsWith('demo_')) return true;
+                if (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === id)) return true;
+                if (/^evt_([1-9]|zero|five)$/.test(id)) return true;
+                return false;
             };
 
-            const realMusicians = musicians.filter(m => !isDemoM(m));
+            const paidMusicianUsers = users.filter(u => u.role === 'musician' && u.isPremium === true && (u.subscriptionId || u.stripeCustomerId));
+            const paidUserIds = new Set(paidMusicianUsers.map(u => u.id));
+            const organizerUsers = users.filter(u => u.role === 'organizer');
+            const verifiedUsers = [...organizerUsers, ...paidMusicianUsers];
+
+            const realMusicians = musicians.filter(m => !isDemoM(m) && (m.isPremium === true || (m.creatorId && paidUserIds.has(m.creatorId))));
             const demoMusicians = musicians.filter(m => isDemoM(m));
             const activeRealMusicians = realMusicians.filter(m => m.isActive !== false);
             const inactiveRealMusicians = realMusicians.filter(m => m.isActive === false);
 
             const realEvents = events.filter(e => !isDemoE(e));
-            const organizerUsers = users.filter(u => u.role === 'organizer');
-            const musicianUsers = users.filter(u => u.role === 'musician');
+            const musicianUsers = paidMusicianUsers;
 
             let acceptedResponses = 0;
             let declinedResponses = 0;
@@ -12488,7 +12403,7 @@ async function initAdminKpiDashboard(container) {
             let cancelledSubs = 0;
             let activeSubs = 0;
             musicianUsers.forEach(u => {
-                const p = (u.subscriptionPlan || 'free').toLowerCase();
+                const p = (u.subscriptionPlan || 'flex').toLowerCase();
                 if (plans[p] !== undefined) plans[p]++;
                 else plans.other++;
                 if (u.subscriptionCancelled) {
@@ -12505,12 +12420,12 @@ async function initAdminKpiDashboard(container) {
                 events: realEvents,
                 mediations,
                 pending,
-                users,
+                users: verifiedUsers,
                 realChats
             };
 
             renderAdminKpiCards(contentEl, {
-                usersCount: users.length,
+                usersCount: verifiedUsers.length,
                 musiciansCount: realMusicians.length,
                 demoMusiciansCount: demoMusicians.length,
                 activeMusiciansCount: activeRealMusicians.length,
@@ -19089,6 +19004,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             }
                         }
 
+                        if (foundUserData && foundUserData.role === 'musician' && (!foundUserData.isPremium || (!foundUserData.subscriptionId && !foundUserData.stripeCustomerId))) {
+                            foundUserData = null;
+                        }
+
                         if (!foundUserData) {
                             // NEW USER: Switch smoothly to register form without closing modal
                             window.googleRegistrationUser = user;
@@ -19675,6 +19594,11 @@ window.showCookieConsentBanner = showCookieConsentBanner;
 function isSubscriptionExpired(user) {
     if (!user) return false;
     if (user.role === 'organizer') return false;
+    if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(user.email)) return false;
+
+    if (user.role === 'musician' && (!user.isPremium || (!user.subscriptionId && !user.stripeCustomerId))) {
+        return true;
+    }
     
     if (user.subscriptionCancelled && user.subscriptionEndDate) {
         const parts = user.subscriptionEndDate.split('.');
@@ -19850,15 +19774,6 @@ function renderSubscriptionExpiredPage(container) {
                     }
                     return;
                 }
-
-                reactivateBtn.disabled = true;
-                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird freigeschaltet...`;
-                await applyReactivation('premium');
-                showToast({
-                    title: "Tarif reaktiviert! 🎉",
-                    message: "Dein Profil wurde erfolgreich für den Premium-Tarif (3 Monate kostenlos) reaktiviert."
-                });
-                return;
             }
 
             try {
@@ -19874,12 +19789,6 @@ function renderSubscriptionExpiredPage(container) {
 
                 if (res.data && res.data.url) {
                     window.location.href = res.data.url;
-                } else if (res.data && (res.data.mocked || res.data.success)) {
-                    await applyReactivation(selectedPlan);
-                    showToast({
-                        title: "Abonnement reaktiviert! 🎉",
-                        message: "Dein Zugang wurde erfolgreich reaktiviert."
-                    });
                 } else {
                     throw new Error("Zahlungs-URL konnte nicht generiert werden.");
                 }

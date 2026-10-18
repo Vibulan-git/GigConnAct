@@ -22,7 +22,15 @@ service cloud.firestore {
     // 1. Users
     match /users/{userId} {
       allow read: if true; // Public access required for profile details, email checks, and admin lookups
-      allow write: if request.auth != null && request.auth.uid == userId; // Only owner can write
+      // Musicians are created exclusively via backend Stripe Webhook (Admin SDK) after payment completion
+      allow create: if request.auth != null && (
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com'] ||
+        (request.auth.uid == userId && request.resource.data.role == 'organizer')
+      );
+      allow update, delete: if request.auth != null && (
+        request.auth.uid == userId ||
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com']
+      );
     }
 
     // 2. Pending Registrations (Pre-authentication)
@@ -35,7 +43,19 @@ service cloud.firestore {
     // 3. Musicians
     match /musicians/{musicianId} {
       allow read: if true; // Publicly browsable on the marketplace
-      allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
+      // Only paid musicians (created by Stripe Webhook with active subscription) or admins can create profiles
+      allow create: if request.auth != null && (
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com'] ||
+        (
+          request.resource.data.creatorId == request.auth.uid &&
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isPremium == true &&
+          (
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.subscriptionId != null ||
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.stripeCustomerId != null
+          )
+        )
+      );
       allow update, delete: if request.auth != null && (
         resource.data.creatorId == request.auth.uid ||
         resource.data.email == request.auth.token.email ||
