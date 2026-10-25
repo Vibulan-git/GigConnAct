@@ -2835,7 +2835,10 @@ class StateManager {
         }, 2500);
 
         try {
-            await this.loadStateFromFirestore();
+            const isStandaloneRoute = typeof window !== 'undefined' && window.location && window.location.hash && (window.location.hash.includes('recommendation/') || window.location.hash.includes('mediation-response/'));
+            if (!isStandaloneRoute) {
+                await this.loadStateFromFirestore();
+            }
             this.setupAuthListener();
             this.handleSignInWithEmailLink();
             this.handleGoogleRedirectResult().catch(err => console.warn("Google redirect check error:", err));
@@ -2850,7 +2853,11 @@ class StateManager {
         if (typeof auth === 'undefined' || !auth.currentUser) return;
         const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(auth.currentUser.email);
         if (!isAdmin) return;
+        const hashNow = (typeof window !== 'undefined' && window.location && window.location.hash) ? window.location.hash : '';
+        if (hashNow.includes('recommendation/') || hashNow.includes('mediation-response/') || hashNow.includes('feedback')) return;
         try {
+            if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('gigconnact_demos_synced') === '1') return;
+            if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('gigconnact_demos_synced', '1');
             console.log("[GigConnAct] Admin logged in: Syncing demo cards to Firestore...");
             const demoMus = this.musicians.filter(m => (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)) && (m.isDemo || m.id.startsWith('mus_1') || m.id.startsWith('mus_2') || m.id.startsWith('mus_gen_') || initialMusicians.some(init => init.id === m.id)));
             const demoEvt = this.events.filter(e => (!this.deletedEventIds || !this.deletedEventIds.has(e.id)) && (e.isDemo || e.id.startsWith('evt_1') || e.id.startsWith('evt_2') || e.id.startsWith('evt_gen_') || initialEvents.some(init => init.id === e.id)));
@@ -3571,7 +3578,11 @@ class StateManager {
                             }
                         }
                         
-                        await this.fetchUserOwnData();
+                        const curHash = (typeof window !== 'undefined' && window.location && window.location.hash) ? window.location.hash : '';
+                        const isStandaloneHash = curHash.includes('recommendation/') || curHash.includes('mediation-response/') || curHash.includes('feedback');
+                        if (!isStandaloneHash) {
+                            await this.fetchUserOwnData();
+                        }
 
                         if (this.currentUser.role === 'musician') {
                             this.activeMusicianId = (this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId && m.creatorId === this.currentUser.id))
@@ -21453,6 +21464,11 @@ function initGigConnActApp() {
                 }
             }
 
+            if (currentHash.includes('recommendation/') || currentHash.includes('mediation-response/') || currentHash.includes('feedback')) {
+                runMatchingMonitor();
+                return;
+            }
+
             if (currentHash.includes('postbox')) {
                 if (isUserSame) {
                     console.log('[DEBUG] user-state-changed on postbox: user is same, skipping handleRouting()');
@@ -26151,6 +26167,11 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 // Recommendation page for Organizer
 // ==========================================
 window.renderRecommendationPage = async function(container, mediationId) {
+    if (window._activeRecommendationLoadingId === mediationId) {
+        return;
+    }
+    window._activeRecommendationLoadingId = mediationId;
+
     document.body.classList.remove('landing-page-active');
     document.documentElement.classList.remove('landing-page-active');
     document.body.classList.add('page-recommendation');
@@ -26166,12 +26187,14 @@ window.renderRecommendationPage = async function(container, mediationId) {
         container.style.overflow = 'auto';
         container.style.height = 'auto';
         container.style.minHeight = '100vh';
-        container.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-                <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
-                <span>Lade Vorschläge...</span>
-            </div>
-        `;
+        if (!container.querySelector('.recommendation-page-container')) {
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
+                    <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+                    <span>Lade Vorschläge...</span>
+                </div>
+            `;
+        }
     }
 
     try {
@@ -26198,24 +26221,24 @@ window.renderRecommendationPage = async function(container, mediationId) {
                     } catch (e) {}
                 }
 
-                // 2b. Case-insensitive doc ID lookup (lowercase)
-                if ((!doc || !doc.exists) && cleanMedId) {
+                // 2b. Case-insensitive doc ID lookup (lowercase, only if different)
+                if ((!doc || !doc.exists) && cleanMedId && cleanMedId !== cleanMedId.toLowerCase()) {
                     try {
                         const snap = await db.collection('mediations').doc(cleanMedId.toLowerCase()).get();
                         if (snap && snap.exists) doc = snap;
                     } catch (e) {}
                 }
 
-                // 2c. Query by eventId
-                if ((!doc || !doc.exists) && cleanMedId) {
+                // 2c. Query by eventId (skip if already in localStorage cache)
+                if ((!doc || !doc.exists) && !cached && cleanMedId) {
                     try {
                         const q = await db.collection('mediations').where('eventId', '==', cleanMedId).limit(1).get();
                         if (!q.empty) doc = q.docs[0];
                     } catch (e) {}
                 }
 
-                // 2d. Exhaustive search across all mediations (case-insensitive id, eventId, eventName, numeric match)
-                if ((!doc || !doc.exists) && cleanMedId) {
+                // 2d. Exhaustive search across all mediations (skip if already in localStorage cache)
+                if ((!doc || !doc.exists) && !cached && cleanMedId) {
                     try {
                         const allMedsSnap = await db.collection('mediations').get();
                         if (allMedsSnap && !allMedsSnap.empty) {
@@ -26236,10 +26259,13 @@ window.renderRecommendationPage = async function(container, mediationId) {
 
                 if (doc && doc.exists) {
                     med = { ...(cached || {}), ...doc.data(), id: doc.id };
+                } else if (cached) {
+                    med = cached;
                 }
             }
         } catch (dbErr) {
             console.warn("Firestore mediations get failed, using cached/fallback:", dbErr);
+            if (cached) med = cached;
         }
 
         // 3. Fallback to events in Firestore (in case user opened #/recommendation/eventId directly)
@@ -26304,9 +26330,19 @@ window.renderRecommendationPage = async function(container, mediationId) {
             };
         }
 
-        // Fetch the corresponding event document to get the real-time favorites list (non-blocking)
+        // Cache mediation locally for instant subsequent loads
+        try {
+            if (med && med.id) {
+                localStorage.setItem('gigconnact_med_' + mediationId, JSON.stringify(med));
+            }
+        } catch (e) {}
+
+        // Resolve event from local state first, only fetch from Firestore if not already in memory or if med has no musicianIds
         let mediationEvent = null;
-        if (med.eventId) {
+        if (med.eventId && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
+            mediationEvent = state.events.find(e => e && e.id === med.eventId) || null;
+        }
+        if (!mediationEvent && med.eventId && (!Array.isArray(med.musicianIds) || med.musicianIds.length === 0)) {
             try {
                 if (typeof db !== 'undefined' && db && db.collection) {
                     const eventDoc = await db.collection('events').doc(med.eventId).get().catch(() => null);
@@ -26314,58 +26350,49 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
                     }
                 }
-            } catch (eventErr) {
-                console.warn("Could not load real-time favorites from Firestore event:", eventErr);
-            }
-            if (!mediationEvent && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
-                mediationEvent = state.events.find(e => e && e.id === med.eventId) || null;
-            }
+            } catch (eventErr) {}
         }
 
-        // Merge musicianIds from BOTH mediation document and event favorites (real-time union)
+        // Merge musicianIds from BOTH mediation document and event favorites
         const eventFavs = (mediationEvent && Array.isArray(mediationEvent.favorites)) ? mediationEvent.favorites : [];
         const medMusIds = (med && Array.isArray(med.musicianIds)) ? med.musicianIds : [];
         let musicianIds = Array.from(new Set([...medMusIds, ...eventFavs].filter(Boolean)));
         med.musicianIds = musicianIds;
 
-        // Keep mediation doc in Firestore synchronized with any favorites from event
+        // Keep mediation doc in Firestore synchronized in the background (non-blocking)
         if (typeof db !== 'undefined' && db && db.collection && mediationId && musicianIds.length > medMusIds.length) {
-            try {
-                await db.collection('mediations').doc(mediationId).set({ musicianIds: musicianIds }, { merge: true });
-            } catch(syncErr) {
-                console.warn("Could not sync merged musicianIds to mediation doc:", syncErr);
-            }
+            db.collection('mediations').doc(mediationId).set({ musicianIds: musicianIds }, { merge: true }).catch(() => {});
         }
 
-        // Fetch musician documents with fallback to state.musicians and initialMusicians
-        const musicians = [];
-        const seenMusicianIds = new Set();
-        for (const id of musicianIds) {
-            if (seenMusicianIds.has(id)) continue;
-            seenMusicianIds.add(id);
-            let musData = null;
-            try {
-                if (typeof db !== 'undefined' && db && db.collection) {
+        // Resolve musician documents in parallel, using local state/demo musicians immediately without network delay
+        const uniqueMusicianIds = Array.from(new Set(musicianIds));
+        const resolvedMusicians = await Promise.all(uniqueMusicianIds.map(async (id) => {
+            let localMus = null;
+            if (typeof state !== 'undefined' && state && Array.isArray(state.musicians)) {
+                localMus = state.musicians.find(m => m && m.id === id) || null;
+            }
+            if (!localMus && typeof initialMusicians !== 'undefined') {
+                localMus = initialMusicians.find(m => m && m.id === id) || null;
+            }
+            const isDemoId = Boolean(
+                (localMus && localMus.isDemo) ||
+                String(id).startsWith('mus_gen_') ||
+                (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === id))
+            );
+            if (localMus && isDemoId) {
+                return { ...localMus };
+            }
+            if (typeof db !== 'undefined' && db && db.collection) {
+                try {
                     const musDoc = await db.collection('musicians').doc(id).get();
                     if (musDoc && musDoc.exists) {
-                        musData = { id: musDoc.id, ...musDoc.data() };
+                        return { id: musDoc.id, ...musDoc.data() };
                     }
-                }
-            } catch (fetchErr) {
-                console.warn("Could not fetch musician doc from Firestore:", fetchErr);
+                } catch (fetchErr) {}
             }
-            if (!musData && typeof state !== 'undefined' && state && Array.isArray(state.musicians)) {
-                const localMus = state.musicians.find(m => m && m.id === id);
-                if (localMus) musData = { ...localMus };
-            }
-            if (!musData && typeof initialMusicians !== 'undefined') {
-                const initMus = initialMusicians.find(m => m && m.id === id);
-                if (initMus) musData = { ...initMus };
-            }
-            if (musData) {
-                musicians.push(musData);
-            }
-        }
+            return localMus ? { ...localMus } : null;
+        }));
+        const musicians = resolvedMusicians.filter(Boolean);
 
         // Fallback: If still no musicians found, provide top active musicians from state or initialMusicians
         if (musicians.length === 0) {
@@ -26385,10 +26412,10 @@ window.renderRecommendationPage = async function(container, mediationId) {
         } catch(e) {}
 
         container.innerHTML = `
-            <div class="recommendation-page-container" style="max-width: 1200px; margin: 0 auto; padding: 2.5rem 1rem 5rem; font-family: var(--font-body);">
+            <div class="recommendation-page-container" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 5rem; font-family: var(--font-body);">
                 <div style="text-align: center; margin-bottom: 2.5rem;">
-                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #2563eb; letter-spacing: 1px; background: rgba(37,99,235,0.1); padding: 0.35rem 0.75rem; border-radius: 20px; display: inline-block;">Deine Auswahl</span>
-                    <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
+
+                    <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0 0 0.3rem;">Deine Musiker-Vorschläge</h2>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0 0 1.5rem 0;">für dein Event: <strong>"${med.eventName}"</strong>${med.eventDate ? ` am <strong>${(() => {
                         const parts = med.eventDate.split('-');
                         return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : med.eventDate;
@@ -26476,14 +26503,9 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         let buttonHtml = '';
                         if (status === 'pending') {
                             buttonHtml = `
-                                <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-                                    <button onclick="window.sendMediationReminder(event, '${mediationId}', '${mus.id}')" class="btn btn-glass" style="width: 100%; padding: 0.4rem; font-size: 0.72rem; font-weight: 700; margin: 0; border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.05); cursor: pointer; border-radius: 8px;">
-                                        Keine Antwort seit 1 Woche
-                                    </button>
-                                    <button class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; margin: 0; background: #2563eb !important; border-color: #2563eb !important; color: #ffffff !important; opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 10px;" disabled>
-                                        <i class="fa-solid fa-check" style="margin-right: 0.4rem;"></i> Angefragt
-                                    </button>
-                                </div>
+                                <button class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; margin: 0; background: #2563eb !important; border-color: #2563eb !important; color: #ffffff !important; opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 10px;" disabled>
+                                    <i class="fa-solid fa-check" style="margin-right: 0.4rem;"></i> Angefragt
+                                </button>
                             `;
                         } else if (status === 'declined') {
                             buttonHtml = `
@@ -26572,8 +26594,8 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
                                         <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
                                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #2563eb; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);">
-                                                <span style="color: #2563eb; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
+                                            <span class="tile-type-flag" style="background: #ffffff !important; border: 1.5px solid #2563eb !important; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15) !important;">
+                                                <span style="color: #2563eb !important; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
                                             </span>
                                         </div>
 
@@ -26658,14 +26680,16 @@ window.renderRecommendationPage = async function(container, mediationId) {
                 </div>
             </div>
         `;
+        window._activeRecommendationLoadingId = null;
     } catch (err) {
+        window._activeRecommendationLoadingId = null;
         console.error("Error loading recommendation page:", err);
         const pool = (typeof state !== 'undefined' && state && Array.isArray(state.musicians)) ? state.musicians.slice(0, 5) : [];
         if (pool.length > 0) {
             container.innerHTML = `
                 <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-body);">
                     <div style="text-align: center; margin-bottom: 2.5rem;">
-                        <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0 0 0.3rem;">Deine Musiker-Vorschläge</h2>
                         <p style="color: var(--text-muted); font-size: 0.95rem;">Hier sind unsere ersten passenden Musiker für Dein Event:</p>
                     </div>
                     <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">

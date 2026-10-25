@@ -7065,14 +7065,14 @@ body[data-page="favorites"] #btn-market-bottom-reset {
 .recommendation-page-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2.5rem 1rem 5rem;
+    padding: 1rem 1rem 5rem;
     font-family: var(--font-body);
 }
 
 @media (max-width: 900px) {
     .recommendation-page-container {
-        padding-top: 3.5rem !important;
-        margin-top: 0.5rem !important;
+        padding-top: 1rem !important;
+        margin-top: 0 !important;
     }
 }
 
@@ -7773,7 +7773,7 @@ body[data-page="musicians"] .market-tile-card:hover {
 /* Theme Organizer overrides: Musiker-Typ / Event-Typ Tag in Blau (#2563eb) */
 .theme-organizer .tile-type-flag,
 body.theme-organizer .tile-type-flag,
-.theme-organizer .tag-pill-checkbox.tile-type-flag {
+.theme-organizer .tag-pill-checkbox.tile-type-flag, .recommendation-page-container .tile-type-flag, body.page-recommendation .tile-type-flag {
     background: #ffffff !important;
     border: 1.5px solid #2563eb !important;
     box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15) !important;
@@ -7783,7 +7783,7 @@ body.theme-organizer .tile-type-flag,
 .theme-organizer .tile-type-flag span[style*="color"],
 body.theme-organizer .tile-type-flag span,
 body.theme-organizer .tile-type-flag span[style*="color"],
-.theme-organizer .tag-pill-checkbox.tile-type-flag span {
+.theme-organizer .tag-pill-checkbox.tile-type-flag span, .recommendation-page-container .tile-type-flag span, .recommendation-page-container .tile-type-flag span[style*="color"], body.page-recommendation .tile-type-flag span, body.page-recommendation .tile-type-flag span[style*="color"] {
     color: #2563eb !important;
 }
 
