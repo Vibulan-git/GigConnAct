@@ -12250,6 +12250,17 @@ window.updateAnalyticsCustomDates = function(sectionKey) {
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
+window.downloadAdminCsvForActiveTab = function() {
+    const activeTab = (window.__analyticsFilterState && window.__analyticsFilterState.activeTab) || 'users';
+    const map = {
+        users: '',
+        mediations: 'mediations',
+        subscriptions: 'subscriptions',
+        messages: 'messages'
+    };
+    window.downloadAdminCsv(map[activeTab] || '');
+};
+
 window.downloadAdminCsv = function(type, bucketKey) {
     const data = window.__adminKpiData;
     if (!data) {
@@ -12300,25 +12311,25 @@ window.downloadAdminCsv = function(type, bucketKey) {
 
     const dateStr = new Date().toISOString().slice(0, 10);
 
-    // 2. Exporte für Vermittlungsanfragen
+    // Exporte für Vermittlungen
     if (type === 'mediations' || type === 'med_submitted' || type === 'med_open' || type === 'med_successful' || type === 'med_unsuccessful') {
         const stMed = window.__analyticsFilterState.mediations;
         const groupedMeds = getFilteredAnalyticsMediations();
         let targetList = [];
-        let filePrefix = 'GigConnAct_Vermittlungsanfragen_Gesamt';
+        let filePrefix = 'GigConnAct_Vermittlungen_Gesamt';
 
         if (type === 'med_submitted') {
             targetList = groupedMeds.submitted;
-            filePrefix = 'GigConnAct_Vermittlungsanfragen_Eingereicht';
+            filePrefix = 'GigConnAct_Vermittlungen_Eingereicht';
         } else if (type === 'med_open') {
             targetList = groupedMeds.open;
-            filePrefix = 'GigConnAct_Vermittlungsanfragen_Offen';
+            filePrefix = 'GigConnAct_Vermittlungen_Offen';
         } else if (type === 'med_successful') {
             targetList = groupedMeds.successful;
-            filePrefix = 'GigConnAct_Vermittlungsanfragen_Erfolgreich';
+            filePrefix = 'GigConnAct_Vermittlungen_Erfolgreich';
         } else if (type === 'med_unsuccessful') {
             targetList = groupedMeds.unsuccessful;
-            filePrefix = 'GigConnAct_Vermittlungsanfragen_Nicht_Erfolgreich';
+            filePrefix = 'GigConnAct_Vermittlungen_Nicht_Erfolgreich';
         } else {
             targetList = [
                 ...groupedMeds.submitted,
@@ -12397,7 +12408,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         return;
     }
 
-    // 3. Exporte für Abonnements (Flex, Plus, Pro, Premium, Gekündigt)
+    // Exporte für Abonnements (Flex, Plus, Pro, Premium, Gekündigt)
     if (type === 'subscriptions' || type === 'sub_flex' || type === 'sub_plus' || type === 'sub_pro' || type === 'sub_premium' || type === 'sub_cancelled') {
         const stSub = window.__analyticsFilterState.subscriptions;
         const groupedSubs = getFilteredAnalyticsSubscriptions();
@@ -12491,7 +12502,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         return;
     }
 
-    // 4. Exporte für Nachrichten (Musiker / Veranstalter)
+    // Exporte für Nachrichten (Musiker / Veranstalter)
     if (type === 'chats' || type === 'messages' || type === 'msg_musician' || type === 'msg_organizer') {
         const stMsg = window.__analyticsFilterState.messages;
         const groupedMsgs = getFilteredAnalyticsMessages();
@@ -12545,7 +12556,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         return;
     }
 
-    // 1. Export für Punkt 1 (1. User)
+    // Export für User
     const st = window.__analyticsFilterState.users;
     const filtered = getFilteredAnalyticsAccounts();
 
@@ -12754,13 +12765,11 @@ function renderAdminKpiCards(contentEl, statsInput) {
     const xAxisMode = st.xAxisMode || 'weeks';
 
     const tabs = [
-        { key: 'users', label: '1. User', icon: 'fa-users', csvDefaultType: '' },
-        { key: 'mediations', label: '2. Vermittlungsanfragen', icon: 'fa-handshake', csvDefaultType: 'mediations' },
-        { key: 'subscriptions', label: '3. Abonnements', icon: 'fa-credit-card', csvDefaultType: 'subscriptions' },
-        { key: 'messages', label: '4. Nachrichten', icon: 'fa-comments', csvDefaultType: 'messages' }
+        { key: 'users', label: 'User' },
+        { key: 'mediations', label: 'Vermittlungen' },
+        { key: 'subscriptions', label: 'Abonnements' },
+        { key: 'messages', label: 'Nachrichten' }
     ];
-
-    const currentTabObj = tabs.find(t => t.key === activeTab) || tabs[0];
 
     let buckets = [];
     let seriesDefs = [];
@@ -12817,56 +12826,31 @@ function renderAdminKpiCards(contentEl, statsInput) {
     ];
 
     const chartHeightPx = 360;
+    const selectStyle = "flex: 1; min-width: 155px; margin: 0; height: 40px; padding: 0 2rem 0 0.85rem; font-size: 0.84rem; font-weight: 800; color: var(--text-main); background-color: var(--bg-card); border: 1.5px solid rgba(124, 58, 237, 0.35); border-radius: 10px; cursor: pointer;";
 
     contentEl.innerHTML = `
-        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 0.9rem 1.15rem 1.15rem 1.15rem; box-sizing: border-box;">
-            <!-- Tab-Leiste (1. User | 2. Vermittlungsanfragen | 3. Abonnements | 4. Nachrichten) + Excel-Liste Button -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.7rem;">
-                <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                    ${tabs.map(t => {
-                        const isActive = t.key === activeTab;
-                        return `
-                            <button type="button" onclick="window.setAnalyticsActiveTab('${t.key}')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 800; border-radius: 9px; cursor: pointer; transition: all 0.18s ease; border: 1px solid ${isActive ? '#7c3aed' : 'var(--border-color)'}; background: ${isActive ? '#7c3aed' : 'rgba(124, 58, 237, 0.05)'}; color: ${isActive ? '#ffffff' : 'var(--text-main)'};">
-                                <i class="fa-solid ${t.icon}" style="font-size: 0.78rem; color: ${isActive ? '#ffffff' : '#7c3aed'};"></i>
-                                ${t.label}
-                            </button>
-                        `;
-                    }).join('')}
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('${currentTabObj.csvDefaultType}')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 800; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); transition: 0.2s;">
-                    <i class="fa-solid fa-file-excel"></i> Excel-Liste
-                </button>
-            </div>
+        <div>
+            <!-- 3 Drop-Downs nebeneinander: 1. Bereich (User/Vermittlungen/Abonnements/Nachrichten) | 2. Zeitraum | 3. Wochen/Monat/Jahr -->
+            <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+                <select class="input-field" onchange="window.setAnalyticsActiveTab(this.value)" style="${selectStyle}">
+                    ${tabs.map(t => `<option value="${t.key}" ${t.key === activeTab ? 'selected' : ''}>${t.label}</option>`).join('')}
+                </select>
 
-            <!-- Zeitraum & X-Achsen-Einstellung (Voreinstellung: Wochen) -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.95rem;">
-                <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('${activeTab}', 'all')" style="padding: 0.38rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
-                        Start bis Heute
-                    </button>
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('${activeTab}', '4weeks')" style="padding: 0.38rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === '4weeks' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === '4weeks' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === '4weeks' ? '#ffffff' : 'var(--text-main)'};">
-                        Letzte 4 Wochen
-                    </button>
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('${activeTab}', 'custom')" style="padding: 0.38rem 0.8rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'custom' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'custom' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'custom' ? '#ffffff' : 'var(--text-main)'}; display: inline-flex; align-items: center; gap: 0.35rem;">
-                        <i class="fa-regular fa-calendar"></i> Personalisiert
-                    </button>
-                </div>
+                <select class="input-field" onchange="window.setAnalyticsTimeFilter('${activeTab}', this.value)" style="${selectStyle}">
+                    <option value="all" ${st.rangeMode === 'all' ? 'selected' : ''}>Start bis Heute</option>
+                    <option value="4weeks" ${st.rangeMode === '4weeks' ? 'selected' : ''}>Letzte 4 Wochen</option>
+                    <option value="custom" ${st.rangeMode === 'custom' ? 'selected' : ''}>Personalisiert</option>
+                </select>
 
-                <div style="display: inline-flex; align-items: center; background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 999px; padding: 0.2rem; gap: 0.2rem;">
-                    <button type="button" onclick="window.setAnalyticsXAxisMode('${activeTab}', 'weeks')" style="padding: 0.3rem 0.75rem; font-size: 0.76rem; font-weight: 700; border-radius: 999px; border: none; cursor: pointer; transition: 0.2s; background: ${xAxisMode === 'weeks' ? '#7c3aed' : 'transparent'}; color: ${xAxisMode === 'weeks' ? '#ffffff' : 'var(--text-main)'};">
-                        Wochen
-                    </button>
-                    <button type="button" onclick="window.setAnalyticsXAxisMode('${activeTab}', 'month')" style="padding: 0.3rem 0.75rem; font-size: 0.76rem; font-weight: 700; border-radius: 999px; border: none; cursor: pointer; transition: 0.2s; background: ${xAxisMode === 'month' ? '#7c3aed' : 'transparent'}; color: ${xAxisMode === 'month' ? '#ffffff' : 'var(--text-main)'};">
-                        Monat
-                    </button>
-                    <button type="button" onclick="window.setAnalyticsXAxisMode('${activeTab}', 'year')" style="padding: 0.3rem 0.75rem; font-size: 0.76rem; font-weight: 700; border-radius: 999px; border: none; cursor: pointer; transition: 0.2s; background: ${xAxisMode === 'year' ? '#7c3aed' : 'transparent'}; color: ${xAxisMode === 'year' ? '#ffffff' : 'var(--text-main)'};">
-                        Jahr
-                    </button>
-                </div>
+                <select class="input-field" onchange="window.setAnalyticsXAxisMode('${activeTab}', this.value)" style="${selectStyle}">
+                    <option value="weeks" ${xAxisMode === 'weeks' ? 'selected' : ''}>Wochen</option>
+                    <option value="month" ${xAxisMode === 'month' ? 'selected' : ''}>Monat</option>
+                    <option value="year" ${xAxisMode === 'year' ? 'selected' : ''}>Jahr</option>
+                </select>
             </div>
 
             ${st.rangeMode === 'custom' ? `
-            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 0.95rem; padding: 0.75rem 1rem; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 0.85rem; padding: 0.75rem 1rem; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 0.45rem;">
                     <label for="analytics-date-from-${activeTab}" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Von:</label>
                     <input type="date" id="analytics-date-from-${activeTab}" class="input-field" value="${st.dateFrom || ''}" onchange="window.updateAnalyticsCustomDates('${activeTab}')" style="margin: 0; padding: 0.35rem 0.65rem; font-size: 0.82rem; height: auto; width: auto;">
@@ -12879,7 +12863,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
             ` : ''}
 
             <!-- Vertikales gestapeltes Säulendiagramm -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.4rem 1rem 1rem 0.75rem; box-sizing: border-box;">
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.4rem 1rem 1rem 0.75rem; box-sizing: border-box;">
                 <div style="display: flex; align-items: stretch; gap: 0.5rem;">
                     <!-- Y-Achse -->
                     <div style="position: relative; height: ${chartHeightPx}px; min-width: 32px; user-select: none; box-sizing: border-box;">
@@ -13245,7 +13229,7 @@ function renderProfilePage(container) {
                     ${isAdmin ? `
                     <!-- Analytics Dashboard (Admin ganz oben vor Mein Event-Profil) -->
                     <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #7c3aed; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin: 0 0 0.65rem 0; box-shadow: var(--shadow-lg);">
-                        <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 0;">
+                        <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 0;">
                             <div style="display: flex; align-items: center; gap: 0.85rem;">
                                 <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
                                     <i class="fa-solid fa-chart-column"></i>
@@ -13254,6 +13238,9 @@ function renderProfilePage(container) {
                                     <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Analytics Dashboard</h3>
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsvForActiveTab()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 800; border-radius: 9px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); transition: 0.2s;">
+                                <i class="fa-solid fa-file-excel"></i> Excel-Liste
+                            </button>
                         </div>
 
                         <div id="admin-kpi-loading" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
