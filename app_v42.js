@@ -11926,76 +11926,97 @@ function showSubscriptionChangeSuccessModal() {
 window.showSubscriptionChangeSuccessModal = showSubscriptionChangeSuccessModal;
 
 // --- ADMIN KPI & ANALYTICS HELPER FUNCTIONS ---
-function generatePieChartHTML(items, options = {}) {
-    const total = items.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
-    const size = options.size || 140;
-    const donutHole = options.donutHole !== undefined ? options.donutHole : 58;
-    const centerText = options.centerText !== undefined ? options.centerText : total;
-    const centerSub = options.centerSub || 'Gesamt';
+window.__analyticsFilterState = window.__analyticsFilterState || {
+    rangeMode: 'all', // 'all' | '4weeks' | 'custom'
+    dateFrom: '',
+    dateTo: '',
+    selectedRole: null // null | 'musician' | 'organizer'
+};
 
-    if (total === 0) {
-        return `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; padding: 1.2rem 0; width: 100%;">
-                <div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2px dashed var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-                    <i class="fa-solid fa-chart-pie" style="color: var(--text-muted); font-size: 1.5rem; margin-bottom: 0.3rem;"></i>
-                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Keine Daten</span>
-                </div>
-            </div>
-        `;
+function parseItemTimestamp(val) {
+    if (!val) return null;
+    try {
+        if (typeof val === 'object' && typeof val.toDate === 'function') {
+            return val.toDate().getTime();
+        }
+        if (typeof val === 'number') {
+            return val > 1e11 ? val : val * 1000;
+        }
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? null : d.getTime();
+    } catch {
+        return null;
     }
-
-    let currentPct = 0;
-    const gradientParts = [];
-    items.forEach(item => {
-        const val = Number(item.value) || 0;
-        if (val <= 0) return;
-        const pct = (val / total) * 100;
-        const nextPct = currentPct + pct;
-        gradientParts.push(`${item.color} ${currentPct.toFixed(1)}% ${nextPct.toFixed(1)}%`);
-        currentPct = nextPct;
-    });
-
-    const conicStyle = gradientParts.length > 0 
-        ? `background: conic-gradient(${gradientParts.join(', ')});`
-        : `background: #64748b;`;
-
-    const legendHTML = items.map(item => {
-        const val = Number(item.value) || 0;
-        const pct = total > 0 ? Math.round((val / total) * 100) : 0;
-        return `
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; font-size: 0.8rem; padding: 0.28rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
-                <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
-                    <span style="width: 10px; height: 10px; border-radius: 3px; background: ${item.color}; flex-shrink: 0; box-shadow: 0 0 6px ${item.color}40;"></span>
-                    <span style="color: var(--text-main); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.35rem; white-space: nowrap; flex-shrink: 0;">
-                    <strong style="color: var(--text-main); font-weight: 800; font-size: 0.88rem;">${val}</strong>
-                    <span style="color: var(--text-muted); font-size: 0.72rem; min-width: 32px; text-align: right;">(${pct}%)</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    return `
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; width: 100%; padding: 0.4rem 0;">
-            <!-- Donut Circle -->
-            <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; ${conicStyle} flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-                <!-- Inner Cutout Hole -->
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${donutHole}%; height: ${donutHole}%; background: var(--bg-card); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.25);">
-                    <span style="font-size: 1.25rem; font-weight: 900; color: var(--text-main); line-height: 1;">${centerText}</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.3px;">${centerSub}</span>
-                </div>
-            </div>
-
-            <!-- Legend -->
-            <div style="flex: 1; min-width: 160px; display: flex; flex-direction: column;">
-                ${legendHTML}
-            </div>
-        </div>
-    `;
 }
 
-window.downloadAdminCsv = function(type) {
+function getFilteredAnalyticsAccounts() {
+    const data = window.__adminKpiData;
+    if (!data) return { musicians: [], organizers: [] };
+
+    const st = window.__analyticsFilterState;
+    let minTs = null;
+    let maxTs = null;
+
+    const now = new Date();
+    if (st.rangeMode === '4weeks') {
+        const fourWeeksAgo = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
+        fourWeeksAgo.setHours(0, 0, 0, 0);
+        minTs = fourWeeksAgo.getTime();
+        maxTs = now.getTime();
+    } else if (st.rangeMode === 'custom') {
+        if (st.dateFrom) {
+            const dFrom = new Date(st.dateFrom + 'T00:00:00');
+            if (!isNaN(dFrom.getTime())) minTs = dFrom.getTime();
+        }
+        if (st.dateTo) {
+            const dTo = new Date(st.dateTo + 'T23:59:59.999');
+            if (!isNaN(dTo.getTime())) maxTs = dTo.getTime();
+        }
+    }
+
+    const inRange = (item) => {
+        if (minTs === null && maxTs === null) return true;
+        const ts = parseItemTimestamp(item.createdAt || item.subscriptionCreated || item.updatedAt);
+        if (ts === null) return st.rangeMode === 'all';
+        if (minTs !== null && ts < minTs) return false;
+        if (maxTs !== null && ts > maxTs) return false;
+        return true;
+    };
+
+    return {
+        musicians: (data.musicianAccounts || []).filter(inRange),
+        organizers: (data.organizerAccounts || []).filter(inRange)
+    };
+}
+
+window.setAnalyticsTimeFilter = function(mode) {
+    const st = window.__analyticsFilterState;
+    st.rangeMode = mode;
+    if (mode === 'custom' && !st.dateTo) {
+        st.dateTo = new Date().toISOString().slice(0, 10);
+    }
+    const contentEl = document.getElementById('admin-kpi-content');
+    if (contentEl) renderAdminKpiCards(contentEl);
+};
+
+window.updateAnalyticsCustomDates = function() {
+    const st = window.__analyticsFilterState;
+    const fromEl = document.getElementById('analytics-date-from');
+    const toEl = document.getElementById('analytics-date-to');
+    if (fromEl) st.dateFrom = fromEl.value;
+    if (toEl) st.dateTo = toEl.value;
+    const contentEl = document.getElementById('admin-kpi-content');
+    if (contentEl) renderAdminKpiCards(contentEl);
+};
+
+window.selectAnalyticsBarSegment = function(role) {
+    const st = window.__analyticsFilterState;
+    st.selectedRole = (st.selectedRole === role) ? null : role;
+    const contentEl = document.getElementById('admin-kpi-content');
+    if (contentEl) renderAdminKpiCards(contentEl);
+};
+
+window.downloadAdminCsv = function(forcedRole) {
     const data = window.__adminKpiData;
     if (!data) {
         if (typeof showToast === 'function') {
@@ -12003,6 +12024,10 @@ window.downloadAdminCsv = function(type) {
         }
         return;
     }
+
+    const st = window.__analyticsFilterState;
+    const targetRole = forcedRole !== undefined ? forcedRole : st.selectedRole;
+    const filtered = getFilteredAnalyticsAccounts();
 
     const escapeCsv = (val) => {
         if (val === null || val === undefined) return '""';
@@ -12044,295 +12069,318 @@ window.downloadAdminCsv = function(type) {
     };
 
     const dateStr = new Date().toISOString().slice(0, 10);
+    const rangeSuffix = st.rangeMode === '4weeks'
+        ? 'Letzte_4_Wochen'
+        : (st.rangeMode === 'custom' ? `${st.dateFrom || 'Start'}_bis_${st.dateTo || dateStr}` : 'Start_bis_Heute');
 
-    if (type === 'musicians') {
-        const headers = ['Musiker-ID', 'Band- / Künstlername', 'Kontaktperson Vorname', 'Kontaktperson Nachname', 'E-Mail-Adresse', 'Telefonnummer', 'Telefon verbergen', 'Künstler-Typ', 'Genres', 'Wohnort / Region', 'Radius (km)', 'Mindestgage (€)', 'Profil-Status', 'Demo-Profil', 'Tarif', 'Registriert / Aktualisiert'];
-        const userMap = new Map((data.users || []).map(u => [u.id, u]));
-        const rows = (data.realMusicians || []).map(m => {
-            const u = userMap.get(m.creatorId) || {};
-            return [
-                m.id || '',
-                m.name || '',
-                u.firstName || '',
-                u.lastName || '',
-                m.email || u.email || '',
-                m.phone || u.phone || '',
-                u.hidePhone ? 'Ja' : 'Nein',
-                m.type || '',
-                (m.genres || []).join(', '),
-                m.location || '',
-                m.radius || '',
-                m.minBudget || '',
-                m.isActive !== false ? 'Aktiv' : 'Inaktiv',
-                m.isDemo ? 'Ja' : 'Nein',
-                u.subscriptionPlan || m.subscriptionPlan || 'flex',
-                formatDateStr(m.updatedAt || u.createdAt)
-            ];
-        });
-        triggerDownload(`GigConnAct_Musiker_Export_${dateStr}`, headers, rows);
-    } else if (type === 'organizers') {
-        const headers = ['User-ID', 'Organisation / Firma', 'Veranstalter-Typ', 'Kontaktperson Vorname', 'Kontaktperson Nachname', 'E-Mail-Adresse', 'Telefonnummer', 'Telefon verbergen', 'Zugeordnete Live-Events', 'Registriert am'];
-        const rows = (data.organizerUsers || []).map(u => {
-            const userEvents = (data.events || []).filter(e => e.creatorId === u.id).map(e => e.name).filter(Boolean);
-            return [
-                u.id || '',
-                u.company || '',
-                u.organizerType || '',
-                u.firstName || '',
-                u.lastName || '',
-                u.email || '',
-                u.phone || '',
-                u.hidePhone ? 'Ja' : 'Nein',
-                userEvents.join(' | ') || (u.eventName || ''),
-                formatDateStr(u.createdAt)
-            ];
-        });
-        triggerDownload(`GigConnAct_Veranstalter_Export_${dateStr}`, headers, rows);
-    } else if (type === 'mediations') {
-        const headers = ['Vermittlungs-ID', 'Event-Name', 'Veranstalter E-Mail', 'Ansprechpartner', 'Event-Datum', 'Veranstaltungsort', 'Budget (€)', 'Vermittlungs-Status', 'Vorgeschlagene Musiker (Anzahl)', 'Zusagen', 'Absagen', 'Erstellt am'];
-        const rows = (data.mediations || []).map(m => {
-            const statuses = m.musicianStatuses || {};
-            const accepted = Object.values(statuses).filter(s => s === 'accepted').length;
-            const declined = Object.values(statuses).filter(s => s === 'declined').length;
-            return [
-                m.id || '',
-                m.eventName || '',
-                m.organizerEmail || m.clientEmail || m.email || '',
-                m.contactName || '',
-                m.eventDate || m.date || '',
-                m.location || '',
-                m.budget || m.minBudget || '',
-                m.status === 'completed' ? 'Erfolgreich vermittelt' : m.status === 'expired' ? 'Abgelaufen' : 'Offen / In Prüfung',
-                (m.musicianIds || []).length,
-                accepted,
-                declined,
-                formatDateStr(m.createdAt)
-            ];
-        });
-        triggerDownload(`GigConnAct_Vermittlungen_Export_${dateStr}`, headers, rows);
-    } else if (type === 'chats') {
-        const headers = ['Chat-ID', 'Teilnehmer 1', 'Teilnehmer 2', 'Anzahl Nachrichten', 'Letzte Nachricht', 'Letzte Nachricht von', 'Zuletzt aktiv am'];
-        const userMap = new Map((data.users || []).map(u => [u.id, u]));
-        const musMap = new Map((data.realMusicians || []).map(m => [m.id, m]));
-        const rows = (data.realChats || []).map(c => {
-            const p1 = (c.participants && c.participants[0]) || '';
-            const p2 = (c.participants && c.participants[1]) || '';
-            const p1Name = (userMap.get(p1)?.firstName ? `${userMap.get(p1).firstName} ${userMap.get(p1).lastName}` : (musMap.get(p1)?.name || p1));
-            const p2Name = (userMap.get(p2)?.firstName ? `${userMap.get(p2).firstName} ${userMap.get(p2).lastName}` : (musMap.get(p2)?.name || p2));
-            const msgs = Array.isArray(c.messages) ? c.messages : [];
-            const lastMsg = msgs.length > 0 ? (msgs[msgs.length - 1].text || '') : '';
-            const lastSender = msgs.length > 0 ? (msgs[msgs.length - 1].senderId || '') : '';
-            return [
-                c.id || '',
-                p1Name,
-                p2Name,
-                msgs.length,
-                lastMsg,
-                lastSender,
-                formatDateStr(c.updatedAt)
-            ];
-        });
-        triggerDownload(`GigConnAct_Chats_Export_${dateStr}`, headers, rows);
-    } else if (type === 'subscriptions') {
-        const headers = ['User-ID', 'Name / Band', 'E-Mail-Adresse', 'Telefon', 'Rolle', 'Tarif', 'Abo-Status', 'Kündigungsdatum', 'Vertragsstart', 'Vertragsende', 'Stripe Customer-ID'];
-        const rows = (data.users || []).filter(u => u.role === 'musician' && u.isPremium === true && (u.subscriptionId || u.stripeCustomerId)).map(u => [
+    const headers = [
+        'Konto-Typ',
+        'User-ID',
+        'Profil-ID',
+        'Vorname',
+        'Nachname',
+        'E-Mail-Adresse',
+        'Telefonnummer',
+        'Telefon verborgen',
+        'Band- / Eventname',
+        'Organisation / Firma',
+        'Veranstalter-Typ / Künstler-Typ',
+        'Standort / Region',
+        'Radius (km)',
+        'Genres',
+        'Instrumente',
+        'Event-Arten',
+        'Budget / Gage (€)',
+        'Dauer (Std.)',
+        'Publikum',
+        'Tarif (Abo)',
+        'Abo-Status',
+        'Kündigungsdatum / Abo-Ende',
+        'Stripe Customer-ID',
+        'Stripe Subscription-ID',
+        'Kontaktanfragen',
+        'Erfolgreiche Gigs',
+        'YouTube',
+        'Spotify',
+        'SoundCloud',
+        'Profil-Status',
+        'Registriert am'
+    ];
+
+    const buildMusicianRow = (u) => {
+        const m = u.profile || {};
+        const socials = m.socialLinks || {};
+        return [
+            'Musiker',
             u.id || '',
-            u.bandName || `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+            m.id || u.profileId || '',
+            u.firstName || '',
+            u.lastName || '',
+            u.email || m.email || '',
+            u.phone || m.phone || '',
+            (u.hidePhone || m.hidePhone) ? 'Ja' : 'Nein',
+            m.name || u.bandName || '',
+            u.company || m.company || 'Privatperson',
+            m.type || '',
+            (m.locations && m.locations.length > 0) ? m.locations.join(', ') : (m.location || ''),
+            m.radius !== undefined ? m.radius : '',
+            (m.genres || []).join(', '),
+            (m.instruments || []).join(', '),
+            (m.eventTypes || []).join(', '),
+            (m.minBudget !== undefined || m.maxBudget !== undefined) ? `${m.minBudget || 0} - ${m.maxBudget || 0}` : '',
+            (m.minDuration !== undefined || m.maxDuration !== undefined) ? `${m.minDuration || 0} - ${m.maxDuration || 0}` : '',
+            (m.minPublikum !== undefined || m.maxPublikum !== undefined) ? `${m.minPublikum || 0} - ${m.maxPublikum || 0}` : '',
+            u.subscriptionPlan || m.subscriptionPlan || 'flex',
+            u.subscriptionCancelled ? 'Gekündigt' : (u.isPremium ? 'Aktiv' : 'Inaktiv'),
+            u.subscriptionEndDate || (u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : ''),
+            u.stripeCustomerId || '',
+            u.subscriptionId || '',
+            u.contactRequests !== undefined ? u.contactRequests : 0,
+            u.successfulGigs !== undefined ? u.successfulGigs : 0,
+            m.youtube || socials.youtube || '',
+            m.spotify || socials.spotify || '',
+            m.soundcloud || socials.soundcloud || '',
+            m.isActive !== false ? 'Aktiv' : 'Inaktiv',
+            formatDateStr(u.createdAt || m.createdAt)
+        ];
+    };
+
+    const buildOrganizerRow = (u) => {
+        const evts = u.events || [];
+        const evtNames = evts.map(e => e.name).filter(Boolean).join(' | ') || u.eventName || '';
+        const evtLocations = evts.map(e => (e.locations && e.locations.length > 0) ? e.locations.join(', ') : e.location).filter(Boolean).join(' | ');
+        const evtGenres = Array.from(new Set(evts.flatMap(e => e.genres || []))).join(', ');
+        const evtInstruments = Array.from(new Set(evts.flatMap(e => e.instruments || []))).join(', ');
+        const evtTypes = Array.from(new Set(evts.flatMap(e => e.eventTypes || (e.type ? [e.type] : [])))).join(', ');
+        const evtBudgets = evts.map(e => e.budget || e.maxBudget || e.minBudget).filter(Boolean).join(' | ');
+        const evtDurations = evts.map(e => e.duration || e.maxDuration || e.minDuration).filter(Boolean).join(' | ');
+        const evtPublikum = evts.map(e => e.publikum || e.maxPublikum).filter(Boolean).join(' | ');
+        return [
+            'Veranstalter',
+            u.id || '',
+            u.profileId || (evts[0]?.id || ''),
+            u.firstName || '',
+            u.lastName || '',
             u.email || '',
             u.phone || '',
-            u.role || '',
-            u.subscriptionPlan || 'flex',
-            u.subscriptionCancelled ? 'Gekündigt' : 'Aktiv',
-            u.subscriptionEndDate ? formatDateStr(u.subscriptionEndDate) : '',
-            u.subscriptionPeriodStart ? formatDateStr(u.subscriptionPeriodStart) : '',
-            u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : '',
-            u.stripeCustomerId || ''
-        ]);
-        triggerDownload(`GigConnAct_Abos_Tarife_Export_${dateStr}`, headers, rows);
-    } else if (type === 'pending') {
-        const headers = ['E-Mail-Adresse', 'Rolle', 'Vorname', 'Nachname', 'Telefonnummer', 'Band- / Eventname', 'Veranstalter-Typ', 'Gewählter Tarif', 'Status'];
-        const rows = (data.pending || []).map(p => [
-            p.email || '',
-            p.role || '',
-            p.firstName || '',
-            p.lastName || '',
-            p.phone || '',
-            p.bandName || p.eventName || '',
-            p.organizerType || '',
-            p.subscriptionPlan || '',
-            p.role === 'musician' ? 'Bezahlvorgang / Verifizierung ausstehend' : 'E-Mail-Verifizierung ausstehend'
-        ]);
-        triggerDownload(`GigConnAct_Ausstehende_Registrierungen_${dateStr}`, headers, rows);
+            u.hidePhone ? 'Ja' : 'Nein',
+            evtNames,
+            u.company || '',
+            u.organizerType || '',
+            evtLocations,
+            '',
+            evtGenres,
+            evtInstruments,
+            evtTypes,
+            evtBudgets,
+            evtDurations,
+            evtPublikum,
+            'Kostenlos (Veranstalter)',
+            'Aktiv',
+            '',
+            '',
+            '',
+            u.contactRequests !== undefined ? u.contactRequests : 0,
+            u.successfulGigs !== undefined ? u.successfulGigs : 0,
+            '',
+            '',
+            '',
+            'Aktiv',
+            formatDateStr(u.createdAt || (evts[0]?.createdAt || ''))
+        ];
+    };
+
+    let rows = [];
+    let filePrefix = 'GigConnAct_Alle_Konten';
+    if (targetRole === 'musician') {
+        rows = filtered.musicians.map(buildMusicianRow);
+        filePrefix = 'GigConnAct_Musiker_Konten';
+    } else if (targetRole === 'organizer') {
+        rows = filtered.organizers.map(buildOrganizerRow);
+        filePrefix = 'GigConnAct_Veranstalter_Konten';
+    } else {
+        rows = [
+            ...filtered.musicians.map(buildMusicianRow),
+            ...filtered.organizers.map(buildOrganizerRow)
+        ];
     }
+
+    triggerDownload(`${filePrefix}_${rangeSuffix}_${dateStr}`, headers, rows);
 };
 
-function renderAdminKpiCards(contentEl, stats) {
+function renderAdminKpiCards(contentEl) {
+    const st = window.__analyticsFilterState;
+    const filtered = getFilteredAnalyticsAccounts();
+    const musiciansCount = filtered.musicians.length;
+    const organizersCount = filtered.organizers.length;
+    const totalCount = musiciansCount + organizersCount;
+
+    let musWidthPct = 50;
+    let orgWidthPct = 50;
+    if (totalCount > 0) {
+        musWidthPct = Math.round((musiciansCount / totalCount) * 100);
+        orgWidthPct = 100 - musWidthPct;
+        if (musiciansCount > 0 && musWidthPct < 18) {
+            musWidthPct = 18;
+            orgWidthPct = 82;
+        } else if (organizersCount > 0 && orgWidthPct < 18) {
+            orgWidthPct = 18;
+            musWidthPct = 82;
+        }
+    }
+
+    const isMusSelected = st.selectedRole === 'musician';
+    const isOrgSelected = st.selectedRole === 'organizer';
+
+    const csvBtnLabel = isMusSelected
+        ? `Excel-Liste: Musiker (${musiciansCount}) (.csv)`
+        : (isOrgSelected
+            ? `Excel-Liste: Veranstalter (${organizersCount}) (.csv)`
+            : `Excel-Liste herunterladen (${totalCount}) (.csv)`);
+
+    const csvBtnBg = isMusSelected
+        ? '#7c3aed'
+        : (isOrgSelected ? '#2563eb' : 'rgba(124, 58, 237, 0.12)');
+    const csvBtnColor = (isMusSelected || isOrgSelected) ? '#ffffff' : '#7c3aed';
+    const csvBtnBorder = isMusSelected
+        ? '#7c3aed'
+        : (isOrgSelected ? '#2563eb' : 'rgba(124, 58, 237, 0.35)');
+
+    const selectedAccounts = isMusSelected
+        ? filtered.musicians
+        : (isOrgSelected ? filtered.organizers : []);
+    const selectedLabel = isMusSelected ? 'Musiker' : (isOrgSelected ? 'Veranstalter' : '');
+    const selectedColor = isMusSelected ? '#7c3aed' : '#2563eb';
+
+    const formatShortDate = (val) => {
+        const ts = parseItemTimestamp(val);
+        if (!ts) return '–';
+        return new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
     contentEl.innerHTML = `
-        <!-- 1. Community & Accounts -->
         <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-users"></i> 1. Community & Benutzer-Wachstum
-                </div>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('musicians')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3);">
-                        <i class="fa-solid fa-file-excel"></i> Musiker (.csv)
+            <!-- Filter-Zeile + Einziger CSV-Button -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('all')" style="padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
+                        Start bis Heute
                     </button>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('organizers')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3);">
-                        <i class="fa-solid fa-file-excel"></i> Veranstalter (.csv)
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('4weeks')" style="padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === '4weeks' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === '4weeks' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === '4weeks' ? '#ffffff' : 'var(--text-main)'};">
+                        Letzte 4 Wochen
                     </button>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('pending')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
-                        <i class="fa-solid fa-file-excel"></i> Offene Funnel (.csv)
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('custom')" style="padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'custom' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'custom' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'custom' ? '#ffffff' : 'var(--text-main)'}; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-regular fa-calendar"></i> Personalisiert
                     </button>
                 </div>
-            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm 1: Rollen-Verteilung -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-chart-pie" style="color: #7c3aed;"></i> Gesamt-Accounts nach Rolle
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Echte Musiker', value: stats.musiciansCount, color: '#7c3aed' },
-                        { label: 'Veranstalter', value: stats.organizersCount, color: '#2563eb' },
-                        { label: 'Ausstehend (Funnel)', value: stats.pendingCount, color: '#f59e0b' }
-                    ], { centerText: stats.usersCount + stats.pendingCount, centerSub: 'Konten' })}
-                </div>
-
-                <!-- Kuchendiagramm 2: Musiker Aktivität -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-guitar" style="color: #10b981;"></i> Musiker: Status & Aktivität
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Aktive Musiker', value: stats.activeMusiciansCount, color: '#10b981' },
-                        { label: 'Inaktive Musiker', value: stats.inactiveMusiciansCount, color: '#64748b' },
-                        { label: 'Demo-Profile', value: stats.demoMusiciansCount, color: '#94a3b8' }
-                    ], { centerText: stats.musiciansCount + stats.demoMusiciansCount, centerSub: 'Musiker' })}
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. Vermittlungs-Performance & Reaktionen -->
-        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-handshake"></i> 2. Vermittlungs-Performance & Reaktionen
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('mediations')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
-                    <i class="fa-solid fa-file-excel"></i> Vermittlungen (.csv)
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.52rem 1rem; font-size: 0.82rem; font-weight: 800; border-radius: 10px; margin: 0; cursor: pointer; background: ${csvBtnBg}; color: ${csvBtnColor}; border: 1.5px solid ${csvBtnBorder}; transition: 0.2s;">
+                    <i class="fa-solid fa-file-csv"></i> ${csvBtnLabel}
                 </button>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm 1: Vermittlungs-Status -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-calendar-check" style="color: #7c3aed;"></i> Status aller Vermittlungen
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Erfolgreich vermittelt', value: stats.completedMediations, color: '#10b981' },
-                        { label: 'Offen / In Prüfung', value: stats.openMediations, color: '#7c3aed' },
-                        { label: 'Abgelaufen', value: stats.expiredMediations, color: '#ef4444' }
-                    ], { centerText: stats.mediationsTotal, centerSub: 'Anfragen' })}
+            ${st.rangeMode === 'custom' ? `
+            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 1.25rem; padding: 0.85rem 1rem; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px;">
+                <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <label for="analytics-date-from" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Von:</label>
+                    <input type="date" id="analytics-date-from" class="input-field" value="${st.dateFrom || ''}" onchange="window.updateAnalyticsCustomDates()" style="margin: 0; padding: 0.38rem 0.65rem; font-size: 0.82rem; height: auto; width: auto;">
                 </div>
-
-                <!-- Kuchendiagramm 2: Musiker Reaktionen -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-thumbs-up" style="color: #6366f1;"></i> Musiker-Rückmeldungen
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Angenommen (Zusage)', value: stats.acceptedResponses, color: '#10b981' },
-                        { label: 'Abgesagt', value: stats.declinedResponses, color: '#ef4444' },
-                        { label: 'Ausstehend / Offen', value: stats.pendingResponses, color: '#f59e0b' }
-                    ], { centerText: stats.totalResponses > 0 ? stats.acceptanceRate + '%' : '–', centerSub: 'Zusagen' })}
+                <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <label for="analytics-date-to" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Bis:</label>
+                    <input type="date" id="analytics-date-to" class="input-field" value="${st.dateTo || ''}" onchange="window.updateAnalyticsCustomDates()" style="margin: 0; padding: 0.38rem 0.65rem; font-size: 0.82rem; height: auto; width: auto;">
                 </div>
             </div>
-        </div>
+            ` : ''}
 
-        <!-- 3. Kommunikation & Postfach -->
-        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-comments"></i> 3. Postfach & Kommunikation
+            <!-- Balkendiagramm Header -->
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-main);">
+                    Registrierte Konten (${totalCount} gesamt)
                 </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('chats')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(14, 165, 233, 0.1); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3);">
-                    <i class="fa-solid fa-file-excel"></i> Chats & Postfach (.csv)
-                </button>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">
+                    Klicke auf eine Fläche, um die Konten einzusehen und als Excel-Liste (.csv) zu exportieren
+                </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm: Chat Aktivität -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-chart-pie" style="color: #0ea5e9;"></i> Postfach-Aktivität
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Aktive Chats (mit Inhalt)', value: stats.chatsWithMessagesCount, color: '#0ea5e9' },
-                        { label: 'Unbeantwortet / Neu', value: stats.chatsEmptyCount, color: '#94a3b8' }
-                    ], { centerText: stats.realChatsCount, centerSub: 'Chats' })}
+            <!-- Gestapelter Balken: Musiker (Lila) & Veranstalter (Blau) -->
+            ${totalCount === 0 ? `
+                <div style="height: 82px; border-radius: 14px; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.88rem; font-weight: 600;">
+                    Keine Konten im ausgewählten Zeitraum gefunden.
                 </div>
+            ` : `
+                <div style="display: flex; width: 100%; height: 88px; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); border: 1px solid rgba(255,255,255,0.1);">
+                    ${musiciansCount > 0 ? `
+                    <div onclick="window.selectAnalyticsBarSegment('musician')" title="Klicken, um Musiker-Konten (${musiciansCount}) auszuwählen" style="width: ${organizersCount === 0 ? 100 : musWidthPct}%; background: #7c3aed; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; user-select: none; opacity: ${isOrgSelected ? '0.55' : '1'}; box-shadow: ${isMusSelected ? 'inset 0 0 0 3px #ffffff' : 'none'};">
+                        <span style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.3px; opacity: 0.95;">Musiker</span>
+                        <span style="font-size: 1.65rem; font-weight: 900; line-height: 1.15; margin-top: 2px;">${musiciansCount}</span>
+                    </div>
+                    ` : ''}
+                    ${organizersCount > 0 ? `
+                    <div onclick="window.selectAnalyticsBarSegment('organizer')" title="Klicken, um Veranstalter-Konten (${organizersCount}) auszuwählen" style="width: ${musiciansCount === 0 ? 100 : orgWidthPct}%; background: #2563eb; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; user-select: none; opacity: ${isMusSelected ? '0.55' : '1'}; box-shadow: ${isOrgSelected ? 'inset 0 0 0 3px #ffffff' : 'none'};">
+                        <span style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.3px; opacity: 0.95;">Veranstalter</span>
+                        <span style="font-size: 1.65rem; font-weight: 900; line-height: 1.15; margin-top: 2px;">${organizersCount}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `}
 
-                <!-- Info-Kacheln für Chats -->
-                <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
-                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Echte Konversationen</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 0.2rem;">${stats.realChatsCount}</div>
+            <!-- Legende / Schnellauswahl unter dem Balken -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+                    <div onclick="window.selectAnalyticsBarSegment('musician')" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 8px; background: ${isMusSelected ? 'rgba(124, 58, 237, 0.12)' : 'transparent'}; border: 1px solid ${isMusSelected ? '#7c3aed' : 'transparent'};">
+                        <span style="width: 12px; height: 12px; border-radius: 4px; background: #7c3aed; display: inline-block;"></span>
+                        <span style="font-size: 0.83rem; font-weight: 700; color: var(--text-main);">Musiker: ${musiciansCount}</span>
+                    </div>
+                    <div onclick="window.selectAnalyticsBarSegment('organizer')" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 8px; background: ${isOrgSelected ? 'rgba(37, 99, 235, 0.12)' : 'transparent'}; border: 1px solid ${isOrgSelected ? '#2563eb' : 'transparent'};">
+                        <span style="width: 12px; height: 12px; border-radius: 4px; background: #2563eb; display: inline-block;"></span>
+                        <span style="font-size: 0.83rem; font-weight: 700; color: var(--text-main);">Veranstalter: ${organizersCount}</span>
+                    </div>
+                </div>
+                ${(isMusSelected || isOrgSelected) ? `
+                    <button type="button" onclick="window.selectAnalyticsBarSegment('${st.selectedRole}')" style="background: none; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0;">
+                        Auswahl aufheben (Alle anzeigen)
+                    </button>
+                ` : ''}
+            </div>
+
+            <!-- Detail-Vorschau beim Klick auf eine Fläche -->
+            ${(isMusSelected || isOrgSelected) ? `
+                <div style="margin-top: 1.15rem; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid ${selectedColor}40;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.88rem; font-weight: 800; color: ${selectedColor}; display: flex; align-items: center; gap: 0.45rem;">
+                            <i class="fa-solid ${isMusSelected ? 'fa-guitar' : 'fa-calendar-check'}"></i>
+                            Ausgewählte Fläche: ${selectedLabel} (${selectedAccounts.length} ${selectedAccounts.length === 1 ? 'Konto' : 'Konten'})
                         </div>
-                        <i class="fa-solid fa-message" style="color: #0ea5e9; font-size: 1.6rem; opacity: 0.7;"></i>
+                        <span style="font-size: 0.76rem; color: var(--text-muted);">
+                            Über den CSV-Button oben erhältst du die vollständige Excel-Liste aller Account-Details.
+                        </span>
                     </div>
-
-                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Ausgetauschte Nachrichten</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 0.2rem;">${stats.totalMessages}</div>
-                        </div>
-                        <i class="fa-solid fa-paper-plane" style="color: #0ea5e9; font-size: 1.6rem; opacity: 0.7;"></i>
+                    <div style="max-height: 240px; overflow-y: auto; border-top: 1px solid var(--border-color);">
+                        ${selectedAccounts.length === 0 ? `
+                            <div style="padding: 0.8rem 0; font-size: 0.82rem; color: var(--text-muted);">Keine Konten in diesem Zeitraum.</div>
+                        ` : selectedAccounts.map(acc => {
+                            const fullName = `${acc.firstName || ''} ${acc.lastName || ''}`.trim() || acc.profile?.contactName || '–';
+                            const entityName = isMusSelected
+                                ? (acc.profile?.name || acc.bandName || '–')
+                                : ((acc.events && acc.events.map(e => e.name).filter(Boolean).join(', ')) || acc.eventName || acc.company || '–');
+                            return `
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 0.55rem 0.25rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; flex-wrap: wrap;">
+                                    <div style="min-width: 180px;">
+                                        <strong style="color: var(--text-main);">${fullName}</strong>
+                                        <span style="color: var(--text-muted); margin-left: 0.4rem;">(${entityName})</span>
+                                    </div>
+                                    <div style="color: var(--text-muted); flex: 1; min-width: 180px;">
+                                        ${acc.email || '–'} ${acc.phone ? `· ${acc.phone}` : ''}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">
+                                        ${formatShortDate(acc.createdAt || acc.profile?.createdAt)}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- 4. Musiker-Tarife & Abonnements -->
-        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-credit-card"></i> 4. Musiker-Tarife & Abonnements
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('subscriptions')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3);">
-                    <i class="fa-solid fa-file-excel"></i> Abos & Tarife (.csv)
-                </button>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm 1: Tarif-Verteilung -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-chart-pie" style="color: #7c3aed;"></i> Gewählte Tarife
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Flex (9,99 €)', value: stats.plans.flex, color: '#7c3aed' },
-                        { label: 'Plus (7,99 €)', value: stats.plans.plus, color: '#6366f1' },
-                        { label: 'Pro (5,99 €)', value: stats.plans.pro, color: '#3b82f6' },
-                        { label: 'Premium (Promo)', value: stats.plans.premium, color: '#ec4899' },
-                        { label: 'Free / Basis', value: stats.plans.free, color: '#94a3b8' }
-                    ], { centerText: stats.activeSubs + stats.cancelledSubs, centerSub: 'Tarife' })}
-                </div>
-
-                <!-- Kuchendiagramm 2: Vertragsstatus -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> Vertrags-Status
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Aktive Abonnements', value: stats.activeSubs, color: '#10b981' },
-                        { label: 'Gekündigte Verträge', value: stats.cancelledSubs, color: '#ef4444' }
-                    ], { centerText: stats.activeSubs + stats.cancelledSubs, centerSub: 'Verträge' })}
-                </div>
-            </div>
+            ` : ''}
         </div>
     `;
 }
@@ -12349,125 +12397,76 @@ async function initAdminKpiDashboard(container) {
         if (contentEl) contentEl.style.display = 'none';
 
         try {
-            const [usersSnap, musSnap, evtSnap, medSnap, pendingSnap, chatsSnap] = await Promise.all([
+            const [usersSnap, musSnap, evtSnap] = await Promise.all([
                 db.collection('users').get().catch(err => { console.warn("Admin KPI users load failed:", err); return { docs: [] }; }),
                 db.collection('musicians').get().catch(err => { console.warn("Admin KPI musicians load failed:", err); return { docs: [] }; }),
-                db.collection('events').get().catch(err => { console.warn("Admin KPI events load failed:", err); return { docs: [] }; }),
-                db.collection('mediations').get().catch(err => { console.warn("Admin KPI mediations load failed:", err); return { docs: [] }; }),
-                db.collection('pendingRegistrations').get().catch(err => { console.warn("Admin KPI pendingRegistrations load failed:", err); return { docs: [] }; }),
-                db.collection('chats').get().catch(err => { console.warn("Admin KPI chats load failed:", err); return { docs: [] }; })
+                db.collection('events').get().catch(err => { console.warn("Admin KPI events load failed:", err); return { docs: [] }; })
             ]);
 
             const users = (usersSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
             const musicians = (musSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
             const events = (evtSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
-            const mediations = (medSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
-            const pending = (pendingSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
-            const chats = (chatsSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
 
             const isDemoM = (m) => {
-                if (!m) return false;
+                if (!m) return true;
                 const id = String(m.id || '');
                 if (m.isDemo === true || id.startsWith('mus_gen_') || id.startsWith('demo_') || id === 'mus_1_dup') return true;
                 if (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === id)) return true;
-                if (/^mus_([1-9]|zero|five)$/.test(id)) return true;
+                if (/^mus_(\d+|zero|five)$/.test(id)) return true;
                 return false;
             };
             const isDemoE = (e) => {
-                if (!e) return false;
+                if (!e) return true;
                 const id = String(e.id || '');
                 if (e.isDemo === true || id.startsWith('evt_gen_') || id.startsWith('demo_')) return true;
                 if (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === id)) return true;
-                if (/^evt_([1-9]|zero|five)$/.test(id)) return true;
+                if (/^evt_(\d+|zero|five)$/.test(id)) return true;
+                return false;
+            };
+            const isDemoOrAdminUser = (u) => {
+                if (!u) return true;
+                const id = String(u.id || '');
+                const email = String(u.email || '').trim().toLowerCase();
+                if (id.startsWith('demo_') || id === 'admin_info_gigconnact' || id === 'info-gigconnact-admin') return true;
+                if (email === 'info@gigconnact.de' || email === 'gigconnact@gmail.com' || email.endsWith('@example.com')) return true;
                 return false;
             };
 
-            const paidMusicianUsers = users.filter(u => u.role === 'musician' && u.isPremium === true && (u.subscriptionId || u.stripeCustomerId));
-            const paidUserIds = new Set(paidMusicianUsers.map(u => u.id));
-            const organizerUsers = users.filter(u => u.role === 'organizer');
-            const verifiedUsers = [...organizerUsers, ...paidMusicianUsers];
-
-            const realMusicians = musicians.filter(m => !isDemoM(m) && (m.isPremium === true || (m.creatorId && paidUserIds.has(m.creatorId))));
-            const demoMusicians = musicians.filter(m => isDemoM(m));
-            const activeRealMusicians = realMusicians.filter(m => m.isActive !== false);
-            const inactiveRealMusicians = realMusicians.filter(m => m.isActive === false);
-
+            const realMusicianProfiles = musicians.filter(m => !isDemoM(m));
             const realEvents = events.filter(e => !isDemoE(e));
-            const musicianUsers = paidMusicianUsers;
 
-            let acceptedResponses = 0;
-            let declinedResponses = 0;
-            let pendingResponses = 0;
-            mediations.forEach(m => {
-                const statuses = m.musicianStatuses || {};
-                Object.values(statuses).forEach(st => {
-                    if (st === 'accepted') acceptedResponses++;
-                    else if (st === 'declined') declinedResponses++;
-                    else if (st === 'pending') pendingResponses++;
-                });
-            });
-            const completedMediations = mediations.filter(m => m.status === 'completed').length;
-            const openMediations = mediations.filter(m => m.status === 'pending' || !m.status).length;
-            const expiredMediations = mediations.filter(m => m.status === 'expired').length;
-            const totalResponses = acceptedResponses + declinedResponses;
-            const acceptanceRate = totalResponses > 0 ? Math.round((acceptedResponses / totalResponses) * 100) : 0;
-
-            const realChats = chats.filter(c => c && c.participants && !c.participants.includes('system'));
-            const chatsWithMessages = realChats.filter(c => c && Array.isArray(c.messages) && c.messages.length > 0);
-            const chatsEmpty = realChats.filter(c => !c || !Array.isArray(c.messages) || c.messages.length === 0);
-            const totalMessages = realChats.reduce((sum, c) => sum + ((c.messages && Array.isArray(c.messages)) ? c.messages.length : 0), 0);
-
-            const plans = { flex: 0, plus: 0, pro: 0, premium: 0, free: 0, other: 0 };
-            let cancelledSubs = 0;
-            let activeSubs = 0;
-            musicianUsers.forEach(u => {
-                const p = (u.subscriptionPlan || 'flex').toLowerCase();
-                if (plans[p] !== undefined) plans[p]++;
-                else plans.other++;
-                if (u.subscriptionCancelled) {
-                    cancelledSubs++;
-                } else {
-                    activeSubs++;
+            const musByCreator = new Map();
+            realMusicianProfiles.forEach(m => {
+                if (m.creatorId && !musByCreator.has(m.creatorId)) {
+                    musByCreator.set(m.creatorId, m);
+                }
+                if (m.id && !musByCreator.has(m.id)) {
+                    musByCreator.set(m.id, m);
                 }
             });
 
+            const musicianAccounts = users
+                .filter(u => !isDemoOrAdminUser(u) && u.role === 'musician' && (u.isPremium === true || u.subscriptionId || u.stripeCustomerId))
+                .map(u => ({
+                    ...u,
+                    profile: musByCreator.get(u.id) || musByCreator.get(u.profileId) || null
+                }));
+
+            const organizerAccounts = users
+                .filter(u => !isDemoOrAdminUser(u) && u.role === 'organizer')
+                .map(u => ({
+                    ...u,
+                    events: realEvents.filter(e => e.creatorId === u.id || (u.profileId && e.id === u.profileId) || (u.email && (e.email === u.email || e.clientEmail === u.email)))
+                }));
+
             window.__adminKpiData = {
-                realMusicians,
-                demoMusicians,
-                organizerUsers,
-                events: realEvents,
-                mediations,
-                pending,
-                users: verifiedUsers,
-                realChats
+                musicianAccounts,
+                organizerAccounts,
+                realMusicians: realMusicianProfiles,
+                events: realEvents
             };
 
-            renderAdminKpiCards(contentEl, {
-                usersCount: verifiedUsers.length,
-                musiciansCount: realMusicians.length,
-                demoMusiciansCount: demoMusicians.length,
-                activeMusiciansCount: activeRealMusicians.length,
-                inactiveMusiciansCount: inactiveRealMusicians.length,
-                organizersCount: organizerUsers.length,
-                realEventsCount: realEvents.length,
-                pendingCount: pending.length,
-                mediationsTotal: mediations.length,
-                completedMediations,
-                openMediations,
-                expiredMediations,
-                acceptedResponses,
-                declinedResponses,
-                pendingResponses,
-                acceptanceRate,
-                totalResponses,
-                realChatsCount: realChats.length,
-                chatsWithMessagesCount: chatsWithMessages.length,
-                chatsEmptyCount: chatsEmpty.length,
-                totalMessages,
-                plans,
-                activeSubs,
-                cancelledSubs
-            });
+            renderAdminKpiCards(contentEl);
 
             if (loadingEl) loadingEl.style.display = 'none';
             if (contentEl) {
@@ -12481,7 +12480,7 @@ async function initAdminKpiDashboard(container) {
                 loadingEl.innerHTML = `
                     <div style="color: var(--color-red); padding: 1.5rem; text-align: center;">
                         <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.8rem; margin-bottom: 0.5rem; display: block;"></i>
-                        <div>Fehler beim Laden der KPIs: ${err.message}</div>
+                        <div>Fehler beim Laden des Analytics Dashboards: ${err.message}</div>
                     </div>
                 `;
             }
@@ -12667,11 +12666,10 @@ function renderProfilePage(container) {
                 <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
-                            <i class="fa-solid fa-chart-pie"></i>
+                            <i class="fa-solid fa-chart-column"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Admin KPI & Analytics Dashboard</h3>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Echtzeit-Kennzahlen, Vermittlungen & Datenexport</span>
+                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Analytics Dashboard</h3>
                         </div>
                     </div>
                     <button type="button" id="btn-refresh-admin-kpis" class="btn btn-secondary btn-sm" style="margin: 0; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 8px; font-weight: 700; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); cursor: pointer;">
