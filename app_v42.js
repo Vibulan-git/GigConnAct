@@ -11927,10 +11927,16 @@ window.showSubscriptionChangeSuccessModal = showSubscriptionChangeSuccessModal;
 
 // --- ADMIN KPI & ANALYTICS HELPER FUNCTIONS ---
 window.__analyticsFilterState = {
-    activeTab: 'users', // 'users' | 'mediations' | 'subscriptions' | 'messages'
+    activeTab: 'users', // 'users' | 'profiles' | 'mediations' | 'subscriptions' | 'messages'
     users: {
         rangeMode: 'all', // 'all' | '4weeks' | 'custom'
         xAxisMode: 'weeks', // 'weeks' (Voreinstellung) | 'month' | 'year'
+        dateFrom: '',
+        dateTo: ''
+    },
+    profiles: {
+        rangeMode: 'all',
+        xAxisMode: 'weeks',
         dateFrom: '',
         dateTo: ''
     },
@@ -12060,6 +12066,16 @@ function getFilteredAnalyticsAccounts() {
         musicians: filterItemsBySectionState(data.musicianAccounts || [], 'users'),
         organizers: filterItemsBySectionState(data.organizerAccounts || [], 'users'),
         pending: filterItemsBySectionState(data.pending || [], 'users')
+    };
+}
+
+function getFilteredAnalyticsProfiles() {
+    const data = window.__adminKpiData;
+    if (!data) return { musicianProfiles: [], directEventProfiles: [], mediationEventProfiles: [] };
+    return {
+        musicianProfiles: filterItemsBySectionState(data.activeMusicianProfiles || [], 'profiles'),
+        directEventProfiles: filterItemsBySectionState(data.activeDirectEvents || [], 'profiles'),
+        mediationEventProfiles: filterItemsBySectionState(data.activeMediationEvents || [], 'profiles')
     };
 }
 
@@ -12250,7 +12266,7 @@ function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode, section
 }
 
 window.setAnalyticsActiveTab = function(tabKey) {
-    const validTabs = ['users', 'mediations', 'subscriptions', 'messages'];
+    const validTabs = ['users', 'profiles', 'mediations', 'subscriptions', 'messages'];
     if (!validTabs.includes(tabKey)) return;
     window.__analyticsFilterState.activeTab = tabKey;
     const contentEl = document.getElementById('admin-kpi-content');
@@ -12258,7 +12274,7 @@ window.setAnalyticsActiveTab = function(tabKey) {
 };
 
 window.setAnalyticsTimeFilter = function(sectionKey, mode) {
-    const validKeys = ['users', 'mediations', 'messages', 'subscriptions'];
+    const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
     const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
     const st = window.__analyticsFilterState[targetKey];
     st.rangeMode = mode;
@@ -12270,7 +12286,7 @@ window.setAnalyticsTimeFilter = function(sectionKey, mode) {
 };
 
 window.setAnalyticsXAxisMode = function(sectionKey, mode) {
-    const validKeys = ['users', 'mediations', 'messages', 'subscriptions'];
+    const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
     const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
     const st = window.__analyticsFilterState[targetKey];
     st.xAxisMode = mode;
@@ -12279,7 +12295,7 @@ window.setAnalyticsXAxisMode = function(sectionKey, mode) {
 };
 
 window.updateAnalyticsCustomDates = function(sectionKey) {
-    const validKeys = ['users', 'mediations', 'messages', 'subscriptions'];
+    const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
     const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
     const st = window.__analyticsFilterState[targetKey];
     const fromEl = document.getElementById(`analytics-date-from-${targetKey}`);
@@ -12294,6 +12310,7 @@ window.downloadAdminCsvForActiveTab = function() {
     const activeTab = (window.__analyticsFilterState && window.__analyticsFilterState.activeTab) || 'users';
     const map = {
         users: '',
+        profiles: 'profiles',
         mediations: 'mediations',
         subscriptions: 'subscriptions',
         messages: 'messages'
@@ -12350,6 +12367,89 @@ window.downloadAdminCsv = function(type, bucketKey) {
     };
 
     const dateStr = new Date().toISOString().slice(0, 10);
+
+    // Exporte für Profile (Musiker-Profile, Event-Profile, Event-Profile aus Vermittlung)
+    if (type === 'profiles' || type === 'prof_musician' || type === 'prof_event' || type === 'prof_event_mediation') {
+        const stProf = window.__analyticsFilterState.profiles;
+        const groupedProfs = getFilteredAnalyticsProfiles();
+        let targetList = [];
+        let filePrefix = 'GigConnAct_Profile_Gesamt';
+
+        if (type === 'prof_musician') {
+            targetList = groupedProfs.musicianProfiles.map(p => ({ ...p, _profCategory: 'Musiker-Profil' }));
+            filePrefix = 'GigConnAct_Musiker_Profile';
+        } else if (type === 'prof_event') {
+            targetList = groupedProfs.directEventProfiles.map(p => ({ ...p, _profCategory: 'Event-Profil' }));
+            filePrefix = 'GigConnAct_Event_Profile';
+        } else if (type === 'prof_event_mediation') {
+            targetList = groupedProfs.mediationEventProfiles.map(p => ({ ...p, _profCategory: 'Event-Profil (Vermittlung)' }));
+            filePrefix = 'GigConnAct_Event_Profile_Vermittlung';
+        } else {
+            targetList = [
+                ...groupedProfs.musicianProfiles.map(p => ({ ...p, _profCategory: 'Musiker-Profil' })),
+                ...groupedProfs.directEventProfiles.map(p => ({ ...p, _profCategory: 'Event-Profil' })),
+                ...groupedProfs.mediationEventProfiles.map(p => ({ ...p, _profCategory: 'Event-Profil (Vermittlung)' }))
+            ];
+        }
+
+        if (bucketKey) {
+            targetList = targetList.filter(p => {
+                const ts = getAccountTimestamp(p) || Date.now();
+                return getBucketKeyAndLabel(ts, stProf.xAxisMode || 'weeks').key === bucketKey;
+            });
+        }
+
+        const headers = [
+            'Profil-Kategorie',
+            'Profil-ID',
+            'User- / Ersteller-ID',
+            'Band- / Eventname',
+            'Künstler- / Event-Typ',
+            'Ansprechpartner / Veranstalter',
+            'E-Mail-Adresse',
+            'Telefonnummer',
+            'Standort / Region',
+            'Event-Datum',
+            'Genres',
+            'Instrumente',
+            'Budget / Gage (€)',
+            'Publikum',
+            'Status',
+            'Erstellt am'
+        ];
+
+        const rows = targetList.map(p => {
+            const isMus = p._profCategory === 'Musiker-Profil';
+            const loc = (p.locations && p.locations.length > 0) ? p.locations.join(', ') : (p.location || '');
+            const budgetStr = p.budget !== undefined && p.budget !== ''
+                ? p.budget
+                : ((p.minBudget !== undefined || p.maxBudget !== undefined) ? `${p.minBudget || 0} - ${p.maxBudget || 0}` : '');
+            const pubStr = p.publikum || ((p.minPublikum !== undefined || p.maxPublikum !== undefined) ? `${p.minPublikum || 0} - ${p.maxPublikum || 0}` : '');
+            const typeStr = isMus ? (p.type || '') : ((p.eventTypes && p.eventTypes.length > 0) ? p.eventTypes.join(', ') : (p.type || ''));
+            return [
+                p._profCategory || '',
+                p.id || '',
+                p.creatorId || '',
+                p.name || p.title || '',
+                typeStr,
+                p.clientName || p.contactName || p._ownerName || '',
+                p.clientEmail || p.email || p._ownerEmail || '',
+                p.clientPhone || p.phone || p._ownerPhone || '',
+                loc,
+                isMus ? '–' : (p.date || (Array.isArray(p.dates) ? p.dates.join(', ') : '')),
+                (p.genres || []).join(', '),
+                (p.instruments || []).join(', '),
+                budgetStr,
+                pubStr,
+                'Aktiv',
+                formatDateStr(p.createdAt || p._analyticsTs)
+            ];
+        });
+
+        const suffix = bucketKey ? `${bucketKey}_${dateStr}` : dateStr;
+        triggerDownload(`${filePrefix}_${suffix}`, headers, rows);
+        return;
+    }
 
     // Exporte für Vermittlungen
     if (type === 'mediations' || type === 'med_submitted' || type === 'med_open' || type === 'med_successful' || type === 'med_unsuccessful') {
@@ -12811,6 +12911,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
 
     const tabs = [
         { key: 'users', label: 'User' },
+        { key: 'profiles', label: 'Profile' },
         { key: 'mediations', label: 'Vermittlungen' },
         { key: 'subscriptions', label: 'Abonnements' },
         { key: 'messages', label: 'Nachrichten' }
@@ -12826,6 +12927,14 @@ function renderAdminKpiCards(contentEl, statsInput) {
             { key: 'musicians', label: 'Musiker', color: '#7c3aed', textColor: '#ffffff', csvType: 'musician' },
             { key: 'organizers', label: 'Veranstalter', color: '#2563eb', textColor: '#ffffff', csvType: 'organizer' },
             { key: 'pending', label: 'Ausstehend', color: '#f59e0b', textColor: '#ffffff', csvType: 'pending' }
+        ];
+    } else if (activeTab === 'profiles') {
+        const filteredProfiles = getFilteredAnalyticsProfiles();
+        buckets = buildGenericTimeBuckets(filteredProfiles, ['musicianProfiles', 'directEventProfiles', 'mediationEventProfiles'], xAxisMode, st);
+        seriesDefs = [
+            { key: 'musicianProfiles', label: 'Musiker-Profile', color: '#7c3aed', textColor: '#ffffff', csvType: 'prof_musician' },
+            { key: 'directEventProfiles', label: 'Event-Profile', color: '#2563eb', textColor: '#ffffff', csvType: 'prof_event' },
+            { key: 'mediationEventProfiles', label: 'Event-Profile (Vermittlung)', color: '#60a5fa', textColor: '#ffffff', csvType: 'prof_event_mediation' }
         ];
     } else if (activeTab === 'mediations') {
         const filteredMeds = getFilteredAnalyticsMediations();
@@ -13181,10 +13290,112 @@ async function initAdminKpiDashboard(container) {
                 });
             });
 
+            // Aktive Musiker-Profile (ohne Demo- oder gelöschte/deaktivierte Profile)
+            const activeMusicianProfiles = realMusicianProfiles
+                .filter(m => {
+                    if (!m) return false;
+                    if (m.isDeleted === true || m.deleted === true || m.status === 'deleted' || m.status === 'inactive') return false;
+                    if (m.isActive === false || m.isActive === 'false') return false;
+                    const owner = m.creatorId ? userMap.get(m.creatorId) : null;
+                    if (owner && isDemoOrAdminUser(owner)) return false;
+                    return true;
+                })
+                .map(m => {
+                    const owner = m.creatorId ? userMap.get(m.creatorId) : null;
+                    return {
+                        ...m,
+                        _ownerName: owner ? `${owner.firstName || ''} ${owner.lastName || ''}`.trim() : '',
+                        _ownerEmail: owner ? (owner.email || '') : '',
+                        _ownerPhone: owner ? (owner.phone || '') : '',
+                        _analyticsTs: m.createdAt || (owner && owner.createdAt) || m.updatedAt
+                    };
+                });
+
+            // Zuordnung von Vermittlungsanfragen zu Events
+            const medByEventId = new Map();
+            (mediations || []).forEach(med => {
+                if (!med) return;
+                const eid = String(med.eventId || String(med.id || '').replace(/^med_/, '')).trim();
+                if (eid) medByEventId.set(eid, med);
+            });
+
+            const isMediationDerivedEvent = (e) => {
+                if (!e) return false;
+                const eid = String(e.id || '');
+                return Boolean(
+                    e.isAgencyRequest === true ||
+                    e.isMediation === true ||
+                    e.contactType === 'mediation' ||
+                    e.mediation === true ||
+                    e.creatorId === 'info-gigconnact-admin' ||
+                    (e.email && String(e.email).toLowerCase() === 'info@gigconnact.de') ||
+                    (e.clientEmail && String(e.clientEmail).toLowerCase() === 'info@gigconnact.de') ||
+                    eid.startsWith('evt_agency_') ||
+                    medByEventId.has(eid)
+                );
+            };
+
+            const isEventProfileCurrentlyActive = (e) => {
+                if (!e) return false;
+                if (typeof isEventActive === 'function' && !isEventActive(e)) return false;
+                const linkedMed = medByEventId.get(String(e.id || ''));
+                if (linkedMed) {
+                    const medCat = classifyMediationStatus(linkedMed);
+                    if (medCat === 'unsuccessful' || medCat === 'successful') return false;
+                }
+                return true;
+            };
+
+            const activeRealEvents = realEvents
+                .filter(isEventProfileCurrentlyActive)
+                .map(e => {
+                    const owner = e.creatorId ? userMap.get(e.creatorId) : null;
+                    const linkedMed = medByEventId.get(String(e.id || ''));
+                    return {
+                        ...e,
+                        _ownerName: (linkedMed && linkedMed.clientName) || (owner ? `${owner.firstName || ''} ${owner.lastName || ''}`.trim() : ''),
+                        _ownerEmail: (linkedMed && linkedMed.organizerEmail) || (owner ? (owner.email || '') : ''),
+                        _ownerPhone: (linkedMed && linkedMed.clientPhone) || (owner ? (owner.phone || '') : ''),
+                        _analyticsTs: e.createdAt || (linkedMed && linkedMed.createdAt) || (owner && owner.createdAt) || e.updatedAt
+                    };
+                });
+
+            const activeDirectEvents = activeRealEvents.filter(e => !isMediationDerivedEvent(e));
+            const activeMediationEvents = activeRealEvents.filter(e => isMediationDerivedEvent(e));
+
+            // Falls eine aktive Vermittlungsanfrage existiert, deren Event-Dokument noch nicht in realEvents enthalten war:
+            const seenMedEventIds = new Set(activeMediationEvents.map(e => String(e.id || '')));
+            (mediations || []).forEach(med => {
+                const medCat = classifyMediationStatus(med);
+                if (medCat !== 'submitted' && medCat !== 'open') return;
+                const eid = String(med.eventId || String(med.id || '').replace(/^med_/, '')).trim();
+                const alreadyInRealEvents = realEvents.some(e => e && (String(e.id) === eid || String(e.id) === String(med.id)));
+                if (!alreadyInRealEvents && !seenMedEventIds.has(eid || med.id)) {
+                    seenMedEventIds.add(eid || med.id);
+                    activeMediationEvents.push({
+                        id: eid || med.id,
+                        name: med.eventName || 'Vermittlungs-Event',
+                        date: med.eventDate || '',
+                        location: med.eventLocation || '',
+                        budget: med.budget || med.minBudget || '',
+                        clientName: med.clientName || '',
+                        clientEmail: med.organizerEmail || med.clientEmail || '',
+                        clientPhone: med.clientPhone || '',
+                        isAgencyRequest: true,
+                        isMediation: true,
+                        createdAt: med.createdAt,
+                        _analyticsTs: med.createdAt
+                    });
+                }
+            });
+
             window.__adminKpiData = {
                 musicianAccounts,
                 organizerAccounts,
                 realMusicians: realMusicianProfiles,
+                activeMusicianProfiles,
+                activeDirectEvents,
+                activeMediationEvents,
                 organizerUsers: organizerAccounts,
                 events: realEvents,
                 mediations,
