@@ -2232,6 +2232,19 @@ exports.onMusicianProfileCreated = functions
         const musician = snapshot.data();
         if (!snapshot.exists || !musician) return null;
 
+        const musicianId = (context && context.params && context.params.musicianId) ? String(context.params.musicianId) : String(snapshot.id || musician.id || '');
+        const isDemoMusician = Boolean(
+            musician.isDemo === true ||
+            musicianId.startsWith('mus_gen_') ||
+            musicianId.startsWith('demo_') ||
+            musicianId === 'mus_1_dup' ||
+            /^mus_(\d+|zero|five)$/.test(musicianId)
+        );
+        if (isDemoMusician) {
+            console.log(`Skipping onMusicianProfileCreated emails for demo profile: ${musicianId}`);
+            return null;
+        }
+
         const userDetails = await getUserDetails(musician.id);
         const email = musician.email || (userDetails ? userDetails.email : null);
         const phone = musician.phone || (userDetails ? userDetails.phone : null);
@@ -2291,7 +2304,17 @@ exports.onEventProfileCreated = functions
         const event = snapshot.data();
         if (!snapshot.exists || !event) return null;
 
-        const eventId = (context && context.params && context.params.eventId) ? context.params.eventId : snapshot.id;
+        const eventId = (context && context.params && context.params.eventId) ? String(context.params.eventId) : String(snapshot.id || event.id || '');
+        const isDemoEvent = Boolean(
+            event.isDemo === true ||
+            eventId.startsWith('evt_gen_') ||
+            eventId.startsWith('demo_') ||
+            /^evt_\d+$/.test(eventId)
+        );
+        if (isDemoEvent) {
+            console.log(`Skipping onEventProfileCreated emails for demo event: ${eventId}`);
+            return null;
+        }
         const userDetails = await getUserDetails(event.creatorId);
 
         // Determine true submitter / contact info (especially for agency requests / mediation inquiries where public event fields are masked with GigConnAct placeholder contacts)

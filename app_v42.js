@@ -2852,25 +2852,8 @@ class StateManager {
     }
 
     async syncDemosToFirestore() {
-        if (typeof auth === 'undefined' || !auth.currentUser) return;
-        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(auth.currentUser.email);
-        if (!isAdmin) return;
-        const hashNow = (typeof window !== 'undefined' && window.location && window.location.hash) ? window.location.hash : '';
-        if (hashNow.includes('recommendation/') || hashNow.includes('mediation-response/') || hashNow.includes('feedback')) return;
-        try {
-            if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('gigconnact_demos_synced') === '1') return;
-            if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('gigconnact_demos_synced', '1');
-            console.log("[GigConnAct] Admin logged in: Syncing demo cards to Firestore...");
-            const demoMus = this.musicians.filter(m => (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)) && (m.isDemo || m.id.startsWith('mus_1') || m.id.startsWith('mus_2') || m.id.startsWith('mus_gen_') || initialMusicians.some(init => init.id === m.id)));
-            const demoEvt = this.events.filter(e => (!this.deletedEventIds || !this.deletedEventIds.has(e.id)) && (e.isDemo || e.id.startsWith('evt_1') || e.id.startsWith('evt_2') || e.id.startsWith('evt_gen_') || initialEvents.some(init => init.id === e.id)));
-            const promises = [];
-            demoMus.forEach(m => promises.push(db.collection('musicians').doc(m.id).set(m, { merge: true })));
-            demoEvt.forEach(e => promises.push(db.collection('events').doc(e.id).set(e, { merge: true })));
-            await Promise.allSettled(promises);
-            console.log("[GigConnAct] All demo cards successfully synced to Firestore!");
-        } catch (err) {
-            console.warn("syncDemosToFirestore notice:", err);
-        }
+        // Disabled automatic demo syncing to Firestore so deleted demo profiles are never automatically recreated on Admin login
+        return;
     }
 
     async loadStateFromFirestore() {
@@ -3570,7 +3553,6 @@ class StateManager {
                         this.currentUser = { id: doc.id, ...doc.data() };
                         if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                             this.currentUser.role = 'organizer';
-                            this.syncDemosToFirestore().catch(e => console.warn(e));
                         }
                         if (this.currentUser && this.currentUser.role === 'organizer') {
                             this.currentUser.isPremium = true;
