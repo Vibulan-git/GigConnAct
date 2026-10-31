@@ -11972,6 +11972,10 @@ function parseItemTimestamp(val) {
 
 function getAccountTimestamp(item) {
     if (!item) return null;
+    if (item._analyticsTs) {
+        const parsed = parseItemTimestamp(item._analyticsTs);
+        if (parsed !== null) return parsed;
+    }
     return parseItemTimestamp(
         item.createdAt ||
         item.timestamp ||
@@ -12085,7 +12089,17 @@ function getFilteredAnalyticsMessages() {
 function getFilteredAnalyticsSubscriptions() {
     const data = window.__adminKpiData;
     if (!data) return { flex: [], plus: [], pro: [], premium: [], cancelled: [] };
-    const filteredSubs = filterItemsBySectionState(data.musicianAccounts || [], 'subscriptions');
+    const preparedSubs = (data.musicianAccounts || []).map(u => {
+        const cat = classifySubscriptionCategory(u);
+        const effectiveTs = cat === 'cancelled'
+            ? (u.subscriptionCancelledAt || u.cancelledAt || u.updatedAt || u.createdAt)
+            : (u.createdAt || u.subscriptionCreated || u.subscriptionPeriodStart || u.updatedAt);
+        return {
+            ...u,
+            _analyticsTs: effectiveTs
+        };
+    });
+    const filteredSubs = filterItemsBySectionState(preparedSubs, 'subscriptions');
     const result = { flex: [], plus: [], pro: [], premium: [], cancelled: [] };
     filteredSubs.forEach(u => {
         const cat = classifySubscriptionCategory(u);
@@ -12484,7 +12498,8 @@ window.downloadAdminCsv = function(type, bucketKey) {
             'Telefonnummer',
             'Gewählter Tarif',
             'Abo-Status',
-            'Kündigungsdatum / Abo-Ende',
+            'Gekündigt am',
+            'Abo-Ende',
             'Vertragsstart',
             'Vertragsende',
             'Stripe Customer-ID',
@@ -12503,6 +12518,9 @@ window.downloadAdminCsv = function(type, bucketKey) {
         const rows = targetList.map(u => {
             const cat = classifySubscriptionCategory(u);
             const m = u.profile || {};
+            const cancelledAtVal = cat === 'cancelled'
+                ? formatDateStr(u.subscriptionCancelledAt || u.cancelledAt || u.updatedAt)
+                : '';
             return [
                 catLabelMap[cat] || 'Flex',
                 u.id || '',
@@ -12514,6 +12532,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
                 u.phone || m.phone || '',
                 u.subscriptionPlan || m.subscriptionPlan || 'flex',
                 cat === 'cancelled' ? 'Gekündigt' : 'Aktiv',
+                cancelledAtVal,
                 u.subscriptionEndDate || (u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : ''),
                 u.subscriptionPeriodStart ? formatDateStr(u.subscriptionPeriodStart) : '',
                 u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : '',
