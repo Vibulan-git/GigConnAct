@@ -11928,9 +11928,9 @@ window.showSubscriptionChangeSuccessModal = showSubscriptionChangeSuccessModal;
 // --- ADMIN KPI & ANALYTICS HELPER FUNCTIONS ---
 window.__analyticsFilterState = window.__analyticsFilterState || {
     rangeMode: 'all', // 'all' | '4weeks' | 'custom'
+    xAxisMode: 'month', // 'month' (Voreinstellung) | 'year' | 'weeks'
     dateFrom: '',
-    dateTo: '',
-    selectedRole: null // null | 'musician' | 'organizer' | 'pending'
+    dateTo: ''
 };
 
 function parseItemTimestamp(val) {
@@ -11947,6 +11947,18 @@ function parseItemTimestamp(val) {
     } catch {
         return null;
     }
+}
+
+function getAccountTimestamp(item) {
+    if (!item) return null;
+    return parseItemTimestamp(
+        item.createdAt ||
+        item.subscriptionCreated ||
+        item.updatedAt ||
+        item.timestamp ||
+        (item.profile && (item.profile.createdAt || item.profile.updatedAt)) ||
+        (item.events && item.events[0] && item.events[0].createdAt)
+    );
 }
 
 function getFilteredAnalyticsAccounts() {
@@ -11976,13 +11988,7 @@ function getFilteredAnalyticsAccounts() {
 
     const inRange = (item) => {
         if (minTs === null && maxTs === null) return true;
-        const ts = parseItemTimestamp(
-            item.createdAt ||
-            item.subscriptionCreated ||
-            item.updatedAt ||
-            item.timestamp ||
-            (item.profile && (item.profile.createdAt || item.profile.updatedAt))
-        );
+        const ts = getAccountTimestamp(item);
         if (ts === null) return st.rangeMode === 'all';
         if (minTs !== null && ts < minTs) return false;
         if (maxTs !== null && ts > maxTs) return false;
@@ -11994,6 +12000,118 @@ function getFilteredAnalyticsAccounts() {
         organizers: (data.organizerAccounts || []).filter(inRange),
         pending: (data.pending || []).filter(inRange)
     };
+}
+
+function getIsoWeekInfo(dateObj) {
+    const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return { year: d.getUTCFullYear(), week: weekNo };
+}
+
+function getBucketKeyAndLabel(ts, xAxisMode) {
+    const d = ts ? new Date(ts) : new Date();
+    const monthNamesShort = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+    if (xAxisMode === 'year') {
+        const y = d.getFullYear();
+        return { key: `${y}`, label: `${y}`, sortKey: y };
+    } else if (xAxisMode === 'weeks') {
+        const info = getIsoWeekInfo(d);
+        const ww = String(info.week).padStart(2, '0');
+        return {
+            key: `${info.year}-W${ww}`,
+            label: `KW ${info.week}`,
+            sortKey: info.year * 100 + info.week
+        };
+    } else {
+        // default: 'month'
+        const y = d.getFullYear();
+        const m = d.getMonth();
+        const mm = String(m + 1).padStart(2, '0');
+        return {
+            key: `${y}-${mm}`,
+            label: `${monthNamesShort[m]} ${y}`,
+            sortKey: y * 100 + m
+        };
+    }
+}
+
+function buildAnalyticsTimeBuckets(filtered, xAxisMode) {
+    const bucketMap = new Map();
+
+    const ensureBucket = (info) => {
+        if (!bucketMap.has(info.key)) {
+            bucketMap.set(info.key, {
+                key: info.key,
+                label: info.label,
+                sortKey: info.sortKey,
+                musicians: [],
+                organizers: [],
+                pending: []
+            });
+        }
+        return bucketMap.get(info.key);
+    };
+
+    // Alle vorhandenen Zeitpunkte bestimmen, um eine durchgängige X-Achse zu bauen
+    const allItems = [
+        ...filtered.musicians.map(item => ({ type: 'musicians', item })),
+        ...filtered.organizers.map(item => ({ type: 'organizers', item })),
+        ...filtered.pending.map(item => ({ type: 'pending', item }))
+    ];
+
+    if (allItems.length === 0) {
+        const nowInfo = getBucketKeyAndLabel(Date.now(), xAxisMode);
+        ensureBucket(nowInfo);
+        return Array.from(bucketMap.values());
+    }
+
+    let minTs = Infinity;
+    let maxTs = -Infinity;
+    allItems.forEach(({ item }) => {
+        const ts = getAccountTimestamp(item) || Date.now();
+        if (ts < minTs) minTs = ts;
+        if (ts > maxTs) maxTs = ts;
+    });
+
+    // Kontinuierliche Achsen-Abschnitte zwischen minTs und maxTs anlegen
+    if (xAxisMode === 'year') {
+        const startY = new Date(minTs).getFullYear();
+        const endY = new Date(maxTs).getFullYear();
+        for (let y = startY; y <= endY; y++) {
+            ensureBucket({ key: `${y}`, label: `${y}`, sortKey: y });
+        }
+    } else if (xAxisMode === 'month') {
+        const startD = new Date(minTs);
+        const endD = new Date(maxTs);
+        let cur = new Date(startD.getFullYear(), startD.getMonth(), 1);
+        const limit = new Date(endD.getFullYear(), endD.getMonth(), 1);
+        while (cur <= limit) {
+            ensureBucket(getBucketKeyAndLabel(cur.getTime(), 'month'));
+            cur.setMonth(cur.getMonth() + 1);
+        }
+    } else if (xAxisMode === 'weeks') {
+        let cur = new Date(minTs);
+        cur.setHours(0, 0, 0, 0);
+        const limit = new Date(maxTs);
+        limit.setHours(23, 59, 59, 999);
+        while (cur <= limit) {
+            ensureBucket(getBucketKeyAndLabel(cur.getTime(), 'weeks'));
+            cur = new Date(cur.getTime() + 7 * 24 * 60 * 60 * 1000);
+        }
+        ensureBucket(getBucketKeyAndLabel(maxTs, 'weeks'));
+    }
+
+    allItems.forEach(({ type, item }) => {
+        const ts = getAccountTimestamp(item) || Date.now();
+        const info = getBucketKeyAndLabel(ts, xAxisMode);
+        const b = ensureBucket(info);
+        b[type].push(item);
+    });
+
+    return Array.from(bucketMap.values()).sort((a, b) => a.sortKey - b.sortKey);
 }
 
 function generatePieChartHTML(items, options = {}) {
@@ -12048,16 +12166,12 @@ function generatePieChartHTML(items, options = {}) {
 
     return `
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; width: 100%; padding: 0.4rem 0;">
-            <!-- Donut Circle -->
             <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; ${conicStyle} flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-                <!-- Inner Cutout Hole -->
                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${donutHole}%; height: ${donutHole}%; background: var(--bg-card); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.25);">
                     <span style="font-size: 1.25rem; font-weight: 900; color: var(--text-main); line-height: 1;">${centerText}</span>
                     <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.3px;">${centerSub}</span>
                 </div>
             </div>
-
-            <!-- Legend -->
             <div style="flex: 1; min-width: 160px; display: flex; flex-direction: column;">
                 ${legendHTML}
             </div>
@@ -12075,6 +12189,13 @@ window.setAnalyticsTimeFilter = function(mode) {
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
+window.setAnalyticsXAxisMode = function(mode) {
+    const st = window.__analyticsFilterState;
+    st.xAxisMode = mode;
+    const contentEl = document.getElementById('admin-kpi-content');
+    if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
+};
+
 window.updateAnalyticsCustomDates = function() {
     const st = window.__analyticsFilterState;
     const fromEl = document.getElementById('analytics-date-from');
@@ -12085,14 +12206,7 @@ window.updateAnalyticsCustomDates = function() {
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
-window.selectAnalyticsBarSegment = function(role) {
-    const st = window.__analyticsFilterState;
-    st.selectedRole = (st.selectedRole === role) ? null : role;
-    const contentEl = document.getElementById('admin-kpi-content');
-    if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
-};
-
-window.downloadAdminCsv = function(type) {
+window.downloadAdminCsv = function(type, bucketKey) {
     const data = window.__adminKpiData;
     if (!data) {
         if (typeof showToast === 'function') {
@@ -12209,14 +12323,29 @@ window.downloadAdminCsv = function(type) {
         return;
     }
 
-    // Export für Punkt 1 (Community & Konten-Säulendiagramm)
+    // Export für Punkt 1 (User Säulendiagramm)
     const st = window.__analyticsFilterState;
-    const targetRole = (type === 'musician' || type === 'organizer' || type === 'pending') ? type : st.selectedRole;
     const filtered = getFilteredAnalyticsAccounts();
 
-    const rangeSuffix = st.rangeMode === '4weeks'
-        ? 'Letzte_4_Wochen'
-        : (st.rangeMode === 'custom' ? `${st.dateFrom || 'Start'}_bis_${st.dateTo || dateStr}` : 'Start_bis_Heute');
+    let sourceMusicians = filtered.musicians;
+    let sourceOrganizers = filtered.organizers;
+    let sourcePending = filtered.pending;
+
+    if (bucketKey) {
+        const matchBucket = (item) => {
+            const ts = getAccountTimestamp(item) || Date.now();
+            return getBucketKeyAndLabel(ts, st.xAxisMode || 'month').key === bucketKey;
+        };
+        sourceMusicians = sourceMusicians.filter(matchBucket);
+        sourceOrganizers = sourceOrganizers.filter(matchBucket);
+        sourcePending = sourcePending.filter(matchBucket);
+    }
+
+    const rangeSuffix = bucketKey
+        ? bucketKey
+        : (st.rangeMode === '4weeks'
+            ? 'Letzte_4_Wochen'
+            : (st.rangeMode === 'custom' ? `${st.dateFrom || 'Start'}_bis_${st.dateTo || dateStr}` : 'Start_bis_Heute'));
 
     const headers = [
         'Konto-Typ',
@@ -12373,21 +12502,21 @@ window.downloadAdminCsv = function(type) {
     };
 
     let rows = [];
-    let filePrefix = 'GigConnAct_Konten_Gesamt';
-    if (targetRole === 'musician') {
-        rows = filtered.musicians.map(buildMusicianRow);
-        filePrefix = 'GigConnAct_Musiker_Konten';
-    } else if (targetRole === 'organizer') {
-        rows = filtered.organizers.map(buildOrganizerRow);
-        filePrefix = 'GigConnAct_Veranstalter_Konten';
-    } else if (targetRole === 'pending') {
-        rows = filtered.pending.map(buildPendingRow);
-        filePrefix = 'GigConnAct_Ausstehende_Konten';
+    let filePrefix = 'GigConnAct_User_Export';
+    if (type === 'musician') {
+        rows = sourceMusicians.map(buildMusicianRow);
+        filePrefix = 'GigConnAct_Musiker_Export';
+    } else if (type === 'organizer') {
+        rows = sourceOrganizers.map(buildOrganizerRow);
+        filePrefix = 'GigConnAct_Veranstalter_Export';
+    } else if (type === 'pending') {
+        rows = sourcePending.map(buildPendingRow);
+        filePrefix = 'GigConnAct_Ausstehend_Export';
     } else {
         rows = [
-            ...filtered.musicians.map(buildMusicianRow),
-            ...filtered.organizers.map(buildOrganizerRow),
-            ...filtered.pending.map(buildPendingRow)
+            ...sourceMusicians.map(buildMusicianRow),
+            ...sourceOrganizers.map(buildOrganizerRow),
+            ...sourcePending.map(buildPendingRow)
         ];
     }
 
@@ -12399,76 +12528,74 @@ function renderAdminKpiCards(contentEl, statsInput) {
     window.__adminKpiStats = stats;
 
     const st = window.__analyticsFilterState;
+    const xAxisMode = st.xAxisMode || 'month';
     const filtered = getFilteredAnalyticsAccounts();
-    const musiciansCount = filtered.musicians.length;
-    const organizersCount = filtered.organizers.length;
-    const pendingCount = filtered.pending.length;
-    const totalCount = musiciansCount + organizersCount + pendingCount;
+    const buckets = buildAnalyticsTimeBuckets(filtered, xAxisMode);
 
-    const isMusSelected = st.selectedRole === 'musician';
-    const isOrgSelected = st.selectedRole === 'organizer';
-    const isPenSelected = st.selectedRole === 'pending';
-    const hasSelection = isMusSelected || isOrgSelected || isPenSelected;
+    const totalMus = filtered.musicians.length;
+    const totalOrg = filtered.organizers.length;
+    const totalPen = filtered.pending.length;
 
-    // Y-Achse: 100 Konten als Standard-Maximum (skaliert automatisch hoch, falls > 100)
-    const maxVal = Math.max(musiciansCount, organizersCount, pendingCount);
-    const yMax = Math.max(100, Math.ceil(maxVal / 20) * 20);
+    // Y-Achse: 100 als Standard-Maximum (skaliert automatisch hoch, falls eine gestapelte Säule > 100 ist)
+    const maxBucketTotal = buckets.reduce((max, b) => {
+        const sum = b.musicians.length + b.organizers.length + b.pending.length;
+        return sum > max ? sum : max;
+    }, 0);
+    const yMax = Math.max(100, Math.ceil(maxBucketTotal / 20) * 20);
     const yTicks = [yMax, Math.round(yMax * 0.8), Math.round(yMax * 0.6), Math.round(yMax * 0.4), Math.round(yMax * 0.2), 0];
 
-    const calcBarHeightPct = (val) => {
+    const chartHeightPx = 300;
+    // Proportionale Höhe je Segment: 7 ist exakt 7/4 mal höher als 4
+    const calcSegmentPx = (val) => {
         if (val <= 0) return 0;
-        const rawPct = (val / yMax) * 100;
-        return Math.max(rawPct, 14); // Mindesthöhe, damit die Konto-Zahl immer gut lesbar in der Fläche steht
-    };
-
-    const musHeightPct = calcBarHeightPct(musiciansCount);
-    const orgHeightPct = calcBarHeightPct(organizersCount);
-    const penHeightPct = calcBarHeightPct(pendingCount);
-
-    const selectedAccounts = isMusSelected
-        ? filtered.musicians
-        : (isOrgSelected ? filtered.organizers : (isPenSelected ? filtered.pending : []));
-    const selectedLabel = isMusSelected ? 'Musiker' : (isOrgSelected ? 'Veranstalter' : (isPenSelected ? 'Ausstehend' : ''));
-    const selectedColor = isMusSelected ? '#7c3aed' : (isOrgSelected ? '#2563eb' : '#f59e0b');
-
-    const formatShortDate = (val) => {
-        const ts = parseItemTimestamp(val);
-        if (!ts) return '–';
-        return new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const exactPx = (val / yMax) * chartHeightPx;
+        // Für kleine Werte (z.B. 1..10 bei 100er Achse) streng monoton steigende Höhe, damit 4 < 5 < 7 klar erkennbar ist und die Zahl hineinpasst
+        return Math.round(8 + exactPx * 1.65);
     };
 
     contentEl.innerHTML = `
-        <!-- 1. Community & Benutzer-Wachstum (Vertikales Säulendiagramm) -->
+        <!-- 1. User (Gestapeltes vertikales Säulendiagramm über Zeitachse) -->
         <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
                 <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-users"></i> 1. Community & Benutzer-Wachstum
+                    <i class="fa-solid fa-users"></i> 1. User
                 </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.48rem 0.95rem; font-size: 0.8rem; font-weight: 800; border-radius: 8px; margin: 0; cursor: pointer; background: ${hasSelection ? selectedColor : 'rgba(124, 58, 237, 0.1)'}; color: ${hasSelection ? '#ffffff' : '#7c3aed'}; border: 1px solid ${hasSelection ? selectedColor : 'rgba(124, 58, 237, 0.3)'}; transition: 0.2s;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.48rem 0.95rem; font-size: 0.8rem; font-weight: 800; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); transition: 0.2s;">
                     <i class="fa-solid fa-file-excel"></i> Excel-Liste
                 </button>
             </div>
 
-            <!-- Zeitfilter: Start bis Heute | Letzte 4 Wochen | Personalisiert -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('all')" style="padding: 0.42rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
+            <!-- Zeitraum & X-Achsen-Einstellung (Monat / Jahr / Wochen) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.15rem;">
+                <!-- Zeitliche Eingrenzung -->
+                <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('all')" style="padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
                         Start bis Heute
                     </button>
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('4weeks')" style="padding: 0.42rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === '4weeks' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === '4weeks' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === '4weeks' ? '#ffffff' : 'var(--text-main)'};">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('4weeks')" style="padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === '4weeks' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === '4weeks' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === '4weeks' ? '#ffffff' : 'var(--text-main)'};">
                         Letzte 4 Wochen
                     </button>
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('custom')" style="padding: 0.42rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'custom' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'custom' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'custom' ? '#ffffff' : 'var(--text-main)'}; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('custom')" style="padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'custom' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'custom' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'custom' ? '#ffffff' : 'var(--text-main)'}; display: inline-flex; align-items: center; gap: 0.35rem;">
                         <i class="fa-regular fa-calendar"></i> Personalisiert
                     </button>
                 </div>
-                <div style="font-size: 0.78rem; color: var(--text-muted);">
-                    Gesamt im Zeitraum: <strong style="color: var(--text-main);">${totalCount} Konten</strong> (Klicke auf eine Säule für Details & Excel-Liste)
+
+                <!-- X-Achse: Wochen | Monat (Voreinstellung) | Jahr -->
+                <div style="display: inline-flex; align-items: center; background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 999px; padding: 0.2rem; gap: 0.2rem;">
+                    <button type="button" onclick="window.setAnalyticsXAxisMode('weeks')" style="padding: 0.32rem 0.75rem; font-size: 0.76rem; font-weight: 700; border-radius: 999px; border: none; cursor: pointer; transition: 0.2s; background: ${xAxisMode === 'weeks' ? '#7c3aed' : 'transparent'}; color: ${xAxisMode === 'weeks' ? '#ffffff' : 'var(--text-main)'};">
+                        Wochen
+                    </button>
+                    <button type="button" onclick="window.setAnalyticsXAxisMode('month')" style="padding: 0.32rem 0.75rem; font-size: 0.76rem; font-weight: 700; border-radius: 999px; border: none; cursor: pointer; transition: 0.2s; background: ${xAxisMode === 'month' ? '#7c3aed' : 'transparent'}; color: ${xAxisMode === 'month' ? '#ffffff' : 'var(--text-main)'};">
+                        Monat
+                    </button>
+                    <button type="button" onclick="window.setAnalyticsXAxisMode('year')" style="padding: 0.32rem 0.75rem; font-size: 0.76rem; font-weight: 700; border-radius: 999px; border: none; cursor: pointer; transition: 0.2s; background: ${xAxisMode === 'year' ? '#7c3aed' : 'transparent'}; color: ${xAxisMode === 'year' ? '#ffffff' : 'var(--text-main)'};">
+                        Jahr
+                    </button>
                 </div>
             </div>
 
             ${st.rangeMode === 'custom' ? `
-            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 1.25rem; padding: 0.85rem 1rem; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 1.15rem; padding: 0.85rem 1rem; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 0.45rem;">
                     <label for="analytics-date-from" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Von:</label>
                     <input type="date" id="analytics-date-from" class="input-field" value="${st.dateFrom || ''}" onchange="window.updateAnalyticsCustomDates()" style="margin: 0; padding: 0.38rem 0.65rem; font-size: 0.82rem; height: auto; width: auto;">
@@ -12480,113 +12607,87 @@ function renderAdminKpiCards(contentEl, statsInput) {
             </div>
             ` : ''}
 
-            <!-- Vertikales Säulendiagramm mit Y-Achse (bis 100 Konten) und Beschriftung unter der X-Achse -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.25rem 1.25rem 1rem 1rem; box-sizing: border-box;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; padding-left: 0.25rem;">
-                    Achsen-Einheit: Konten (max. ${yMax} Konten)
-                </div>
-
-                <div style="display: flex; align-items: stretch; gap: 0.75rem;">
-                    <!-- Y-Achse (Skala 0 bis 100 Konten) -->
-                    <div style="display: flex; flex-direction: column; justify-content: space-between; height: 240px; min-width: 72px; text-align: right; padding-right: 0.35rem; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); user-select: none; box-sizing: border-box;">
-                        ${yTicks.map(tick => `<span style="line-height: 1; transform: translateY(-4px);">${tick} Konten</span>`).join('')}
+            <!-- Vertikales gestapeltes Säulendiagramm -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.25rem 1rem 1rem 0.75rem; box-sizing: border-box;">
+                <div style="display: flex; align-items: stretch; gap: 0.6rem;">
+                    <!-- Y-Achse (0 bis 100, ohne "Konten") -->
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; height: ${chartHeightPx}px; min-width: 32px; text-align: right; padding-right: 0.25rem; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); user-select: none; box-sizing: border-box;">
+                        ${yTicks.map(tick => `<span style="line-height: 1; transform: translateY(-4px);">${tick}</span>`).join('')}
                     </div>
 
-                    <!-- Diagramm-Fläche + X-Achse -->
-                    <div style="flex: 1; display: flex; flex-direction: column;">
-                        <!-- Plot-Bereich mit Hilfslinien und 3 vertikalen Säulen -->
-                        <div style="position: relative; height: 240px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); display: flex; align-items: flex-end; justify-content: space-around; padding: 0 1.5rem; box-sizing: border-box;">
-                            <!-- Horizontale Rasterlinien -->
+                    <!-- Plot-Bereich + X-Achse (Zeitrahmen) -->
+                    <div style="flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-x: auto;">
+                        <div style="position: relative; height: ${chartHeightPx}px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); display: flex; align-items: flex-end; justify-content: space-around; gap: 0.75rem; padding: 0 1rem; box-sizing: border-box; min-width: ${Math.max(buckets.length * 76, 240)}px;">
+                            <!-- Horizontale Hilfslinien -->
                             ${[0, 20, 40, 60, 80].map(pct => `
                                 <div style="position: absolute; left: 0; right: 0; top: ${pct}%; border-top: 1px dashed rgba(148, 163, 184, 0.22); pointer-events: none;"></div>
                             `).join('')}
 
-                            <!-- Säule 1: Musiker (Lila) -->
-                            <div onclick="window.selectAnalyticsBarSegment('musician')" title="Klicken für Musiker (${musiciansCount} Konten)" style="position: relative; z-index: 2; width: 24%; max-width: 110px; min-width: 64px; height: ${musiciansCount > 0 ? musHeightPct + '%' : '28px'}; background: #7c3aed; color: #ffffff; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; user-select: none; opacity: ${(hasSelection && !isMusSelected) ? '0.45' : '1'}; box-shadow: ${isMusSelected ? '0 0 0 3px #ffffff, 0 6px 18px rgba(124, 58, 237, 0.5)' : '0 4px 12px rgba(124, 58, 237, 0.28)'};">
-                                <span style="font-size: 1.25rem; font-weight: 900; line-height: 1;">${musiciansCount}</span>
-                            </div>
+                            ${buckets.map(b => {
+                                const mCount = b.musicians.length;
+                                const oCount = b.organizers.length;
+                                const pCount = b.pending.length;
+                                const bTotal = mCount + oCount + pCount;
 
-                            <!-- Säule 2: Veranstalter (Blau) -->
-                            <div onclick="window.selectAnalyticsBarSegment('organizer')" title="Klicken für Veranstalter (${organizersCount} Konten)" style="position: relative; z-index: 2; width: 24%; max-width: 110px; min-width: 64px; height: ${organizersCount > 0 ? orgHeightPct + '%' : '28px'}; background: #2563eb; color: #ffffff; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; user-select: none; opacity: ${(hasSelection && !isOrgSelected) ? '0.45' : '1'}; box-shadow: ${isOrgSelected ? '0 0 0 3px #ffffff, 0 6px 18px rgba(37, 99, 235, 0.5)' : '0 4px 12px rgba(37, 99, 235, 0.28)'};">
-                                <span style="font-size: 1.25rem; font-weight: 900; line-height: 1;">${organizersCount}</span>
-                            </div>
+                                const mPx = calcSegmentPx(mCount);
+                                const oPx = calcSegmentPx(oCount);
+                                const pPx = calcSegmentPx(pCount);
 
-                            <!-- Säule 3: Ausstehend (Orange) -->
-                            <div onclick="window.selectAnalyticsBarSegment('pending')" title="Klicken für Ausstehend (${pendingCount} Konten)" style="position: relative; z-index: 2; width: 24%; max-width: 110px; min-width: 64px; height: ${pendingCount > 0 ? penHeightPct + '%' : '28px'}; background: #f59e0b; color: #ffffff; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; user-select: none; opacity: ${(hasSelection && !isPenSelected) ? '0.45' : '1'}; box-shadow: ${isPenSelected ? '0 0 0 3px #ffffff, 0 6px 18px rgba(245, 158, 11, 0.5)' : '0 4px 12px rgba(245, 158, 11, 0.28)'};">
-                                <span style="font-size: 1.25rem; font-weight: 900; line-height: 1;">${pendingCount}</span>
-                            </div>
+                                return `
+                                    <div style="position: relative; z-index: 2; flex: 1; max-width: 110px; min-width: 56px; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end;">
+                                        ${bTotal === 0 ? `
+                                            <div style="height: 4px; background: rgba(148, 163, 184, 0.25); border-radius: 4px 4px 0 0; width: 100%;"></div>
+                                        ` : `
+                                            <div style="display: flex; flex-direction: column; width: 100%; border-radius: 10px 10px 0 0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.18);">
+                                                ${pCount > 0 ? `
+                                                    <div onclick="window.downloadAdminCsv('pending', '${b.key}')" title="Ausstehend (${pCount}) – Klicken für Excel-Liste" style="height: ${pPx}px; background: #f59e0b; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: ${pPx < 18 ? '0.72rem' : '0.88rem'}; font-weight: 900; line-height: 1; user-select: none; transition: filter 0.15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
+                                                        ${pCount}
+                                                    </div>
+                                                ` : ''}
+                                                ${oCount > 0 ? `
+                                                    <div onclick="window.downloadAdminCsv('organizer', '${b.key}')" title="Veranstalter (${oCount}) – Klicken für Excel-Liste" style="height: ${oPx}px; background: #2563eb; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: ${oPx < 18 ? '0.72rem' : '0.88rem'}; font-weight: 900; line-height: 1; user-select: none; transition: filter 0.15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
+                                                        ${oCount}
+                                                    </div>
+                                                ` : ''}
+                                                ${mCount > 0 ? `
+                                                    <div onclick="window.downloadAdminCsv('musician', '${b.key}')" title="Musiker (${mCount}) – Klicken für Excel-Liste" style="height: ${mPx}px; background: #7c3aed; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: ${mPx < 18 ? '0.72rem' : '0.88rem'}; font-weight: 900; line-height: 1; user-select: none; transition: filter 0.15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
+                                                        ${mCount}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        `}
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
 
-                        <!-- Unter der X-Achse: Kategorien-Beschriftung -->
-                        <div style="display: flex; justify-content: space-around; align-items: flex-start; padding: 0.7rem 1.5rem 0 1.5rem;">
-                            <div onclick="window.selectAnalyticsBarSegment('musician')" style="width: 24%; max-width: 110px; min-width: 64px; text-align: center; cursor: pointer;">
-                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 800; color: ${isMusSelected ? '#7c3aed' : 'var(--text-main)'};">
-                                    <span style="width: 10px; height: 10px; border-radius: 3px; background: #7c3aed; display: inline-block;"></span>
-                                    Musiker
+                        <!-- Unter der X-Achse: Zeitlicher Rahmen -->
+                        <div style="display: flex; justify-content: space-around; align-items: flex-start; gap: 0.75rem; padding: 0.65rem 1rem 0 1rem; min-width: ${Math.max(buckets.length * 76, 240)}px;">
+                            ${buckets.map(b => `
+                                <div style="flex: 1; max-width: 110px; min-width: 56px; text-align: center; font-size: 0.8rem; font-weight: 800; color: var(--text-main);">
+                                    ${b.label}
                                 </div>
-                            </div>
-                            <div onclick="window.selectAnalyticsBarSegment('organizer')" style="width: 24%; max-width: 110px; min-width: 64px; text-align: center; cursor: pointer;">
-                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 800; color: ${isOrgSelected ? '#2563eb' : 'var(--text-main)'};">
-                                    <span style="width: 10px; height: 10px; border-radius: 3px; background: #2563eb; display: inline-block;"></span>
-                                    Veranstalter
-                                </div>
-                            </div>
-                            <div onclick="window.selectAnalyticsBarSegment('pending')" style="width: 24%; max-width: 110px; min-width: 64px; text-align: center; cursor: pointer;">
-                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 800; color: ${isPenSelected ? '#f59e0b' : 'var(--text-main)'};">
-                                    <span style="width: 10px; height: 10px; border-radius: 3px; background: #f59e0b; display: inline-block;"></span>
-                                    Ausstehend
-                                </div>
-                            </div>
+                            `).join('')}
                         </div>
+                    </div>
+                </div>
+
+                <!-- Farb-Legende (Klick lädt ebenfalls direkt die entsprechende Excel-Liste herunter) -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(148, 163, 184, 0.15);">
+                    <div onclick="window.downloadAdminCsv('musician')" title="Excel-Liste für Musiker herunterladen" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--text-main);">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: #7c3aed; display: inline-block;"></span>
+                        Musiker (${totalMus})
+                    </div>
+                    <div onclick="window.downloadAdminCsv('organizer')" title="Excel-Liste für Veranstalter herunterladen" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--text-main);">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: #2563eb; display: inline-block;"></span>
+                        Veranstalter (${totalOrg})
+                    </div>
+                    <div onclick="window.downloadAdminCsv('pending')" title="Excel-Liste für Ausstehend herunterladen" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--text-main);">
+                        <span style="width: 12px; height: 12px; border-radius: 3px; background: #f59e0b; display: inline-block;"></span>
+                        Ausstehend (${totalPen})
                     </div>
                 </div>
             </div>
-
-            <!-- Detail-Vorschau beim Klick auf eine der 3 Säulen -->
-            ${hasSelection ? `
-                <div style="margin-top: 1.15rem; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid ${selectedColor}50;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.75rem;">
-                        <div style="font-size: 0.88rem; font-weight: 800; color: ${selectedColor}; display: flex; align-items: center; gap: 0.45rem;">
-                            <i class="fa-solid ${isMusSelected ? 'fa-guitar' : (isOrgSelected ? 'fa-calendar-check' : 'fa-hourglass-half')}"></i>
-                            Ausgewählte Säule: ${selectedLabel} (${selectedAccounts.length} ${selectedAccounts.length === 1 ? 'Konto' : 'Konten'})
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <button type="button" onclick="window.downloadAdminCsv('${st.selectedRole}')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: ${selectedColor}; color: #ffffff; border: none;">
-                                <i class="fa-solid fa-file-excel"></i> Excel-Liste
-                            </button>
-                            <button type="button" onclick="window.selectAnalyticsBarSegment('${st.selectedRole}')" style="background: none; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0;">
-                                Auswahl aufheben
-                            </button>
-                        </div>
-                    </div>
-                    <div style="max-height: 240px; overflow-y: auto; border-top: 1px solid var(--border-color);">
-                        ${selectedAccounts.length === 0 ? `
-                            <div style="padding: 0.8rem 0; font-size: 0.82rem; color: var(--text-muted);">Keine Konten in diesem Zeitraum.</div>
-                        ` : selectedAccounts.map(acc => {
-                            const fullName = `${acc.firstName || ''} ${acc.lastName || ''}`.trim() || acc.profile?.contactName || '–';
-                            const entityName = isMusSelected
-                                ? (acc.profile?.name || acc.bandName || '–')
-                                : (isOrgSelected
-                                    ? ((acc.events && acc.events.map(e => e.name).filter(Boolean).join(', ')) || acc.eventName || acc.company || '–')
-                                    : (acc.bandName || acc.eventName || (acc.role === 'musician' ? 'Musiker-Registrierung' : 'Veranstalter-Registrierung')));
-                            return `
-                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 0.55rem 0.25rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; flex-wrap: wrap;">
-                                    <div style="min-width: 180px;">
-                                        <strong style="color: var(--text-main);">${fullName}</strong>
-                                        <span style="color: var(--text-muted); margin-left: 0.4rem;">(${entityName})</span>
-                                    </div>
-                                    <div style="color: var(--text-muted); flex: 1; min-width: 180px;">
-                                        ${acc.email || '–'} ${acc.phone ? `· ${acc.phone}` : ''}
-                                    </div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">
-                                        ${formatShortDate(acc.createdAt || acc.updatedAt || acc.profile?.createdAt)}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            ` : ''}
         </div>
 
         <!-- 2. Vermittlungs-Performance & Reaktionen -->
@@ -12601,7 +12702,6 @@ function renderAdminKpiCards(contentEl, statsInput) {
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm 1: Vermittlungs-Status -->
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
                     <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                         <i class="fa-solid fa-calendar-check" style="color: #7c3aed;"></i> Status aller Vermittlungen
@@ -12613,7 +12713,6 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     ], { centerText: stats.mediationsTotal || 0, centerSub: 'Anfragen' })}
                 </div>
 
-                <!-- Kuchendiagramm 2: Musiker Reaktionen -->
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
                     <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                         <i class="fa-solid fa-thumbs-up" style="color: #6366f1;"></i> Musiker-Rückmeldungen
@@ -12639,7 +12738,6 @@ function renderAdminKpiCards(contentEl, statsInput) {
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm: Chat Aktivität -->
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
                     <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                         <i class="fa-solid fa-chart-pie" style="color: #0ea5e9;"></i> Postfach-Aktivität
@@ -12650,7 +12748,6 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     ], { centerText: stats.realChatsCount || 0, centerSub: 'Chats' })}
                 </div>
 
-                <!-- Info-Kacheln für Chats -->
                 <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
                     <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -12683,7 +12780,6 @@ function renderAdminKpiCards(contentEl, statsInput) {
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <!-- Kuchendiagramm 1: Tarif-Verteilung -->
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
                     <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                         <i class="fa-solid fa-chart-pie" style="color: #7c3aed;"></i> Gewählte Tarife
@@ -12697,7 +12793,6 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     ], { centerText: (stats.activeSubs || 0) + (stats.cancelledSubs || 0), centerSub: 'Tarife' })}
                 </div>
 
-                <!-- Kuchendiagramm 2: Vertragsstatus -->
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
                     <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                         <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> Vertrags-Status
@@ -12717,7 +12812,6 @@ async function initAdminKpiDashboard(container) {
     if (!cardEl) return;
     const loadingEl = cardEl.querySelector('#admin-kpi-loading');
     const contentEl = cardEl.querySelector('#admin-kpi-content');
-    const refreshBtn = cardEl.querySelector('#btn-refresh-admin-kpis');
 
     const loadData = async () => {
         if (loadingEl) loadingEl.style.display = 'block';
@@ -12887,15 +12981,6 @@ async function initAdminKpiDashboard(container) {
         }
     };
 
-    if (refreshBtn) {
-        refreshBtn.onclick = () => {
-            refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aktualisiere...';
-            loadData().finally(() => {
-                refreshBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Aktualisieren';
-            });
-        };
-    }
-
     loadData();
 }
 
@@ -12991,6 +13076,30 @@ function renderProfilePage(container) {
             <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 1.0rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.85rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
+                    ${isAdmin ? `
+                    <!-- Analytics Dashboard (Admin ganz oben vor Mein Event-Profil) -->
+                    <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #7c3aed; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin: 0 0 0.65rem 0; box-shadow: var(--shadow-lg);">
+                        <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                </div>
+                                <div class="profile-section-title-group">
+                                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Analytics Dashboard</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="admin-kpi-loading" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.9rem;"></i>
+                            <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Lade Live-KPIs aus Firestore...</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Musiker, Veranstalter, Vermittlungen & Chats werden analysiert</div>
+                        </div>
+
+                        <div id="admin-kpi-content" style="display: none; flex-direction: column; gap: 1.5rem;"></div>
+                    </div>
+                    ` : ''}
+
                     <div id="profile-my-items-container"></div>
             <div class="profile-section-card contact-details">
                 <div class="profile-section-header">
@@ -13060,32 +13169,7 @@ function renderProfilePage(container) {
                 </form>
             </div>
 
-            ${isAdmin ? `
-            <!-- Admin KPI Dashboard & Data Export -->
-            <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #7c3aed; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem; box-shadow: var(--shadow-lg);">
-                <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                    <div style="display: flex; align-items: center; gap: 0.85rem;">
-                        <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
-                            <i class="fa-solid fa-chart-column"></i>
-                        </div>
-                        <div class="profile-section-title-group">
-                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Analytics Dashboard</h3>
-                        </div>
-                    </div>
-                    <button type="button" id="btn-refresh-admin-kpis" class="btn btn-secondary btn-sm" style="margin: 0; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 8px; font-weight: 700; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); cursor: pointer;">
-                        <i class="fa-solid fa-arrows-rotate"></i> Aktualisieren
-                    </button>
-                </div>
 
-                <div id="admin-kpi-loading" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.9rem;"></i>
-                    <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Lade Live-KPIs aus Firestore...</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Musiker, Veranstalter, Vermittlungen & Chats werden analysiert</div>
-                </div>
-
-                <div id="admin-kpi-content" style="display: none; flex-direction: column; gap: 1.5rem;"></div>
-            </div>
-            ` : ''}
 
             ${(u.role === 'musician' && !isAdmin) ? `
             <div class="profile-section-card subscription-manage">
