@@ -11926,38 +11926,32 @@ function showSubscriptionChangeSuccessModal() {
 window.showSubscriptionChangeSuccessModal = showSubscriptionChangeSuccessModal;
 
 // --- ADMIN KPI & ANALYTICS HELPER FUNCTIONS ---
-window.__analyticsFilterState = window.__analyticsFilterState || {
+window.__analyticsFilterState = {
     users: {
         rangeMode: 'all', // 'all' | '4weeks' | 'custom'
-        xAxisMode: 'month', // 'month' (Voreinstellung) | 'year' | 'weeks'
+        xAxisMode: 'weeks', // 'weeks' (Voreinstellung) | 'month' | 'year'
         dateFrom: '',
         dateTo: ''
     },
     mediations: {
-        rangeMode: 'all', // 'all' | '4weeks' | 'custom'
-        xAxisMode: 'month', // 'month' (Voreinstellung) | 'year' | 'weeks'
+        rangeMode: 'all',
+        xAxisMode: 'weeks',
+        dateFrom: '',
+        dateTo: ''
+    },
+    messages: {
+        rangeMode: 'all',
+        xAxisMode: 'weeks',
+        dateFrom: '',
+        dateTo: ''
+    },
+    subscriptions: {
+        rangeMode: 'all',
+        xAxisMode: 'weeks',
         dateFrom: '',
         dateTo: ''
     }
 };
-
-// Migration falls altes State-Objekt noch im Speicher liegt
-if (!window.__analyticsFilterState.users) {
-    window.__analyticsFilterState = {
-        users: {
-            rangeMode: window.__analyticsFilterState.rangeMode || 'all',
-            xAxisMode: window.__analyticsFilterState.xAxisMode || 'month',
-            dateFrom: window.__analyticsFilterState.dateFrom || '',
-            dateTo: window.__analyticsFilterState.dateTo || ''
-        },
-        mediations: {
-            rangeMode: 'all',
-            xAxisMode: 'month',
-            dateFrom: '',
-            dateTo: ''
-        }
-    };
-}
 
 function parseItemTimestamp(val) {
     if (!val) return null;
@@ -11979,9 +11973,10 @@ function getAccountTimestamp(item) {
     if (!item) return null;
     return parseItemTimestamp(
         item.createdAt ||
-        item.subscriptionCreated ||
-        item.updatedAt ||
         item.timestamp ||
+        item.subscriptionCreated ||
+        item.subscriptionPeriodStart ||
+        item.updatedAt ||
         (item.profile && (item.profile.createdAt || item.profile.updatedAt)) ||
         (item.events && item.events[0] && item.events[0].createdAt)
     );
@@ -12009,8 +12004,20 @@ function classifyMediationStatus(m) {
     return 'open'; // Offen
 }
 
+function classifySubscriptionCategory(u) {
+    if (!u) return 'flex';
+    if (u.subscriptionCancelled === true || (u.isPremium === false && (u.subscriptionId || u.stripeCustomerId))) {
+        return 'cancelled'; // Gekündigt (rot)
+    }
+    const p = String(u.subscriptionPlan || 'flex').toLowerCase().trim();
+    if (p === 'plus') return 'plus';
+    if (p === 'pro') return 'pro';
+    if (p === 'premium') return 'premium';
+    return 'flex';
+}
+
 function filterItemsBySectionState(items, sectionKey) {
-    const st = (window.__analyticsFilterState && window.__analyticsFilterState[sectionKey]) || { rangeMode: 'all', xAxisMode: 'month' };
+    const st = (window.__analyticsFilterState && window.__analyticsFilterState[sectionKey]) || { rangeMode: 'all', xAxisMode: 'weeks' };
     let minTs = null;
     let maxTs = null;
 
@@ -12064,6 +12071,29 @@ function getFilteredAnalyticsMediations() {
     return result;
 }
 
+function getFilteredAnalyticsMessages() {
+    const data = window.__adminKpiData;
+    if (!data) return { musicianMsgs: [], organizerMsgs: [] };
+    const filteredMsgs = filterItemsBySectionState(data.allMessages || [], 'messages');
+    return {
+        musicianMsgs: filteredMsgs.filter(m => m.senderRole === 'musician'),
+        organizerMsgs: filteredMsgs.filter(m => m.senderRole === 'organizer')
+    };
+}
+
+function getFilteredAnalyticsSubscriptions() {
+    const data = window.__adminKpiData;
+    if (!data) return { flex: [], plus: [], pro: [], premium: [], cancelled: [] };
+    const filteredSubs = filterItemsBySectionState(data.musicianAccounts || [], 'subscriptions');
+    const result = { flex: [], plus: [], pro: [], premium: [], cancelled: [] };
+    filteredSubs.forEach(u => {
+        const cat = classifySubscriptionCategory(u);
+        if (result[cat]) result[cat].push(u);
+        else result.flex.push(u);
+    });
+    return result;
+}
+
 function getIsoWeekInfo(dateObj) {
     const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
     const dayNum = d.getUTCDay() || 7;
@@ -12079,15 +12109,7 @@ function getBucketKeyAndLabel(ts, xAxisMode) {
     if (xAxisMode === 'year') {
         const y = d.getFullYear();
         return { key: `${y}`, label: `${y}`, sortKey: y };
-    } else if (xAxisMode === 'weeks') {
-        const info = getIsoWeekInfo(d);
-        const ww = String(info.week).padStart(2, '0');
-        return {
-            key: `${info.year}-W${ww}`,
-            label: `KW ${info.week}`,
-            sortKey: info.year * 100 + info.week
-        };
-    } else {
+    } else if (xAxisMode === 'month') {
         const y = d.getFullYear();
         const m = d.getMonth();
         const mm = String(m + 1).padStart(2, '0');
@@ -12095,6 +12117,15 @@ function getBucketKeyAndLabel(ts, xAxisMode) {
             key: `${y}-${mm}`,
             label: `${monthNamesShort[m]} ${y}`,
             sortKey: y * 100 + m
+        };
+    } else {
+        // default: 'weeks'
+        const info = getIsoWeekInfo(d);
+        const ww = String(info.week).padStart(2, '0');
+        return {
+            key: `${info.year}-W${ww}`,
+            label: `KW ${info.week}`,
+            sortKey: info.year * 100 + info.week
         };
     }
 }
@@ -12156,7 +12187,7 @@ function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode) {
             ensureBucket(getBucketKeyAndLabel(cur.getTime(), 'month'));
             cur.setMonth(cur.getMonth() + 1);
         }
-    } else if (xAxisMode === 'weeks') {
+    } else {
         let cur = new Date(minTs);
         cur.setHours(0, 0, 0, 0);
         const limit = new Date(maxTs);
@@ -12183,14 +12214,14 @@ function renderStackedColumnChartSection(config) {
         sectionNumber,
         sectionTitle,
         sectionIcon,
-        sectionKey, // 'users' | 'mediations'
-        csvDefaultType, // '' | 'mediations'
+        sectionKey, // 'users' | 'mediations' | 'messages' | 'subscriptions'
+        csvDefaultType,
         buckets,
-        seriesDefs // [{ key, label, color, csvType }] (Reihenfolge von unten nach oben oder oben nach unten)
+        seriesDefs // [{ key, label, color, textColor, csvType }]
     } = config;
 
     const st = window.__analyticsFilterState[sectionKey];
-    const xAxisMode = st.xAxisMode || 'month';
+    const xAxisMode = st.xAxisMode || 'weeks';
 
     const maxBucketTotal = buckets.reduce((max, b) => {
         const sum = seriesDefs.reduce((acc, s) => acc + (b.series[s.key]?.length || 0), 0);
@@ -12220,7 +12251,7 @@ function renderStackedColumnChartSection(config) {
                 </button>
             </div>
 
-            <!-- Zeitraum & X-Achsen-Einstellung (Monat / Jahr / Wochen) -->
+            <!-- Zeitraum & X-Achsen-Einstellung (Voreinstellung: Wochen) -->
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.15rem;">
                 <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
                     <button type="button" onclick="window.setAnalyticsTimeFilter('${sectionKey}', 'all')" style="padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
@@ -12260,10 +12291,10 @@ function renderStackedColumnChartSection(config) {
             </div>
             ` : ''}
 
-            <!-- Vertikales gestapeltes Säulendiagramm mit exakt ausgerichteter Y-Achse -->
-            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.35rem 1rem 1rem 0.75rem; box-sizing: border-box;">
+            <!-- Vertikales gestapeltes Säulendiagramm -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.5rem 1rem 1rem 0.75rem; box-sizing: border-box;">
                 <div style="display: flex; align-items: stretch; gap: 0.5rem;">
-                    <!-- Y-Achse (Exakt an den Prozent-Hilfslinien verankert) -->
+                    <!-- Y-Achse -->
                     <div style="position: relative; height: ${chartHeightPx}px; min-width: 32px; user-select: none; box-sizing: border-box;">
                         ${yTicks.map(t => `
                             <span style="position: absolute; right: 4px; top: ${t.topPct}%; transform: translateY(-50%); font-size: 0.76rem; font-weight: 700; color: var(--text-muted); line-height: 1;">${t.val}</span>
@@ -12273,31 +12304,33 @@ function renderStackedColumnChartSection(config) {
                     <!-- Plot-Bereich + X-Achse -->
                     <div style="flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-x: auto;">
                         <div style="position: relative; height: ${chartHeightPx}px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); display: flex; align-items: flex-end; justify-content: space-around; gap: 0.75rem; padding: 0 1rem; box-sizing: border-box; min-width: ${Math.max(buckets.length * 76, 240)}px;">
-                            <!-- Horizontale Hilfslinien bei 100, 80, 60, 40, 20 -->
+                            <!-- Horizontale Hilfslinien -->
                             ${[0, 20, 40, 60, 80].map(pct => `
                                 <div style="position: absolute; left: 0; right: 0; top: ${pct}%; border-top: 1px dashed rgba(148, 163, 184, 0.22); pointer-events: none;"></div>
                             `).join('')}
 
                             ${buckets.map(b => {
                                 const bTotal = seriesDefs.reduce((acc, s) => acc + (b.series[s.key]?.length || 0), 0);
-                                // Exakte Gesamthöhe der Säule passend zur Y-Achse (z.B. 11 Konten = 11% von 100)
                                 const colHeightPx = (bTotal / yMax) * chartHeightPx;
-
-                                // Segmente von oben nach unten rendern (umgekehrte Reihenfolge von seriesDefs, damit das erste Element unten steht)
                                 const activeSeriesTopDown = [...seriesDefs].reverse().filter(s => (b.series[s.key]?.length || 0) > 0);
 
                                 return `
-                                    <div style="position: relative; z-index: 2; flex: 1; max-width: 110px; min-width: 56px; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end;">
+                                    <div style="position: relative; z-index: 2; flex: 1; max-width: 110px; min-width: 56px; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; overflow: visible;">
                                         ${bTotal === 0 ? `
                                             <div style="height: 2px; background: rgba(148, 163, 184, 0.2); width: 100%;"></div>
                                         ` : `
-                                            <div style="display: flex; flex-direction: column; width: 100%; height: ${colHeightPx}px; max-height: ${colHeightPx}px; border-radius: 8px 8px 0 0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.18);">
+                                            <!-- Aggregierte Zahl direkt über der gesamten Säule -->
+                                            <div style="text-align: center; font-size: 0.82rem; font-weight: 900; color: var(--text-main); line-height: 1; margin-bottom: 5px; user-select: none; pointer-events: none;">
+                                                ${bTotal}
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; width: 100%; height: ${colHeightPx}px; max-height: ${colHeightPx}px; flex-shrink: 0; border-radius: 8px 8px 0 0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.18);">
                                                 ${activeSeriesTopDown.map(s => {
                                                     const count = b.series[s.key].length;
                                                     const segPx = (count / yMax) * chartHeightPx;
                                                     const fontSize = segPx < 9 ? '0.58rem' : (segPx < 15 ? '0.68rem' : '0.82rem');
+                                                    const txtColor = s.textColor || '#ffffff';
                                                     return `
-                                                        <div onclick="window.downloadAdminCsv('${s.csvType}', '${b.key}')" title="${s.label}: ${count} – Klicken für Excel-Liste" style="flex: ${count} 1 0%; min-height: 0; background: ${s.color}; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: ${fontSize}; font-weight: 900; line-height: 1; user-select: none; overflow: hidden; transition: filter 0.15s;" onmouseover="this.style.filter='brightness(1.12)'" onmouseout="this.style.filter='none'">
+                                                        <div onclick="window.downloadAdminCsv('${s.csvType}', '${b.key}')" title="${s.label}: ${count} – Klicken für Excel-Liste" style="flex: ${count} 1 0%; min-height: 0; background: ${s.color}; color: ${txtColor}; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: ${fontSize}; font-weight: 900; line-height: 1; user-select: none; overflow: hidden; transition: filter 0.15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
                                                             ${count}
                                                         </div>
                                                     `;
@@ -12334,73 +12367,9 @@ function renderStackedColumnChartSection(config) {
     `;
 }
 
-function generatePieChartHTML(items, options = {}) {
-    const total = items.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
-    const size = options.size || 140;
-    const donutHole = options.donutHole !== undefined ? options.donutHole : 58;
-    const centerText = options.centerText !== undefined ? options.centerText : total;
-    const centerSub = options.centerSub || 'Gesamt';
-
-    if (total === 0) {
-        return `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; padding: 1.2rem 0; width: 100%;">
-                <div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2px dashed var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-                    <i class="fa-solid fa-chart-pie" style="color: var(--text-muted); font-size: 1.5rem; margin-bottom: 0.3rem;"></i>
-                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Keine Daten</span>
-                </div>
-            </div>
-        `;
-    }
-
-    let currentPct = 0;
-    const gradientParts = [];
-    items.forEach(item => {
-        const val = Number(item.value) || 0;
-        if (val <= 0) return;
-        const pct = (val / total) * 100;
-        const nextPct = currentPct + pct;
-        gradientParts.push(`${item.color} ${currentPct.toFixed(1)}% ${nextPct.toFixed(1)}%`);
-        currentPct = nextPct;
-    });
-
-    const conicStyle = gradientParts.length > 0
-        ? `background: conic-gradient(${gradientParts.join(', ')});`
-        : `background: #64748b;`;
-
-    const legendHTML = items.map(item => {
-        const val = Number(item.value) || 0;
-        const pct = total > 0 ? Math.round((val / total) * 100) : 0;
-        return `
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; font-size: 0.8rem; padding: 0.28rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
-                <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
-                    <span style="width: 10px; height: 10px; border-radius: 3px; background: ${item.color}; flex-shrink: 0; box-shadow: 0 0 6px ${item.color}40;"></span>
-                    <span style="color: var(--text-main); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.35rem; white-space: nowrap; flex-shrink: 0;">
-                    <strong style="color: var(--text-main); font-weight: 800; font-size: 0.88rem;">${val}</strong>
-                    <span style="color: var(--text-muted); font-size: 0.72rem; min-width: 32px; text-align: right;">(${pct}%)</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    return `
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; width: 100%; padding: 0.4rem 0;">
-            <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; ${conicStyle} flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${donutHole}%; height: ${donutHole}%; background: var(--bg-card); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.25);">
-                    <span style="font-size: 1.25rem; font-weight: 900; color: var(--text-main); line-height: 1;">${centerText}</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.3px;">${centerSub}</span>
-                </div>
-            </div>
-            <div style="flex: 1; min-width: 160px; display: flex; flex-direction: column;">
-                ${legendHTML}
-            </div>
-        </div>
-    `;
-}
-
 window.setAnalyticsTimeFilter = function(sectionKey, mode) {
-    const targetKey = (sectionKey === 'mediations') ? 'mediations' : 'users';
+    const validKeys = ['users', 'mediations', 'messages', 'subscriptions'];
+    const targetKey = validKeys.includes(sectionKey) ? sectionKey : 'users';
     const st = window.__analyticsFilterState[targetKey];
     st.rangeMode = mode;
     if (mode === 'custom' && !st.dateTo) {
@@ -12411,7 +12380,8 @@ window.setAnalyticsTimeFilter = function(sectionKey, mode) {
 };
 
 window.setAnalyticsXAxisMode = function(sectionKey, mode) {
-    const targetKey = (sectionKey === 'mediations') ? 'mediations' : 'users';
+    const validKeys = ['users', 'mediations', 'messages', 'subscriptions'];
+    const targetKey = validKeys.includes(sectionKey) ? sectionKey : 'users';
     const st = window.__analyticsFilterState[targetKey];
     st.xAxisMode = mode;
     const contentEl = document.getElementById('admin-kpi-content');
@@ -12419,7 +12389,8 @@ window.setAnalyticsXAxisMode = function(sectionKey, mode) {
 };
 
 window.updateAnalyticsCustomDates = function(sectionKey) {
-    const targetKey = (sectionKey === 'mediations') ? 'mediations' : 'users';
+    const validKeys = ['users', 'mediations', 'messages', 'subscriptions'];
+    const targetKey = validKeys.includes(sectionKey) ? sectionKey : 'users';
     const st = window.__analyticsFilterState[targetKey];
     const fromEl = document.getElementById(`analytics-date-from-${targetKey}`);
     const toEl = document.getElementById(`analytics-date-to-${targetKey}`);
@@ -12479,7 +12450,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
 
     const dateStr = new Date().toISOString().slice(0, 10);
 
-    // Exporte für Punkt 2 (Vermittlungsanfragen: Gesamt oder nach Abschnitt Eingereicht / Offen / Erfolgreich / Nicht erfolgreich)
+    // 2. Exporte für Vermittlungsanfragen
     if (type === 'mediations' || type === 'med_submitted' || type === 'med_open' || type === 'med_successful' || type === 'med_unsuccessful') {
         const stMed = window.__analyticsFilterState.mediations;
         const groupedMeds = getFilteredAnalyticsMediations();
@@ -12510,7 +12481,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         if (bucketKey) {
             targetList = targetList.filter(m => {
                 const ts = getAccountTimestamp(m) || Date.now();
-                return getBucketKeyAndLabel(ts, stMed.xAxisMode || 'month').key === bucketKey;
+                return getBucketKeyAndLabel(ts, stMed.xAxisMode || 'weeks').key === bucketKey;
             });
         }
 
@@ -12574,50 +12545,157 @@ window.downloadAdminCsv = function(type, bucketKey) {
         const suffix = bucketKey ? `${bucketKey}_${dateStr}` : dateStr;
         triggerDownload(`${filePrefix}_${suffix}`, headers, rows);
         return;
-    } else if (type === 'chats') {
-        const headers = ['Chat-ID', 'Teilnehmer 1', 'Teilnehmer 2', 'Anzahl Nachrichten', 'Letzte Nachricht', 'Letzte Nachricht von', 'Zuletzt aktiv am'];
-        const userMap = new Map((data.users || []).map(u => [u.id, u]));
-        const musMap = new Map((data.realMusicians || []).map(m => [m.id, m]));
-        const rows = (data.realChats || []).map(c => {
-            const p1 = (c.participants && c.participants[0]) || '';
-            const p2 = (c.participants && c.participants[1]) || '';
-            const p1Name = (userMap.get(p1)?.firstName ? `${userMap.get(p1).firstName} ${userMap.get(p1).lastName}` : (musMap.get(p1)?.name || p1));
-            const p2Name = (userMap.get(p2)?.firstName ? `${userMap.get(p2).firstName} ${userMap.get(p2).lastName}` : (musMap.get(p2)?.name || p2));
-            const msgs = Array.isArray(c.messages) ? c.messages : [];
-            const lastMsg = msgs.length > 0 ? (msgs[msgs.length - 1].text || '') : '';
-            const lastSender = msgs.length > 0 ? (msgs[msgs.length - 1].senderId || '') : '';
-            return [
-                c.id || '',
-                p1Name,
-                p2Name,
-                msgs.length,
-                lastMsg,
-                lastSender,
-                formatDateStr(c.updatedAt)
+    }
+
+    // 3. Exporte für Nachrichten (Musiker / Veranstalter)
+    if (type === 'chats' || type === 'messages' || type === 'msg_musician' || type === 'msg_organizer') {
+        const stMsg = window.__analyticsFilterState.messages;
+        const groupedMsgs = getFilteredAnalyticsMessages();
+        let targetList = [];
+        let filePrefix = 'GigConnAct_Nachrichten_Gesamt';
+
+        if (type === 'msg_musician') {
+            targetList = groupedMsgs.musicianMsgs;
+            filePrefix = 'GigConnAct_Nachrichten_Musiker';
+        } else if (type === 'msg_organizer') {
+            targetList = groupedMsgs.organizerMsgs;
+            filePrefix = 'GigConnAct_Nachrichten_Veranstalter';
+        } else {
+            targetList = [
+                ...groupedMsgs.musicianMsgs,
+                ...groupedMsgs.organizerMsgs
             ];
-        });
-        triggerDownload(`GigConnAct_Chats_Export_${dateStr}`, headers, rows);
-        return;
-    } else if (type === 'subscriptions') {
-        const headers = ['User-ID', 'Name / Band', 'E-Mail-Adresse', 'Telefon', 'Rolle', 'Tarif', 'Abo-Status', 'Kündigungsdatum', 'Vertragsstart', 'Vertragsende', 'Stripe Customer-ID'];
-        const rows = (data.musicianAccounts || []).map(u => [
-            u.id || '',
-            u.bandName || u.profile?.name || `${u.firstName || ''} ${u.lastName || ''}`.trim(),
-            u.email || '',
-            u.phone || '',
-            u.role || '',
-            u.subscriptionPlan || 'flex',
-            u.subscriptionCancelled ? 'Gekündigt' : 'Aktiv',
-            u.subscriptionEndDate ? formatDateStr(u.subscriptionEndDate) : '',
-            u.subscriptionPeriodStart ? formatDateStr(u.subscriptionPeriodStart) : '',
-            u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : '',
-            u.stripeCustomerId || ''
+        }
+
+        if (bucketKey) {
+            targetList = targetList.filter(m => {
+                const ts = getAccountTimestamp(m) || Date.now();
+                return getBucketKeyAndLabel(ts, stMsg.xAxisMode || 'weeks').key === bucketKey;
+            });
+        }
+
+        const headers = [
+            'Absender-Gruppe',
+            'Chat-ID',
+            'Absender-ID',
+            'Absender Name',
+            'Absender E-Mail',
+            'Empfänger Name',
+            'Nachrichten-Text',
+            'Gesendet am'
+        ];
+
+        const rows = targetList.map(m => [
+            m.senderRole === 'musician' ? 'Musiker' : 'Veranstalter',
+            m.chatId || '',
+            m.senderId || '',
+            m.senderName || '',
+            m.senderEmail || '',
+            m.recipientName || '',
+            m.text || '',
+            formatDateStr(m.createdAt)
         ]);
-        triggerDownload(`GigConnAct_Abos_Tarife_Export_${dateStr}`, headers, rows);
+
+        const suffix = bucketKey ? `${bucketKey}_${dateStr}` : dateStr;
+        triggerDownload(`${filePrefix}_${suffix}`, headers, rows);
         return;
     }
 
-    // Export für Punkt 1 (1. User)
+    // 4. Exporte für Abonnements (Flex, Plus, Pro, Premium, Gekündigt)
+    if (type === 'subscriptions' || type === 'sub_flex' || type === 'sub_plus' || type === 'sub_pro' || type === 'sub_premium' || type === 'sub_cancelled') {
+        const stSub = window.__analyticsFilterState.subscriptions;
+        const groupedSubs = getFilteredAnalyticsSubscriptions();
+        let targetList = [];
+        let filePrefix = 'GigConnAct_Abonnements_Gesamt';
+
+        if (type === 'sub_flex') {
+            targetList = groupedSubs.flex;
+            filePrefix = 'GigConnAct_Abonnements_Flex';
+        } else if (type === 'sub_plus') {
+            targetList = groupedSubs.plus;
+            filePrefix = 'GigConnAct_Abonnements_Plus';
+        } else if (type === 'sub_pro') {
+            targetList = groupedSubs.pro;
+            filePrefix = 'GigConnAct_Abonnements_Pro';
+        } else if (type === 'sub_premium') {
+            targetList = groupedSubs.premium;
+            filePrefix = 'GigConnAct_Abonnements_Premium';
+        } else if (type === 'sub_cancelled') {
+            targetList = groupedSubs.cancelled;
+            filePrefix = 'GigConnAct_Abonnements_Gekuendigt';
+        } else {
+            targetList = [
+                ...groupedSubs.flex,
+                ...groupedSubs.plus,
+                ...groupedSubs.pro,
+                ...groupedSubs.premium,
+                ...groupedSubs.cancelled
+            ];
+        }
+
+        if (bucketKey) {
+            targetList = targetList.filter(u => {
+                const ts = getAccountTimestamp(u) || Date.now();
+                return getBucketKeyAndLabel(ts, stSub.xAxisMode || 'weeks').key === bucketKey;
+            });
+        }
+
+        const headers = [
+            'Abo-Kategorie',
+            'User-ID',
+            'Profil-ID',
+            'Vorname',
+            'Nachname',
+            'Band- / Künstlername',
+            'E-Mail-Adresse',
+            'Telefonnummer',
+            'Gewählter Tarif',
+            'Abo-Status',
+            'Kündigungsdatum / Abo-Ende',
+            'Vertragsstart',
+            'Vertragsende',
+            'Stripe Customer-ID',
+            'Stripe Subscription-ID',
+            'Registriert am'
+        ];
+
+        const catLabelMap = {
+            flex: 'Flex',
+            plus: 'Plus',
+            pro: 'Pro',
+            premium: 'Premium',
+            cancelled: 'Gekündigt'
+        };
+
+        const rows = targetList.map(u => {
+            const cat = classifySubscriptionCategory(u);
+            const m = u.profile || {};
+            return [
+                catLabelMap[cat] || 'Flex',
+                u.id || '',
+                m.id || u.profileId || '',
+                u.firstName || '',
+                u.lastName || '',
+                m.name || u.bandName || '',
+                u.email || m.email || '',
+                u.phone || m.phone || '',
+                u.subscriptionPlan || m.subscriptionPlan || 'flex',
+                cat === 'cancelled' ? 'Gekündigt' : 'Aktiv',
+                u.subscriptionEndDate || (u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : ''),
+                u.subscriptionPeriodStart ? formatDateStr(u.subscriptionPeriodStart) : '',
+                u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : '',
+                u.stripeCustomerId || '',
+                u.subscriptionId || '',
+                formatDateStr(u.createdAt || m.createdAt)
+            ];
+        });
+
+        const suffix = bucketKey ? `${bucketKey}_${dateStr}` : dateStr;
+        triggerDownload(`${filePrefix}_${suffix}`, headers, rows);
+        return;
+    }
+
+    // 1. Export für Punkt 1 (1. User)
     const st = window.__analyticsFilterState.users;
     const filtered = getFilteredAnalyticsAccounts();
 
@@ -12628,7 +12706,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
     if (bucketKey) {
         const matchBucket = (item) => {
             const ts = getAccountTimestamp(item) || Date.now();
-            return getBucketKeyAndLabel(ts, st.xAxisMode || 'month').key === bucketKey;
+            return getBucketKeyAndLabel(ts, st.xAxisMode || 'weeks').key === bucketKey;
         };
         sourceMusicians = sourceMusicians.filter(matchBucket);
         sourceOrganizers = sourceOrganizers.filter(matchBucket);
@@ -12821,13 +12899,13 @@ function renderAdminKpiCards(contentEl, statsInput) {
     const stats = statsInput || window.__adminKpiStats || {};
     window.__adminKpiStats = stats;
 
-    // 1. User Daten & Zeit-Buckets
+    // 1. User
     const stUsers = window.__analyticsFilterState.users;
     const filteredUsers = getFilteredAnalyticsAccounts();
     const userBuckets = buildGenericTimeBuckets(
         filteredUsers,
         ['musicians', 'organizers', 'pending'],
-        stUsers.xAxisMode || 'month'
+        stUsers.xAxisMode || 'weeks'
     );
 
     const userSectionHtml = renderStackedColumnChartSection({
@@ -12844,13 +12922,13 @@ function renderAdminKpiCards(contentEl, statsInput) {
         ]
     });
 
-    // 2. Vermittlungsanfragen Daten & Zeit-Buckets
+    // 2. Vermittlungsanfragen
     const stMeds = window.__analyticsFilterState.mediations;
     const filteredMeds = getFilteredAnalyticsMediations();
     const medBuckets = buildGenericTimeBuckets(
         filteredMeds,
         ['submitted', 'open', 'successful', 'unsuccessful'],
-        stMeds.xAxisMode || 'month'
+        stMeds.xAxisMode || 'weeks'
     );
 
     const medSectionHtml = renderStackedColumnChartSection({
@@ -12868,89 +12946,61 @@ function renderAdminKpiCards(contentEl, statsInput) {
         ]
     });
 
+    // 3. Nachrichten (Musiker & Veranstalter)
+    const stMsgs = window.__analyticsFilterState.messages;
+    const filteredMsgs = getFilteredAnalyticsMessages();
+    const msgBuckets = buildGenericTimeBuckets(
+        filteredMsgs,
+        ['musicianMsgs', 'organizerMsgs'],
+        stMsgs.xAxisMode || 'weeks'
+    );
+
+    const msgSectionHtml = renderStackedColumnChartSection({
+        sectionNumber: 3,
+        sectionTitle: 'Nachrichten',
+        sectionIcon: 'fa-comments',
+        sectionKey: 'messages',
+        csvDefaultType: 'messages',
+        buckets: msgBuckets,
+        seriesDefs: [
+            { key: 'musicianMsgs', label: 'Musiker', color: '#7c3aed', csvType: 'msg_musician' },
+            { key: 'organizerMsgs', label: 'Veranstalter', color: '#2563eb', csvType: 'msg_organizer' }
+        ]
+    });
+
+    // 4. Abonnements (Flex, Plus, Pro, Premium in schwächer werdenden Lila-Tönen + Gekündigt in Rot)
+    const stSubs = window.__analyticsFilterState.subscriptions;
+    const filteredSubs = getFilteredAnalyticsSubscriptions();
+    const subBuckets = buildGenericTimeBuckets(
+        filteredSubs,
+        ['flex', 'plus', 'pro', 'premium', 'cancelled'],
+        stSubs.xAxisMode || 'weeks'
+    );
+
+    const subSectionHtml = renderStackedColumnChartSection({
+        sectionNumber: 4,
+        sectionTitle: 'Abonnements',
+        sectionIcon: 'fa-credit-card',
+        sectionKey: 'subscriptions',
+        csvDefaultType: 'subscriptions',
+        buckets: subBuckets,
+        seriesDefs: [
+            { key: 'flex', label: 'Flex', color: '#6d28d9', textColor: '#ffffff', csvType: 'sub_flex' },
+            { key: 'plus', label: 'Plus', color: '#8b5cf6', textColor: '#ffffff', csvType: 'sub_plus' },
+            { key: 'pro', label: 'Pro', color: '#a78bfa', textColor: '#ffffff', csvType: 'sub_pro' },
+            { key: 'premium', label: 'Premium', color: '#c4b5fd', textColor: '#2e1065', csvType: 'sub_premium' },
+            { key: 'cancelled', label: 'Gekündigt', color: '#ef4444', textColor: '#ffffff', csvType: 'sub_cancelled' }
+        ]
+    });
+
     contentEl.innerHTML = `
         ${userSectionHtml}
 
         ${medSectionHtml}
 
-        <!-- 3. Postfach & Kommunikation -->
-        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-comments"></i> 3. Postfach & Kommunikation
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('chats')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.48rem 0.95rem; font-size: 0.8rem; font-weight: 800; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(14, 165, 233, 0.1); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3);">
-                    <i class="fa-solid fa-file-excel"></i> Excel-Liste
-                </button>
-            </div>
+        ${msgSectionHtml}
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-chart-pie" style="color: #0ea5e9;"></i> Postfach-Aktivität
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Aktive Chats (mit Inhalt)', value: stats.chatsWithMessagesCount || 0, color: '#0ea5e9' },
-                        { label: 'Unbeantwortet / Neu', value: stats.chatsEmptyCount || 0, color: '#94a3b8' }
-                    ], { centerText: stats.realChatsCount || 0, centerSub: 'Chats' })}
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
-                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Echte Konversationen</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 0.2rem;">${stats.realChatsCount || 0}</div>
-                        </div>
-                        <i class="fa-solid fa-message" style="color: #0ea5e9; font-size: 1.6rem; opacity: 0.7;"></i>
-                    </div>
-
-                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Ausgetauschte Nachrichten</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 0.2rem;">${stats.totalMessages || 0}</div>
-                        </div>
-                        <i class="fa-solid fa-paper-plane" style="color: #0ea5e9; font-size: 1.6rem; opacity: 0.7;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Musiker-Tarife & Abonnements -->
-        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
-                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-credit-card"></i> 4. Musiker-Tarife & Abonnements
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('subscriptions')" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.48rem 0.95rem; font-size: 0.8rem; font-weight: 800; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3);">
-                    <i class="fa-solid fa-file-excel"></i> Excel-Liste
-                </button>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-chart-pie" style="color: #7c3aed;"></i> Gewählte Tarife
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Flex (9,99 €)', value: stats.plans?.flex || 0, color: '#7c3aed' },
-                        { label: 'Plus (7,99 €)', value: stats.plans?.plus || 0, color: '#6366f1' },
-                        { label: 'Pro (5,99 €)', value: stats.plans?.pro || 0, color: '#3b82f6' },
-                        { label: 'Premium (Promo)', value: stats.plans?.premium || 0, color: '#ec4899' },
-                        { label: 'Free / Basis', value: stats.plans?.free || 0, color: '#94a3b8' }
-                    ], { centerText: (stats.activeSubs || 0) + (stats.cancelledSubs || 0), centerSub: 'Tarife' })}
-                </div>
-
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
-                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                        <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> Vertrags-Status
-                    </div>
-                    ${generatePieChartHTML([
-                        { label: 'Aktive Abonnements', value: stats.activeSubs || 0, color: '#10b981' },
-                        { label: 'Gekündigte Verträge', value: stats.cancelledSubs || 0, color: '#ef4444' }
-                    ], { centerText: (stats.activeSubs || 0) + (stats.cancelledSubs || 0), centerSub: 'Verträge' })}
-                </div>
-            </div>
-        </div>
+        ${subSectionHtml}
     `;
 }
 
@@ -13035,23 +13085,70 @@ async function initAdminKpiDashboard(container) {
 
             const verifiedUsers = [...organizerAccounts, ...musicianAccounts];
 
-            const realChats = chats.filter(c => c && c.participants && !c.participants.includes('system'));
-            const chatsWithMessages = realChats.filter(c => c && Array.isArray(c.messages) && c.messages.length > 0);
-            const chatsEmpty = realChats.filter(c => !c || !Array.isArray(c.messages) || c.messages.length === 0);
-            const totalMessages = realChats.reduce((sum, c) => sum + ((c.messages && Array.isArray(c.messages)) ? c.messages.length : 0), 0);
+            // Lookup-Maps für Nachrichten-Zuordnung (Musiker vs. Veranstalter)
+            const userMap = new Map(users.map(u => [u.id, u]));
+            const musMap = new Map(musicians.map(m => [m.id, m]));
+            const evtMap = new Map(events.map(e => [e.id, e]));
 
-            const plans = { flex: 0, plus: 0, pro: 0, premium: 0, free: 0, other: 0 };
-            let cancelledSubs = 0;
-            let activeSubs = 0;
-            musicianAccounts.forEach(u => {
-                const p = (u.subscriptionPlan || 'flex').toLowerCase();
-                if (plans[p] !== undefined) plans[p]++;
-                else plans.other++;
-                if (u.subscriptionCancelled) {
-                    cancelledSubs++;
-                } else {
-                    activeSubs++;
+            const resolveParticipantInfo = (pid) => {
+                if (!pid) return { role: 'organizer', name: '–', email: '' };
+                const s = String(pid);
+                if (s.startsWith('mus_')) {
+                    const m = musMap.get(s);
+                    const u = m && m.creatorId ? userMap.get(m.creatorId) : userMap.get(s.replace(/^mus_/, ''));
+                    return {
+                        role: 'musician',
+                        name: (m && m.name) || (u && (u.bandName || `${u.firstName || ''} ${u.lastName || ''}`.trim())) || s,
+                        email: (m && m.email) || (u && u.email) || ''
+                    };
                 }
+                if (s.startsWith('evt_') || s.startsWith('event_') || s.startsWith('org_')) {
+                    const e = evtMap.get(s);
+                    const u = e && e.creatorId ? userMap.get(e.creatorId) : null;
+                    return {
+                        role: 'organizer',
+                        name: (e && e.name) || (u && `${u.firstName || ''} ${u.lastName || ''}`.trim()) || s,
+                        email: (e && (e.email || e.clientEmail)) || (u && u.email) || ''
+                    };
+                }
+                const u = userMap.get(s);
+                if (u) {
+                    return {
+                        role: u.role === 'musician' ? 'musician' : 'organizer',
+                        name: u.bandName || `${u.firstName || ''} ${u.lastName || ''}`.trim() || s,
+                        email: u.email || ''
+                    };
+                }
+                return { role: 'organizer', name: s, email: '' };
+            };
+
+            const realChats = chats.filter(c => {
+                if (!c || !Array.isArray(c.participants)) return false;
+                const cid = String(c.id || '');
+                if (cid.startsWith('chat_demo_') || c.participants.includes('system')) return false;
+                return true;
+            });
+
+            const allMessages = [];
+            realChats.forEach(c => {
+                const msgs = Array.isArray(c.messages) ? c.messages : [];
+                const participants = Array.isArray(c.participants) ? c.participants : [];
+                msgs.forEach(msg => {
+                    if (!msg) return;
+                    const senderInfo = resolveParticipantInfo(msg.senderId || c.initiatorId);
+                    const otherPid = participants.find(p => p !== msg.senderId) || '';
+                    const recipientInfo = resolveParticipantInfo(otherPid);
+                    allMessages.push({
+                        chatId: c.id,
+                        senderId: msg.senderId || '',
+                        senderRole: senderInfo.role,
+                        senderName: senderInfo.name,
+                        senderEmail: senderInfo.email,
+                        recipientName: recipientInfo.name,
+                        text: msg.text || '',
+                        createdAt: msg.timestamp || msg.createdAt || c.updatedAt
+                    });
+                });
             });
 
             window.__adminKpiData = {
@@ -13063,7 +13160,8 @@ async function initAdminKpiDashboard(container) {
                 mediations,
                 pending,
                 users: verifiedUsers,
-                realChats
+                realChats,
+                allMessages
             };
 
             const stats = {
@@ -13074,12 +13172,7 @@ async function initAdminKpiDashboard(container) {
                 pendingCount: pending.length,
                 mediationsTotal: mediations.length,
                 realChatsCount: realChats.length,
-                chatsWithMessagesCount: chatsWithMessages.length,
-                chatsEmptyCount: chatsEmpty.length,
-                totalMessages,
-                plans,
-                activeSubs,
-                cancelledSubs
+                totalMessages: allMessages.length
             };
 
             renderAdminKpiCards(contentEl, stats);
