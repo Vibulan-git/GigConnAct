@@ -12826,23 +12826,60 @@ function renderAdminKpiCards(contentEl, statsInput) {
     ];
 
     const chartHeightPx = 360;
-    const selectStyle = "flex: 1; min-width: 155px; margin: 0; height: 40px; padding: 0 2rem 0 0.85rem; font-size: 0.84rem; font-weight: 800; color: var(--text-main); background-color: var(--bg-card); border: 1.5px solid rgba(124, 58, 237, 0.35); border-radius: 10px; cursor: pointer;";
 
     contentEl.innerHTML = `
         <div>
-            <!-- 3 Drop-Downs nebeneinander: 1. Bereich (User/Vermittlungen/Abonnements/Nachrichten) | 2. Zeitraum | 3. Wochen/Monat/Jahr -->
-            <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
-                <select class="input-field" onchange="window.setAnalyticsActiveTab(this.value)" style="${selectStyle}">
+            <style>
+                .reporting-filter-row {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 0.65rem;
+                    align-items: center;
+                    margin-bottom: 0.85rem;
+                    width: 100%;
+                }
+                .reporting-filter-select {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    margin: 0 !important;
+                    height: 40px !important;
+                    padding: 0 0.75rem !important;
+                    font-size: 0.84rem !important;
+                    font-weight: 800 !important;
+                    color: var(--text-main) !important;
+                    background-color: var(--bg-card) !important;
+                    border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
+                    border-radius: 10px !important;
+                    cursor: pointer;
+                    box-sizing: border-box !important;
+                    text-overflow: ellipsis;
+                }
+                @media (max-width: 767px) {
+                    .reporting-filter-row {
+                        grid-template-columns: 1.12fr 1.25fr 0.78fr;
+                        gap: 0.35rem;
+                    }
+                    .reporting-filter-select {
+                        height: 36px !important;
+                        padding: 0 0.35rem !important;
+                        font-size: 0.74rem !important;
+                        border-radius: 8px !important;
+                    }
+                }
+            </style>
+            <!-- 3 Drop-Downs immer in 1 Zeile nebeneinander: 1. Bereich | 2. Zeitraum | 3. Wochen/Monat/Jahr -->
+            <div class="reporting-filter-row">
+                <select class="input-field reporting-filter-select" onchange="window.setAnalyticsActiveTab(this.value)">
                     ${tabs.map(t => `<option value="${t.key}" ${t.key === activeTab ? 'selected' : ''}>${t.label}</option>`).join('')}
                 </select>
 
-                <select class="input-field" onchange="window.setAnalyticsTimeFilter('${activeTab}', this.value)" style="${selectStyle}">
+                <select class="input-field reporting-filter-select" onchange="window.setAnalyticsTimeFilter('${activeTab}', this.value)">
                     <option value="all" ${st.rangeMode === 'all' ? 'selected' : ''}>Start bis Heute</option>
                     <option value="4weeks" ${st.rangeMode === '4weeks' ? 'selected' : ''}>Letzte 4 Wochen</option>
                     <option value="custom" ${st.rangeMode === 'custom' ? 'selected' : ''}>Personalisiert</option>
                 </select>
 
-                <select class="input-field" onchange="window.setAnalyticsXAxisMode('${activeTab}', this.value)" style="${selectStyle}">
+                <select class="input-field reporting-filter-select" onchange="window.setAnalyticsXAxisMode('${activeTab}', this.value)">
                     <option value="weeks" ${xAxisMode === 'weeks' ? 'selected' : ''}>Wochen</option>
                     <option value="month" ${xAxisMode === 'month' ? 'selected' : ''}>Monat</option>
                     <option value="year" ${xAxisMode === 'year' ? 'selected' : ''}>Jahr</option>
@@ -13124,7 +13161,7 @@ async function initAdminKpiDashboard(container) {
                 loadingEl.innerHTML = `
                     <div style="color: var(--color-red); padding: 1.5rem; text-align: center;">
                         <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.8rem; margin-bottom: 0.5rem; display: block;"></i>
-                        <div>Fehler beim Laden des Analytics Dashboards: ${err.message}</div>
+                        <div>Fehler beim Laden des Reportings: ${err.message}</div>
                     </div>
                 `;
             }
@@ -13227,19 +13264,19 @@ function renderProfilePage(container) {
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.85rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     ${isAdmin ? `
-                    <!-- Analytics Dashboard (Admin ganz oben vor Mein Event-Profil) -->
+                    <!-- Reporting (Admin ganz oben vor Mein Event-Profil) -->
                     <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #7c3aed; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin: 0 0 0.65rem 0; box-shadow: var(--shadow-lg);">
-                        <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 0;">
-                            <div style="display: flex; align-items: center; gap: 0.85rem;">
-                                <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem;">
+                        <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: nowrap; gap: 0.5rem; padding-bottom: 0;">
+                            <div style="display: flex; align-items: center; gap: 0.85rem; min-width: 0;">
+                                <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; flex-shrink: 0;">
                                     <i class="fa-solid fa-chart-column"></i>
                                 </div>
-                                <div class="profile-section-title-group">
-                                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Analytics Dashboard</h3>
+                                <div class="profile-section-title-group" style="min-width: 0;">
+                                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Reporting</h3>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsvForActiveTab()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 800; border-radius: 9px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); transition: 0.2s;">
-                                <i class="fa-solid fa-file-excel"></i> Excel-Liste
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsvForActiveTab()" title="Excel-Liste herunterladen" aria-label="Excel-Liste herunterladen" style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; font-size: 1.15rem; border-radius: 12px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); flex-shrink: 0; transition: 0.2s;">
+                                <i class="fa-solid fa-file-excel"></i>
                             </button>
                         </div>
 
