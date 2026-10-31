@@ -12130,7 +12130,7 @@ function getBucketKeyAndLabel(ts, xAxisMode) {
     }
 }
 
-function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode) {
+function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode, sectionFilterState) {
     const bucketMap = new Map();
 
     const createEmptySeries = () => {
@@ -12158,19 +12158,41 @@ function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode) {
         });
     });
 
-    if (allEntries.length === 0) {
-        const nowInfo = getBucketKeyAndLabel(Date.now(), xAxisMode);
-        ensureBucket(nowInfo);
-        return Array.from(bucketMap.values());
-    }
+    const nowTs = Date.now();
+    const st = sectionFilterState || {};
 
     let minTs = Infinity;
     let maxTs = -Infinity;
     allEntries.forEach(({ item }) => {
-        const ts = getAccountTimestamp(item) || Date.now();
-        if (ts < minTs) minTs = ts;
-        if (ts > maxTs) maxTs = ts;
+        const ts = getAccountTimestamp(item);
+        if (ts !== null) {
+            if (ts < minTs) minTs = ts;
+            if (ts > maxTs) maxTs = ts;
+        }
     });
+
+    if (st.rangeMode === '4weeks') {
+        const fourWeeksAgo = nowTs - 28 * 24 * 60 * 60 * 1000;
+        if (minTs === Infinity || fourWeeksAgo < minTs) minTs = fourWeeksAgo;
+        if (maxTs === -Infinity || nowTs > maxTs) maxTs = nowTs;
+    } else if (st.rangeMode === 'custom') {
+        if (st.dateFrom) {
+            const dFrom = new Date(st.dateFrom + 'T00:00:00');
+            if (!isNaN(dFrom.getTime())) minTs = Math.min(minTs, dFrom.getTime());
+        }
+        if (st.dateTo) {
+            const dTo = new Date(st.dateTo + 'T23:59:59.999');
+            if (!isNaN(dTo.getTime())) maxTs = Math.max(maxTs, dTo.getTime());
+        } else {
+            maxTs = Math.max(maxTs, nowTs);
+        }
+    } else {
+        // 'all' ("Start bis Heute"): immer bis zum heutigen Tag (aktuelle KW / Monat / Jahr) fortführen
+        maxTs = Math.max(maxTs, nowTs);
+    }
+
+    if (minTs === Infinity) minTs = nowTs;
+    if (maxTs === -Infinity || maxTs < minTs) maxTs = Math.max(minTs, nowTs);
 
     if (xAxisMode === 'year') {
         const startY = new Date(minTs).getFullYear();
@@ -12181,26 +12203,30 @@ function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode) {
     } else if (xAxisMode === 'month') {
         const startD = new Date(minTs);
         const endD = new Date(maxTs);
-        let cur = new Date(startD.getFullYear(), startD.getMonth(), 1);
-        const limit = new Date(endD.getFullYear(), endD.getMonth(), 1);
+        let cur = new Date(startD.getFullYear(), startD.getMonth(), 1, 12, 0, 0, 0);
+        const limit = new Date(endD.getFullYear(), endD.getMonth(), 1, 12, 0, 0, 0);
         while (cur <= limit) {
             ensureBucket(getBucketKeyAndLabel(cur.getTime(), 'month'));
             cur.setMonth(cur.getMonth() + 1);
         }
     } else {
+        // Wochenschnitt: auf Montag 12:00 Uhr mittags normieren (immun gegen Zeitumstellung Sommer-/Winterzeit)
         let cur = new Date(minTs);
-        cur.setHours(0, 0, 0, 0);
+        cur.setHours(12, 0, 0, 0);
+        const dayOfWeek = cur.getDay() || 7; // 1 = Mo ... 7 = So
+        cur.setDate(cur.getDate() - (dayOfWeek - 1));
+
         const limit = new Date(maxTs);
         limit.setHours(23, 59, 59, 999);
         while (cur <= limit) {
             ensureBucket(getBucketKeyAndLabel(cur.getTime(), 'weeks'));
-            cur = new Date(cur.getTime() + 7 * 24 * 60 * 60 * 1000);
+            cur.setDate(cur.getDate() + 7);
         }
         ensureBucket(getBucketKeyAndLabel(maxTs, 'weeks'));
     }
 
     allEntries.forEach(({ key, item }) => {
-        const ts = getAccountTimestamp(item) || Date.now();
+        const ts = getAccountTimestamp(item) || nowTs;
         const info = getBucketKeyAndLabel(ts, xAxisMode);
         const b = ensureBucket(info);
         b.series[key].push(item);
@@ -12776,7 +12802,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
 
     if (activeTab === 'users') {
         const filteredUsers = getFilteredAnalyticsAccounts();
-        buckets = buildGenericTimeBuckets(filteredUsers, ['musicians', 'organizers', 'pending'], xAxisMode);
+        buckets = buildGenericTimeBuckets(filteredUsers, ['musicians', 'organizers', 'pending'], xAxisMode, st);
         seriesDefs = [
             { key: 'musicians', label: 'Musiker', color: '#7c3aed', textColor: '#ffffff', csvType: 'musician' },
             { key: 'organizers', label: 'Veranstalter', color: '#2563eb', textColor: '#ffffff', csvType: 'organizer' },
@@ -12784,7 +12810,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
         ];
     } else if (activeTab === 'mediations') {
         const filteredMeds = getFilteredAnalyticsMediations();
-        buckets = buildGenericTimeBuckets(filteredMeds, ['submitted', 'open', 'successful', 'unsuccessful'], xAxisMode);
+        buckets = buildGenericTimeBuckets(filteredMeds, ['submitted', 'open', 'successful', 'unsuccessful'], xAxisMode, st);
         seriesDefs = [
             { key: 'submitted', label: 'Eingereicht', color: '#7c3aed', textColor: '#ffffff', csvType: 'med_submitted' },
             { key: 'open', label: 'Offen', color: '#2563eb', textColor: '#ffffff', csvType: 'med_open' },
@@ -12793,7 +12819,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
         ];
     } else if (activeTab === 'subscriptions') {
         const filteredSubs = getFilteredAnalyticsSubscriptions();
-        buckets = buildGenericTimeBuckets(filteredSubs, ['flex', 'plus', 'pro', 'premium', 'cancelled'], xAxisMode);
+        buckets = buildGenericTimeBuckets(filteredSubs, ['flex', 'plus', 'pro', 'premium', 'cancelled'], xAxisMode, st);
         seriesDefs = [
             { key: 'flex', label: 'Flex', color: '#6d28d9', textColor: '#ffffff', csvType: 'sub_flex' },
             { key: 'plus', label: 'Plus', color: '#8b5cf6', textColor: '#ffffff', csvType: 'sub_plus' },
@@ -12803,7 +12829,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
         ];
     } else if (activeTab === 'messages') {
         const filteredMsgs = getFilteredAnalyticsMessages();
-        buckets = buildGenericTimeBuckets(filteredMsgs, ['musicianMsgs', 'organizerMsgs'], xAxisMode);
+        buckets = buildGenericTimeBuckets(filteredMsgs, ['musicianMsgs', 'organizerMsgs'], xAxisMode, st);
         seriesDefs = [
             { key: 'musicianMsgs', label: 'Musiker', color: '#7c3aed', textColor: '#ffffff', csvType: 'msg_musician' },
             { key: 'organizerMsgs', label: 'Veranstalter', color: '#2563eb', textColor: '#ffffff', csvType: 'msg_organizer' }
@@ -12910,7 +12936,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     </div>
 
                     <!-- Plot-Bereich + X-Achse -->
-                    <div style="flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-x: auto;">
+                    <div id="reporting-chart-scroll" style="flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-x: auto;">
                         <div style="position: relative; height: ${chartHeightPx}px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); display: flex; align-items: flex-end; justify-content: space-around; gap: 0.75rem; padding: 0 1rem; box-sizing: border-box; min-width: ${Math.max(buckets.length * 76, 240)}px;">
                             <!-- Horizontale Hilfslinien -->
                             ${[0, 20, 40, 60, 80].map(pct => `
@@ -12975,6 +13001,19 @@ function renderAdminKpiCards(contentEl, statsInput) {
             </div>
         </div>
     `;
+
+    // Voreinstellung: Ausschnitt immer auf die aktuellste Woche/Monat/Jahr (ganz rechts) fokussieren
+    const scrollEl = contentEl.querySelector('#reporting-chart-scroll');
+    if (scrollEl) {
+        const focusLatestBucket = () => {
+            scrollEl.scrollLeft = scrollEl.scrollWidth;
+        };
+        focusLatestBucket();
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(focusLatestBucket);
+        }
+        setTimeout(focusLatestBucket, 50);
+    }
 }
 
 async function initAdminKpiDashboard(container) {
@@ -13147,14 +13186,14 @@ async function initAdminKpiDashboard(container) {
                 totalMessages: allMessages.length
             };
 
-            renderAdminKpiCards(contentEl, stats);
-
             if (loadingEl) loadingEl.style.display = 'none';
             if (contentEl) {
                 contentEl.style.display = 'flex';
                 contentEl.style.flexDirection = 'column';
                 contentEl.style.gap = '0.75rem';
             }
+
+            renderAdminKpiCards(contentEl, stats);
         } catch (err) {
             console.error("Admin KPI load error:", err);
             if (loadingEl) {
