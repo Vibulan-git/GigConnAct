@@ -12308,6 +12308,15 @@ function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode, section
 window.setAnalyticsActiveTab = function(tabKey) {
     const validTabs = ['users', 'profiles', 'mediations', 'subscriptions', 'messages'];
     if (!validTabs.includes(tabKey)) return;
+    const prevTab = window.__analyticsFilterState.activeTab || 'users';
+    const prevSt = window.__analyticsFilterState[prevTab];
+    if (prevSt && window.__analyticsFilterState[tabKey]) {
+        window.__analyticsFilterState[tabKey].rangeMode = prevSt.rangeMode;
+        window.__analyticsFilterState[tabKey].xAxisMode = prevSt.xAxisMode;
+        window.__analyticsFilterState[tabKey].viewMode = prevSt.viewMode;
+        window.__analyticsFilterState[tabKey].dateFrom = prevSt.dateFrom;
+        window.__analyticsFilterState[tabKey].dateTo = prevSt.dateTo;
+    }
     window.__analyticsFilterState.activeTab = tabKey;
     const contentEl = document.getElementById('admin-kpi-content');
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
@@ -12315,30 +12324,36 @@ window.setAnalyticsActiveTab = function(tabKey) {
 
 window.setAnalyticsTimeFilter = function(sectionKey, mode) {
     const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
-    const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
-    const st = window.__analyticsFilterState[targetKey];
-    st.rangeMode = mode;
-    if (mode === 'custom' && !st.dateTo) {
-        st.dateTo = new Date().toISOString().slice(0, 10);
-    }
+    const defaultTo = new Date().toISOString().slice(0, 10);
+    validKeys.forEach(k => {
+        const s = window.__analyticsFilterState[k];
+        if (!s) return;
+        s.rangeMode = mode;
+        if (mode === 'custom' && !s.dateTo) s.dateTo = defaultTo;
+    });
     const contentEl = document.getElementById('admin-kpi-content');
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
 window.setAnalyticsXAxisMode = function(sectionKey, mode) {
     const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
-    const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
-    const st = window.__analyticsFilterState[targetKey];
-    st.xAxisMode = mode;
+    validKeys.forEach(k => {
+        if (window.__analyticsFilterState[k]) {
+            window.__analyticsFilterState[k].xAxisMode = mode;
+        }
+    });
     const contentEl = document.getElementById('admin-kpi-content');
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
 window.setAnalyticsViewMode = function(sectionKey, mode) {
     const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
-    const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
-    const st = window.__analyticsFilterState[targetKey];
-    st.viewMode = (mode === 'cumulative') ? 'cumulative' : 'period';
+    const normalized = (mode === 'cumulative') ? 'cumulative' : 'period';
+    validKeys.forEach(k => {
+        if (window.__analyticsFilterState[k]) {
+            window.__analyticsFilterState[k].viewMode = normalized;
+        }
+    });
     const contentEl = document.getElementById('admin-kpi-content');
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
@@ -12369,11 +12384,14 @@ function matchesAnalyticsBucketForCsv(item, bucketKey, sectionState) {
 window.updateAnalyticsCustomDates = function(sectionKey) {
     const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
     const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
-    const st = window.__analyticsFilterState[targetKey];
     const fromEl = document.getElementById(`analytics-date-from-${targetKey}`);
     const toEl = document.getElementById(`analytics-date-to-${targetKey}`);
-    if (fromEl) st.dateFrom = fromEl.value;
-    if (toEl) st.dateTo = toEl.value;
+    validKeys.forEach(k => {
+        const s = window.__analyticsFilterState[k];
+        if (!s) return;
+        if (fromEl) s.dateFrom = fromEl.value;
+        if (toEl) s.dateTo = toEl.value;
+    });
     const contentEl = document.getElementById('admin-kpi-content');
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
