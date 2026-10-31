@@ -1455,7 +1455,9 @@ window.unlockListing = function(targetId, targetName) {
             const res = await createStripeSession({ 
                 planKey: selectedPlan,
                 baseUrl: window.location.origin,
-                isTariffChange: isTariffChange
+                isTariffChange: isTariffChange,
+                userId: state.currentUser?.id || null,
+                email: state.currentUser?.email || null
             });
             if (res.data && res.data.url) {
                 window.location.href = res.data.url;
@@ -5866,7 +5868,7 @@ class StateManager {
         if (!snapshot.empty) {
             const doc = snapshot.docs[0];
             const data = doc.data();
-            if (data.role === 'musician' && (!data.isPremium || (!data.subscriptionId && !data.stripeCustomerId))) {
+            if (data.role === 'musician' && (!data.isPremium && !data.subscriptionId && !data.stripeCustomerId)) {
                 return { success: false, message: "Der Bezahlvorgang für dieses Musiker-Profil wurde noch nicht abgeschlossen." };
             }
             this.currentUser = { id: doc.id, ...data };
@@ -6068,7 +6070,7 @@ class StateManager {
                 return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert oder der Bezahlvorgang wurde noch nicht abgeschlossen." };
             }
 
-            if (matchedUser.role === 'musician' && (!matchedUser.isPremium || (!matchedUser.subscriptionId && !matchedUser.stripeCustomerId))) {
+            if (matchedUser.role === 'musician' && (!matchedUser.isPremium && !matchedUser.subscriptionId && !matchedUser.stripeCustomerId)) {
                 return {
                     success: false,
                     message: "Dein Bezahlvorgang für das Musiker-Abonnement wurde noch nicht abgeschlossen. Bitte schließe zuerst die Registrierung und Zahlung vollständig ab."
@@ -13063,7 +13065,7 @@ function renderProfilePage(container) {
                     
                     try {
                         const updateCancelState = firebase.app().functions('europe-west3').httpsCallable('updateSubscriptionCancelState');
-                        const res = await updateCancelState({ cancelAtPeriodEnd: true });
+                        const res = await updateCancelState({ cancelAtPeriodEnd: true, userId: u.id, email: u.email });
                         
                         if (res.data && res.data.success) {
                             const endStr = res.data.subscriptionEndDate;
@@ -13089,6 +13091,15 @@ function renderProfilePage(container) {
                             });
                         }
                     } catch (err) {
+                        if (u.subscriptionId || u.stripeCustomerId) {
+                            console.error("Subscription cancellation error:", err);
+                            showToast({
+                                title: "Fehler bei der Kündigung ❌",
+                                message: err.message || "Dein Abonnement konnte momentan nicht gekündigt werden. Bitte versuche es erneut.",
+                                type: "error"
+                            });
+                            return;
+                        }
                         console.warn("Subscription cancellation Stripe error, applying direct fallback:", err);
                         u.subscriptionCancelled = true;
                         let fallbackEndStr = '';
@@ -13140,7 +13151,7 @@ function renderProfilePage(container) {
                 
                 try {
                     const updateCancelState = firebase.app().functions('europe-west3').httpsCallable('updateSubscriptionCancelState');
-                    const res = await updateCancelState({ cancelAtPeriodEnd: false });
+                    const res = await updateCancelState({ cancelAtPeriodEnd: false, userId: u.id, email: u.email });
                     
                     if (res.data && res.data.success) {
                         u.subscriptionCancelled = false;
@@ -13293,7 +13304,9 @@ function renderProfilePage(container) {
                         planKey: selectedPlan,
                         baseUrl: window.location.origin,
                         returnUrl: 'profile',
-                        isTariffChange: isTariffChange
+                        isTariffChange: isTariffChange,
+                        userId: u.id,
+                        email: u.email
                     });
 
                     if (res.data && res.data.url) {
@@ -13326,7 +13339,9 @@ function renderProfilePage(container) {
             try {
                 const createPortalSession = firebase.app().functions('europe-west3').httpsCallable('createStripePortalSession');
                 const res = await createPortalSession({
-                    baseUrl: window.location.origin
+                    baseUrl: window.location.origin,
+                    userId: u.id,
+                    email: u.email
                 });
                 if (res.data && res.data.url) {
                     window.location.href = res.data.url;
@@ -19022,7 +19037,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             }
                         }
 
-                        if (foundUserData && foundUserData.role === 'musician' && (!foundUserData.isPremium || (!foundUserData.subscriptionId && !foundUserData.stripeCustomerId))) {
+                        if (foundUserData && foundUserData.role === 'musician' && (!foundUserData.isPremium && !foundUserData.subscriptionId && !foundUserData.stripeCustomerId)) {
                             foundUserData = null;
                         }
 
@@ -19802,7 +19817,9 @@ function renderSubscriptionExpiredPage(container) {
                 const res = await createStripeSession({ 
                     planKey: selectedPlan,
                     baseUrl: window.location.origin,
-                    returnUrl: 'profile'
+                    returnUrl: 'profile',
+                    userId: u.id,
+                    email: u.email
                 });
 
                 if (res.data && res.data.url) {

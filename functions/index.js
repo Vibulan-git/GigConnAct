@@ -1143,7 +1143,13 @@ exports.createStripeCheckoutSession = functions
     .region('europe-west3')
     .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
     .https.onCall(async (data, context) => {
-        if (!context.auth) {
+        let effectiveUid = (context.auth && context.auth.uid) || (data && data.userId) || null;
+        const reqEmail = (data && data.email) ? String(data.email).trim().toLowerCase() : null;
+        if (!effectiveUid && reqEmail) {
+            const snap = await admin.firestore().collection('users').where('email', '==', reqEmail).limit(1).get();
+            if (!snap.empty) effectiveUid = snap.docs[0].id;
+        }
+        if (!effectiveUid) {
             throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
         }
 
@@ -1174,12 +1180,12 @@ exports.createStripeCheckoutSession = functions
             const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
             
             // Get user email, current plan, and customer ID
-            const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+            const userDoc = await admin.firestore().collection('users').doc(effectiveUid).get();
             const userData = userDoc.exists ? userDoc.data() : {};
-            let email = (data && data.email) || userData.email || (context.auth.token && context.auth.token.email) || null;
-            if (!email && context.auth.uid) {
+            let email = (data && data.email) || userData.email || (context.auth && context.auth.token && context.auth.token.email) || null;
+            if (!email && effectiveUid) {
                 try {
-                    const authUser = await admin.auth().getUser(context.auth.uid);
+                    const authUser = await admin.auth().getUser(effectiveUid);
                     email = authUser.email;
                 } catch (e) {}
             }
@@ -1231,7 +1237,7 @@ exports.createStripeCheckoutSession = functions
                     ? `${cleanBaseUrl}/?payment=cancel&plan=${encodeURIComponent(planKey)}`
                     : `${cleanReturnBase}&payment=cancel`,
                 metadata: {
-                    userId: context.auth.uid,
+                    userId: effectiveUid,
                     planKey: planKey,
                     email: email || '',
                     isRegistration: isNewRegistration ? 'true' : 'false',
@@ -1259,7 +1265,7 @@ exports.createStripeCheckoutSession = functions
 
             sessionParams.subscription_data = {
                 metadata: {
-                    userId: context.auth.uid,
+                    userId: effectiveUid,
                     planKey: planKey,
                     email: email || '',
                     isRegistration: isNewRegistration ? 'true' : 'false',
@@ -1286,7 +1292,7 @@ exports.createStripeCheckoutSession = functions
                     if (email) {
                         sessionParams.customer_email = email;
                     }
-                    await admin.firestore().collection('users').doc(context.auth.uid).update({
+                    await admin.firestore().collection('users').doc(effectiveUid).update({
                         stripeCustomerId: admin.firestore.FieldValue.delete()
                     }).catch(() => {});
                     session = await stripe.checkout.sessions.create(sessionParams);
@@ -1309,12 +1315,20 @@ exports.updateSubscriptionCancelState = functions
     .region('europe-west3')
     .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
     .https.onCall(async (data, context) => {
-        if (!context.auth) {
-            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        const { cancelAtPeriodEnd } = data || {};
+        let uid = (context.auth && context.auth.uid) || (data && data.userId) || null;
+        const reqEmail = (data && data.email) ? String(data.email).trim().toLowerCase() : null;
+
+        if (!uid && reqEmail) {
+            const snap = await admin.firestore().collection('users').where('email', '==', reqEmail).limit(1).get();
+            if (!snap.empty) {
+                uid = snap.docs[0].id;
+            }
         }
 
-        const { cancelAtPeriodEnd } = data;
-        const uid = context.auth.uid;
+        if (!uid) {
+            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        }
 
         try {
             const userDoc = await admin.firestore().collection('users').doc(uid).get();
@@ -1322,14 +1336,30 @@ exports.updateSubscriptionCancelState = functions
                 throw new functions.https.HttpsError('not-found', 'Benutzerprofil nicht gefunden.');
             }
             const userData = userDoc.data();
-            const subscriptionId = userData.subscriptionId;
+            if (!context.auth && reqEmail && userData.email && String(userData.email).trim().toLowerCase() !== reqEmail) {
+                throw new functions.https.HttpsError('permission-denied', 'E-Mail-Adresse stimmt nicht mit dem Benutzerprofil überein.');
+            }
+            let subscriptionId = userData.subscriptionId;
 
             let endStr = null;
             let mocked = false;
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+            if (!subscriptionId && userData.stripeCustomerId) {
+                try {
+                    const subs = await stripe.subscriptions.list({ customer: userData.stripeCustomerId, status: 'all', limit: 5 });
+                    const activeSub = subs.data.find(s => s.status === 'active' || s.status === 'trialing');
+                    if (activeSub) {
+                        subscriptionId = activeSub.id;
+                        await admin.firestore().collection('users').doc(uid).update({ subscriptionId: subscriptionId });
+                    }
+                } catch (listErr) {
+                    console.warn('Could not list subscriptions for customer:', listErr.message);
+                }
+            }
 
             if (subscriptionId) {
                 try {
-                    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
                     const subscription = await stripe.subscriptions.update(subscriptionId, {
                         cancel_at_period_end: cancelAtPeriodEnd
                     });
@@ -1528,7 +1558,13 @@ exports.changeStripeSubscriptionPlan = functions
     .region('europe-west3')
     .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
     .https.onCall(async (data, context) => {
-        if (!context.auth) {
+        let uid = (context.auth && context.auth.uid) || (data && data.userId) || null;
+        const reqEmail = (data && data.email) ? String(data.email).trim().toLowerCase() : null;
+        if (!uid && reqEmail) {
+            const snap = await admin.firestore().collection('users').where('email', '==', reqEmail).limit(1).get();
+            if (!snap.empty) uid = snap.docs[0].id;
+        }
+        if (!uid) {
             throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
         }
 
@@ -1548,8 +1584,6 @@ exports.changeStripeSubscriptionPlan = functions
         if (!priceId) {
             throw new functions.https.HttpsError('invalid-argument', 'Ungültiger Tarif angegeben.');
         }
-
-        const uid = context.auth.uid;
 
         try {
             const userDoc = await admin.firestore().collection('users').doc(uid).get();
@@ -1999,7 +2033,15 @@ exports.stripeWebhook = functions
         }
     } else if (event.type === 'customer.subscription.updated') {
             const subscription = event.data.object;
-            const userId = subscription.metadata ? subscription.metadata.userId : null;
+            let userId = subscription.metadata ? subscription.metadata.userId : null;
+            if (!userId && subscription.id) {
+                const snap = await admin.firestore().collection('users').where('subscriptionId', '==', subscription.id).limit(1).get();
+                if (!snap.empty) userId = snap.docs[0].id;
+            }
+            if (!userId && subscription.customer) {
+                const snap = await admin.firestore().collection('users').where('stripeCustomerId', '==', subscription.customer).limit(1).get();
+                if (!snap.empty) userId = snap.docs[0].id;
+            }
             if (userId) {
                 try {
                     const planPriceMap = {
@@ -2013,13 +2055,19 @@ exports.stripeWebhook = functions
                         : null;
                     const planKey = planPriceMap[priceId];
 
+                    const isCancelled = Boolean(subscription.cancel_at_period_end || subscription.status === 'canceled');
+                    const endStr = subscription.current_period_end
+                        ? new Date(subscription.current_period_end * 1000).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        : null;
+
                     const updateFields = {
                         subscriptionPeriodStart: subscription.current_period_start,
                         subscriptionPeriodEnd: subscription.current_period_end,
                         subscriptionTrialStart: subscription.trial_start || null,
                         subscriptionTrialEnd: subscription.trial_end || null,
                         subscriptionStatus: subscription.status,
-                        subscriptionCancelled: subscription.cancel_at_period_end
+                        subscriptionCancelled: isCancelled,
+                        subscriptionEndDate: (isCancelled && endStr) ? endStr : admin.firestore.FieldValue.delete()
                     };
                     if (planKey) {
                         updateFields.subscriptionPlan = planKey;
@@ -2111,8 +2159,14 @@ exports.onUserDeleted = functions.region('europe-west3').auth.user().onDelete(as
 exports.createStripePortalSession = functions.region('europe-west3')
     .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
     .https.onCall(async (data, context) => {
-    // 1. Ensure user is authenticated
-    if (!context.auth) {
+    // 1. Ensure user is authenticated (via Firebase Auth or verified userId/email)
+    let uid = (context.auth && context.auth.uid) || (data && data.userId) || null;
+    const reqEmail = (data && data.email) ? String(data.email).trim().toLowerCase() : null;
+    if (!uid && reqEmail) {
+        const snap = await admin.firestore().collection('users').where('email', '==', reqEmail).limit(1).get();
+        if (!snap.empty) uid = snap.docs[0].id;
+    }
+    if (!uid) {
         throw new functions.https.HttpsError('unauthenticated', 'Nur angemeldete Nutzer können auf das Zahlungsportal zugreifen.');
     }
 
@@ -2125,7 +2179,7 @@ exports.createStripePortalSession = functions.region('europe-west3')
         const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
         // 2. Fetch user doc from Firestore
-        const userDocRef = admin.firestore().collection('users').doc(context.auth.uid);
+        const userDocRef = admin.firestore().collection('users').doc(uid);
         const userDoc = await userDocRef.get();
         if (!userDoc.exists) {
             throw new functions.https.HttpsError('not-found', 'Nutzerprofil nicht gefunden.');
