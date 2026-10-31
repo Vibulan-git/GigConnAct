@@ -11931,30 +11931,35 @@ window.__analyticsFilterState = {
     users: {
         rangeMode: 'all', // 'all' | '4weeks' | 'custom'
         xAxisMode: 'weeks', // 'weeks' (Voreinstellung) | 'month' | 'year'
+        viewMode: 'period', // 'period' (Einzeln) | 'cumulative' (Kumuliert)
         dateFrom: '',
         dateTo: ''
     },
     profiles: {
         rangeMode: 'all',
         xAxisMode: 'weeks',
+        viewMode: 'period',
         dateFrom: '',
         dateTo: ''
     },
     mediations: {
         rangeMode: 'all',
         xAxisMode: 'weeks',
+        viewMode: 'period',
         dateFrom: '',
         dateTo: ''
     },
     subscriptions: {
         rangeMode: 'all',
         xAxisMode: 'weeks',
+        viewMode: 'period',
         dateFrom: '',
         dateTo: ''
     },
     messages: {
         rangeMode: 'all',
         xAxisMode: 'weeks',
+        viewMode: 'period',
         dateFrom: '',
         dateTo: ''
     }
@@ -12027,8 +12032,8 @@ function classifySubscriptionCategory(u) {
     return 'flex';
 }
 
-function filterItemsBySectionState(items, sectionKey) {
-    const st = (window.__analyticsFilterState && window.__analyticsFilterState[sectionKey]) || { rangeMode: 'all', xAxisMode: 'weeks' };
+function getSectionTimeBounds(sectionKey) {
+    const st = (window.__analyticsFilterState && window.__analyticsFilterState[sectionKey]) || { rangeMode: 'all', xAxisMode: 'weeks', viewMode: 'period' };
     let minTs = null;
     let maxTs = null;
 
@@ -12048,12 +12053,18 @@ function filterItemsBySectionState(items, sectionKey) {
             if (!isNaN(dTo.getTime())) maxTs = dTo.getTime();
         }
     }
+    return { st, minTs, maxTs };
+}
+
+function filterItemsBySectionState(items, sectionKey) {
+    const { st, minTs, maxTs } = getSectionTimeBounds(sectionKey);
+    const isCumulative = st.viewMode === 'cumulative';
 
     return (items || []).filter(item => {
         if (minTs === null && maxTs === null) return true;
         const ts = getAccountTimestamp(item);
-        if (ts === null) return st.rangeMode === 'all';
-        if (minTs !== null && ts < minTs) return false;
+        if (ts === null) return st.rangeMode === 'all' || isCumulative;
+        if (!isCumulative && minTs !== null && ts < minTs) return false;
         if (maxTs !== null && ts > maxTs) return false;
         return true;
     });
@@ -12262,7 +12273,36 @@ function buildGenericTimeBuckets(groupedItemsMap, seriesKeys, xAxisMode, section
         b.series[key].push(item);
     });
 
-    return Array.from(bucketMap.values()).sort((a, b) => a.sortKey - b.sortKey);
+    let sortedBuckets = Array.from(bucketMap.values()).sort((a, b) => a.sortKey - b.sortKey);
+
+    // Bei "Kumuliert": laufende Summe der Einträge über die Zeit bilden
+    if (st && st.viewMode === 'cumulative') {
+        const running = createEmptySeries();
+        sortedBuckets.forEach(b => {
+            seriesKeys.forEach(k => {
+                running[k] = running[k].concat(b.series[k] || []);
+                b.series[k] = running[k].slice();
+            });
+        });
+
+        // Falls ein Zeitraum-Startfilter aktiv ist ("Letzte 4 Wochen" oder "Personalisiert" mit Von-Datum),
+        // nur die Buckets ab diesem Startzeitpunkt auf der X-Achse zeigen (mit bereits kumuliertem Bestand!)
+        let displayMinTs = null;
+        if (st.rangeMode === '4weeks') {
+            const fourWeeksAgo = new Date(nowTs - 28 * 24 * 60 * 60 * 1000);
+            fourWeeksAgo.setHours(0, 0, 0, 0);
+            displayMinTs = fourWeeksAgo.getTime();
+        } else if (st.rangeMode === 'custom' && st.dateFrom) {
+            const dFrom = new Date(st.dateFrom + 'T00:00:00');
+            if (!isNaN(dFrom.getTime())) displayMinTs = dFrom.getTime();
+        }
+        if (displayMinTs !== null) {
+            const minBucketSortKey = getBucketKeyAndLabel(displayMinTs, xAxisMode).sortKey;
+            sortedBuckets = sortedBuckets.filter(b => b.sortKey >= minBucketSortKey);
+        }
+    }
+
+    return sortedBuckets;
 }
 
 window.setAnalyticsActiveTab = function(tabKey) {
@@ -12293,6 +12333,38 @@ window.setAnalyticsXAxisMode = function(sectionKey, mode) {
     const contentEl = document.getElementById('admin-kpi-content');
     if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
+
+window.setAnalyticsViewMode = function(sectionKey, mode) {
+    const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
+    const targetKey = validKeys.includes(sectionKey) ? sectionKey : (window.__analyticsFilterState.activeTab || 'users');
+    const st = window.__analyticsFilterState[targetKey];
+    st.viewMode = (mode === 'cumulative') ? 'cumulative' : 'period';
+    const contentEl = document.getElementById('admin-kpi-content');
+    if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
+};
+
+function matchesAnalyticsBucketForCsv(item, bucketKey, sectionState) {
+    if (!bucketKey) return true;
+    const st = sectionState || {};
+    const xAxisMode = st.xAxisMode || 'weeks';
+    const ts = getAccountTimestamp(item) || Date.now();
+    const itemInfo = getBucketKeyAndLabel(ts, xAxisMode);
+    if (st.viewMode === 'cumulative') {
+        // Parse target sortKey from bucketKey
+        let targetSortKey = itemInfo.sortKey;
+        if (xAxisMode === 'year') {
+            targetSortKey = parseInt(bucketKey, 10);
+        } else if (xAxisMode === 'month') {
+            const parts = String(bucketKey).split('-');
+            if (parts.length === 2) targetSortKey = parseInt(parts[0], 10) * 100 + (parseInt(parts[1], 10) - 1);
+        } else {
+            const parts = String(bucketKey).split('-W');
+            if (parts.length === 2) targetSortKey = parseInt(parts[0], 10) * 100 + parseInt(parts[1], 10);
+        }
+        return itemInfo.sortKey <= targetSortKey;
+    }
+    return itemInfo.key === bucketKey;
+}
 
 window.updateAnalyticsCustomDates = function(sectionKey) {
     const validKeys = ['users', 'profiles', 'mediations', 'messages', 'subscriptions'];
@@ -12393,10 +12465,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         }
 
         if (bucketKey) {
-            targetList = targetList.filter(p => {
-                const ts = getAccountTimestamp(p) || Date.now();
-                return getBucketKeyAndLabel(ts, stProf.xAxisMode || 'weeks').key === bucketKey;
-            });
+            targetList = targetList.filter(p => matchesAnalyticsBucketForCsv(p, bucketKey, stProf));
         }
 
         const headers = [
@@ -12480,10 +12549,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         }
 
         if (bucketKey) {
-            targetList = targetList.filter(m => {
-                const ts = getAccountTimestamp(m) || Date.now();
-                return getBucketKeyAndLabel(ts, stMed.xAxisMode || 'weeks').key === bucketKey;
-            });
+            targetList = targetList.filter(m => matchesAnalyticsBucketForCsv(m, bucketKey, stMed));
         }
 
         const statusLabelMap = {
@@ -12581,10 +12647,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         }
 
         if (bucketKey) {
-            targetList = targetList.filter(u => {
-                const ts = getAccountTimestamp(u) || Date.now();
-                return getBucketKeyAndLabel(ts, stSub.xAxisMode || 'weeks').key === bucketKey;
-            });
+            targetList = targetList.filter(u => matchesAnalyticsBucketForCsv(u, bucketKey, stSub));
         }
 
         const headers = [
@@ -12668,10 +12731,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
         }
 
         if (bucketKey) {
-            targetList = targetList.filter(m => {
-                const ts = getAccountTimestamp(m) || Date.now();
-                return getBucketKeyAndLabel(ts, stMsg.xAxisMode || 'weeks').key === bucketKey;
-            });
+            targetList = targetList.filter(m => matchesAnalyticsBucketForCsv(m, bucketKey, stMsg));
         }
 
         const headers = [
@@ -12710,10 +12770,7 @@ window.downloadAdminCsv = function(type, bucketKey) {
     let sourcePending = filtered.pending;
 
     if (bucketKey) {
-        const matchBucket = (item) => {
-            const ts = getAccountTimestamp(item) || Date.now();
-            return getBucketKeyAndLabel(ts, st.xAxisMode || 'weeks').key === bucketKey;
-        };
+        const matchBucket = (item) => matchesAnalyticsBucketForCsv(item, bucketKey, st);
         sourceMusicians = sourceMusicians.filter(matchBucket);
         sourceOrganizers = sourceOrganizers.filter(matchBucket);
         sourcePending = sourcePending.filter(matchBucket);
@@ -12986,8 +13043,8 @@ function renderAdminKpiCards(contentEl, statsInput) {
             <style>
                 .reporting-filter-row {
                     display: grid;
-                    grid-template-columns: 1fr 1fr 1fr;
-                    gap: 0.65rem;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 0.55rem;
                     align-items: center;
                     margin-bottom: 0.85rem;
                     width: 100%;
@@ -12997,8 +13054,8 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     min-width: 0 !important;
                     margin: 0 !important;
                     height: 40px !important;
-                    padding: 0 0.75rem !important;
-                    font-size: 0.84rem !important;
+                    padding: 0 0.65rem !important;
+                    font-size: 0.82rem !important;
                     font-weight: 800 !important;
                     color: var(--text-main) !important;
                     background-color: var(--bg-card) !important;
@@ -13006,22 +13063,24 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     border-radius: 10px !important;
                     cursor: pointer;
                     box-sizing: border-box !important;
+                    overflow: hidden;
                     text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
                 @media (max-width: 767px) {
                     .reporting-filter-row {
-                        grid-template-columns: 1.12fr 1.25fr 0.78fr;
-                        gap: 0.35rem;
+                        grid-template-columns: repeat(4, minmax(0, 1fr));
+                        gap: 0.25rem;
                     }
                     .reporting-filter-select {
-                        height: 36px !important;
-                        padding: 0 0.35rem !important;
-                        font-size: 0.74rem !important;
-                        border-radius: 8px !important;
+                        height: 34px !important;
+                        padding: 0 0.22rem !important;
+                        font-size: 0.68rem !important;
+                        border-radius: 7px !important;
                     }
                 }
             </style>
-            <!-- 3 Drop-Downs immer in 1 Zeile nebeneinander: 1. Bereich | 2. Zeitraum | 3. Wochen/Monat/Jahr -->
+            <!-- 4 Drop-Downs immer in 1 Zeile nebeneinander: 1. Bereich | 2. Zeitraum | 3. Wochen/Monat/Jahr | 4. Einzeln/Kumuliert -->
             <div class="reporting-filter-row">
                 <select class="input-field reporting-filter-select" onchange="window.setAnalyticsActiveTab(this.value)">
                     ${tabs.map(t => `<option value="${t.key}" ${t.key === activeTab ? 'selected' : ''}>${t.label}</option>`).join('')}
@@ -13037,6 +13096,11 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     <option value="weeks" ${xAxisMode === 'weeks' ? 'selected' : ''}>Wochen</option>
                     <option value="month" ${xAxisMode === 'month' ? 'selected' : ''}>Monat</option>
                     <option value="year" ${xAxisMode === 'year' ? 'selected' : ''}>Jahr</option>
+                </select>
+
+                <select class="input-field reporting-filter-select" onchange="window.setAnalyticsViewMode('${activeTab}', this.value)">
+                    <option value="period" ${(st.viewMode || 'period') === 'period' ? 'selected' : ''}>Einzeln</option>
+                    <option value="cumulative" ${st.viewMode === 'cumulative' ? 'selected' : ''}>Kumuliert</option>
                 </select>
             </div>
 
