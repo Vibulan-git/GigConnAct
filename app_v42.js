@@ -12812,8 +12812,8 @@ function renderAdminKpiCards(contentEl, statsInput) {
         const filteredMeds = getFilteredAnalyticsMediations();
         buckets = buildGenericTimeBuckets(filteredMeds, ['submitted', 'open', 'successful', 'unsuccessful'], xAxisMode, st);
         seriesDefs = [
-            { key: 'submitted', label: 'Eingereicht', color: '#7c3aed', textColor: '#ffffff', csvType: 'med_submitted' },
-            { key: 'open', label: 'Offen', color: '#2563eb', textColor: '#ffffff', csvType: 'med_open' },
+            { key: 'submitted', label: 'Eingereicht', color: '#2563eb', textColor: '#ffffff', csvType: 'med_submitted' },
+            { key: 'open', label: 'Offen', color: '#7c3aed', textColor: '#ffffff', csvType: 'med_open' },
             { key: 'successful', label: 'Erfolgreich', color: '#10b981', textColor: '#ffffff', csvType: 'med_successful' },
             { key: 'unsuccessful', label: 'Nicht erfolgreich', color: '#ef4444', textColor: '#ffffff', csvType: 'med_unsuccessful' }
         ];
@@ -12874,7 +12874,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
                     font-weight: 800 !important;
                     color: var(--text-main) !important;
                     background-color: var(--bg-card) !important;
-                    border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
+                    border: 1.5px solid rgba(37, 99, 235, 0.35) !important;
                     border-radius: 10px !important;
                     cursor: pointer;
                     box-sizing: border-box !important;
@@ -12913,7 +12913,7 @@ function renderAdminKpiCards(contentEl, statsInput) {
             </div>
 
             ${st.rangeMode === 'custom' ? `
-            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 0.85rem; padding: 0.75rem 1rem; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; margin-bottom: 0.85rem; padding: 0.75rem 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.25); border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 0.45rem;">
                     <label for="analytics-date-from-${activeTab}" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">Von:</label>
                     <input type="date" id="analytics-date-from-${activeTab}" class="input-field" value="${st.dateFrom || ''}" onchange="window.updateAnalyticsCustomDates('${activeTab}')" style="margin: 0; padding: 0.35rem 0.65rem; font-size: 0.82rem; height: auto; width: auto;">
@@ -13304,23 +13304,23 @@ function renderProfilePage(container) {
 
                     ${isAdmin ? `
                     <!-- Reporting (Admin ganz oben vor Mein Event-Profil) -->
-                    <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #7c3aed; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin: 0 0 0.65rem 0; box-shadow: var(--shadow-lg);">
+                    <div class="profile-section-card admin-kpi-card" id="admin-kpi-card" style="border: 2px solid #2563eb; background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem; margin: 0 0 0.65rem 0; box-shadow: var(--shadow-lg);">
                         <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: nowrap; gap: 0.5rem; padding-bottom: 0;">
                             <div style="display: flex; align-items: center; gap: 0.85rem; min-width: 0;">
-                                <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.15); color: #7c3aed; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; flex-shrink: 0;">
+                                <div class="profile-section-badge-icon" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.25rem; flex-shrink: 0;">
                                     <i class="fa-solid fa-chart-column"></i>
                                 </div>
                                 <div class="profile-section-title-group" style="min-width: 0;">
                                     <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Reporting</h3>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsvForActiveTab()" title="Excel-Liste herunterladen" aria-label="Excel-Liste herunterladen" style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; font-size: 1.15rem; border-radius: 12px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3); flex-shrink: 0; transition: 0.2s;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsvForActiveTab()" title="Excel-Liste herunterladen" aria-label="Excel-Liste herunterladen" style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; font-size: 1.15rem; border-radius: 12px; margin: 0; cursor: pointer; background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1.5px solid rgba(37, 99, 235, 0.35); flex-shrink: 0; transition: 0.2s;">
                                 <i class="fa-solid fa-file-excel"></i>
                             </button>
                         </div>
 
                         <div id="admin-kpi-loading" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.9rem;"></i>
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #2563eb; margin-bottom: 0.9rem;"></i>
                             <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Lade Live-KPIs aus Firestore...</div>
                             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Musiker, Veranstalter, Vermittlungen & Chats werden analysiert</div>
                         </div>
