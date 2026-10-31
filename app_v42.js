@@ -11930,7 +11930,7 @@ window.__analyticsFilterState = window.__analyticsFilterState || {
     rangeMode: 'all', // 'all' | '4weeks' | 'custom'
     dateFrom: '',
     dateTo: '',
-    selectedRole: null // null | 'musician' | 'organizer'
+    selectedRole: null // null | 'musician' | 'organizer' | 'pending'
 };
 
 function parseItemTimestamp(val) {
@@ -11951,7 +11951,7 @@ function parseItemTimestamp(val) {
 
 function getFilteredAnalyticsAccounts() {
     const data = window.__adminKpiData;
-    if (!data) return { musicians: [], organizers: [] };
+    if (!data) return { musicians: [], organizers: [], pending: [] };
 
     const st = window.__analyticsFilterState;
     let minTs = null;
@@ -11976,7 +11976,13 @@ function getFilteredAnalyticsAccounts() {
 
     const inRange = (item) => {
         if (minTs === null && maxTs === null) return true;
-        const ts = parseItemTimestamp(item.createdAt || item.subscriptionCreated || item.updatedAt);
+        const ts = parseItemTimestamp(
+            item.createdAt ||
+            item.subscriptionCreated ||
+            item.updatedAt ||
+            item.timestamp ||
+            (item.profile && (item.profile.createdAt || item.profile.updatedAt))
+        );
         if (ts === null) return st.rangeMode === 'all';
         if (minTs !== null && ts < minTs) return false;
         if (maxTs !== null && ts > maxTs) return false;
@@ -11985,8 +11991,78 @@ function getFilteredAnalyticsAccounts() {
 
     return {
         musicians: (data.musicianAccounts || []).filter(inRange),
-        organizers: (data.organizerAccounts || []).filter(inRange)
+        organizers: (data.organizerAccounts || []).filter(inRange),
+        pending: (data.pending || []).filter(inRange)
     };
+}
+
+function generatePieChartHTML(items, options = {}) {
+    const total = items.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
+    const size = options.size || 140;
+    const donutHole = options.donutHole !== undefined ? options.donutHole : 58;
+    const centerText = options.centerText !== undefined ? options.centerText : total;
+    const centerSub = options.centerSub || 'Gesamt';
+
+    if (total === 0) {
+        return `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; padding: 1.2rem 0; width: 100%;">
+                <div style="width: ${size}px; height: ${size}px; border-radius: 50%; background: rgba(255,255,255,0.02); border: 2px dashed var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                    <i class="fa-solid fa-chart-pie" style="color: var(--text-muted); font-size: 1.5rem; margin-bottom: 0.3rem;"></i>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Keine Daten</span>
+                </div>
+            </div>
+        `;
+    }
+
+    let currentPct = 0;
+    const gradientParts = [];
+    items.forEach(item => {
+        const val = Number(item.value) || 0;
+        if (val <= 0) return;
+        const pct = (val / total) * 100;
+        const nextPct = currentPct + pct;
+        gradientParts.push(`${item.color} ${currentPct.toFixed(1)}% ${nextPct.toFixed(1)}%`);
+        currentPct = nextPct;
+    });
+
+    const conicStyle = gradientParts.length > 0
+        ? `background: conic-gradient(${gradientParts.join(', ')});`
+        : `background: #64748b;`;
+
+    const legendHTML = items.map(item => {
+        const val = Number(item.value) || 0;
+        const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+        return `
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; font-size: 0.8rem; padding: 0.28rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                    <span style="width: 10px; height: 10px; border-radius: 3px; background: ${item.color}; flex-shrink: 0; box-shadow: 0 0 6px ${item.color}40;"></span>
+                    <span style="color: var(--text-main); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.35rem; white-space: nowrap; flex-shrink: 0;">
+                    <strong style="color: var(--text-main); font-weight: 800; font-size: 0.88rem;">${val}</strong>
+                    <span style="color: var(--text-muted); font-size: 0.72rem; min-width: 32px; text-align: right;">(${pct}%)</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; width: 100%; padding: 0.4rem 0;">
+            <!-- Donut Circle -->
+            <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; ${conicStyle} flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
+                <!-- Inner Cutout Hole -->
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: ${donutHole}%; height: ${donutHole}%; background: var(--bg-card); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.25);">
+                    <span style="font-size: 1.25rem; font-weight: 900; color: var(--text-main); line-height: 1;">${centerText}</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.3px;">${centerSub}</span>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div style="flex: 1; min-width: 160px; display: flex; flex-direction: column;">
+                ${legendHTML}
+            </div>
+        </div>
+    `;
 }
 
 window.setAnalyticsTimeFilter = function(mode) {
@@ -11996,7 +12072,7 @@ window.setAnalyticsTimeFilter = function(mode) {
         st.dateTo = new Date().toISOString().slice(0, 10);
     }
     const contentEl = document.getElementById('admin-kpi-content');
-    if (contentEl) renderAdminKpiCards(contentEl);
+    if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
 window.updateAnalyticsCustomDates = function() {
@@ -12006,17 +12082,17 @@ window.updateAnalyticsCustomDates = function() {
     if (fromEl) st.dateFrom = fromEl.value;
     if (toEl) st.dateTo = toEl.value;
     const contentEl = document.getElementById('admin-kpi-content');
-    if (contentEl) renderAdminKpiCards(contentEl);
+    if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
 window.selectAnalyticsBarSegment = function(role) {
     const st = window.__analyticsFilterState;
     st.selectedRole = (st.selectedRole === role) ? null : role;
     const contentEl = document.getElementById('admin-kpi-content');
-    if (contentEl) renderAdminKpiCards(contentEl);
+    if (contentEl && window.__adminKpiStats) renderAdminKpiCards(contentEl, window.__adminKpiStats);
 };
 
-window.downloadAdminCsv = function(forcedRole) {
+window.downloadAdminCsv = function(type) {
     const data = window.__adminKpiData;
     if (!data) {
         if (typeof showToast === 'function') {
@@ -12024,10 +12100,6 @@ window.downloadAdminCsv = function(forcedRole) {
         }
         return;
     }
-
-    const st = window.__analyticsFilterState;
-    const targetRole = forcedRole !== undefined ? forcedRole : st.selectedRole;
-    const filtered = getFilteredAnalyticsAccounts();
 
     const escapeCsv = (val) => {
         if (val === null || val === undefined) return '""';
@@ -12069,6 +12141,79 @@ window.downloadAdminCsv = function(forcedRole) {
     };
 
     const dateStr = new Date().toISOString().slice(0, 10);
+
+    // Exporte für Punkte 2, 3 und 4
+    if (type === 'mediations') {
+        const headers = ['Vermittlungs-ID', 'Event-Name', 'Veranstalter E-Mail', 'Ansprechpartner', 'Event-Datum', 'Veranstaltungsort', 'Budget (€)', 'Vermittlungs-Status', 'Vorgeschlagene Musiker (Anzahl)', 'Zusagen', 'Absagen', 'Erstellt am'];
+        const rows = (data.mediations || []).map(m => {
+            const statuses = m.musicianStatuses || {};
+            const accepted = Object.values(statuses).filter(s => s === 'accepted').length;
+            const declined = Object.values(statuses).filter(s => s === 'declined').length;
+            return [
+                m.id || '',
+                m.eventName || '',
+                m.organizerEmail || m.clientEmail || m.email || '',
+                m.contactName || '',
+                m.eventDate || m.date || '',
+                m.location || '',
+                m.budget || m.minBudget || '',
+                m.status === 'completed' ? 'Erfolgreich vermittelt' : m.status === 'expired' ? 'Abgelaufen' : 'Offen / In Prüfung',
+                (m.musicianIds || []).length,
+                accepted,
+                declined,
+                formatDateStr(m.createdAt)
+            ];
+        });
+        triggerDownload(`GigConnAct_Vermittlungen_Export_${dateStr}`, headers, rows);
+        return;
+    } else if (type === 'chats') {
+        const headers = ['Chat-ID', 'Teilnehmer 1', 'Teilnehmer 2', 'Anzahl Nachrichten', 'Letzte Nachricht', 'Letzte Nachricht von', 'Zuletzt aktiv am'];
+        const userMap = new Map((data.users || []).map(u => [u.id, u]));
+        const musMap = new Map((data.realMusicians || []).map(m => [m.id, m]));
+        const rows = (data.realChats || []).map(c => {
+            const p1 = (c.participants && c.participants[0]) || '';
+            const p2 = (c.participants && c.participants[1]) || '';
+            const p1Name = (userMap.get(p1)?.firstName ? `${userMap.get(p1).firstName} ${userMap.get(p1).lastName}` : (musMap.get(p1)?.name || p1));
+            const p2Name = (userMap.get(p2)?.firstName ? `${userMap.get(p2).firstName} ${userMap.get(p2).lastName}` : (musMap.get(p2)?.name || p2));
+            const msgs = Array.isArray(c.messages) ? c.messages : [];
+            const lastMsg = msgs.length > 0 ? (msgs[msgs.length - 1].text || '') : '';
+            const lastSender = msgs.length > 0 ? (msgs[msgs.length - 1].senderId || '') : '';
+            return [
+                c.id || '',
+                p1Name,
+                p2Name,
+                msgs.length,
+                lastMsg,
+                lastSender,
+                formatDateStr(c.updatedAt)
+            ];
+        });
+        triggerDownload(`GigConnAct_Chats_Export_${dateStr}`, headers, rows);
+        return;
+    } else if (type === 'subscriptions') {
+        const headers = ['User-ID', 'Name / Band', 'E-Mail-Adresse', 'Telefon', 'Rolle', 'Tarif', 'Abo-Status', 'Kündigungsdatum', 'Vertragsstart', 'Vertragsende', 'Stripe Customer-ID'];
+        const rows = (data.musicianAccounts || []).map(u => [
+            u.id || '',
+            u.bandName || u.profile?.name || `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+            u.email || '',
+            u.phone || '',
+            u.role || '',
+            u.subscriptionPlan || 'flex',
+            u.subscriptionCancelled ? 'Gekündigt' : 'Aktiv',
+            u.subscriptionEndDate ? formatDateStr(u.subscriptionEndDate) : '',
+            u.subscriptionPeriodStart ? formatDateStr(u.subscriptionPeriodStart) : '',
+            u.subscriptionPeriodEnd ? formatDateStr(u.subscriptionPeriodEnd) : '',
+            u.stripeCustomerId || ''
+        ]);
+        triggerDownload(`GigConnAct_Abos_Tarife_Export_${dateStr}`, headers, rows);
+        return;
+    }
+
+    // Export für Punkt 1 (Community & Konten-Säulendiagramm)
+    const st = window.__analyticsFilterState;
+    const targetRole = (type === 'musician' || type === 'organizer' || type === 'pending') ? type : st.selectedRole;
+    const filtered = getFilteredAnalyticsAccounts();
+
     const rangeSuffix = st.rangeMode === '4weeks'
         ? 'Letzte_4_Wochen'
         : (st.rangeMode === 'custom' ? `${st.dateFrom || 'Start'}_bis_${st.dateTo || dateStr}` : 'Start_bis_Heute');
@@ -12190,67 +12335,101 @@ window.downloadAdminCsv = function(forcedRole) {
         ];
     };
 
+    const buildPendingRow = (p) => {
+        const roleLabel = p.role === 'musician' ? 'Ausstehend (Musiker)' : 'Ausstehend (Veranstalter)';
+        return [
+            roleLabel,
+            p.uid || p.id || '',
+            p.profileId || '',
+            p.firstName || '',
+            p.lastName || '',
+            p.email || '',
+            p.phone || '',
+            p.hidePhone ? 'Ja' : 'Nein',
+            p.bandName || p.eventName || p.name || '',
+            p.company || '',
+            p.organizerType || p.type || '',
+            (p.locations && p.locations.length > 0) ? p.locations.join(', ') : (p.location || ''),
+            p.radius !== undefined ? p.radius : '',
+            (p.genres || []).join(', '),
+            (p.instruments || []).join(', '),
+            (p.eventTypes || []).join(', '),
+            (p.minBudget !== undefined || p.maxBudget !== undefined) ? `${p.minBudget || 0} - ${p.maxBudget || 0}` : (p.budget || ''),
+            (p.minDuration !== undefined || p.maxDuration !== undefined) ? `${p.minDuration || 0} - ${p.maxDuration || 0}` : (p.duration || ''),
+            (p.minPublikum !== undefined || p.maxPublikum !== undefined) ? `${p.minPublikum || 0} - ${p.maxPublikum || 0}` : (p.publikum || ''),
+            p.subscriptionPlan || (p.role === 'organizer' ? 'Kostenlos' : 'flex'),
+            p.role === 'musician' ? 'Zahlung / Verifizierung ausstehend' : 'E-Mail-Verifizierung ausstehend',
+            '',
+            '',
+            '',
+            0,
+            0,
+            p.youtube || '',
+            p.spotify || '',
+            p.soundcloud || '',
+            'Ausstehend',
+            formatDateStr(p.createdAt || p.updatedAt || p.timestamp)
+        ];
+    };
+
     let rows = [];
-    let filePrefix = 'GigConnAct_Alle_Konten';
+    let filePrefix = 'GigConnAct_Konten_Gesamt';
     if (targetRole === 'musician') {
         rows = filtered.musicians.map(buildMusicianRow);
         filePrefix = 'GigConnAct_Musiker_Konten';
     } else if (targetRole === 'organizer') {
         rows = filtered.organizers.map(buildOrganizerRow);
         filePrefix = 'GigConnAct_Veranstalter_Konten';
+    } else if (targetRole === 'pending') {
+        rows = filtered.pending.map(buildPendingRow);
+        filePrefix = 'GigConnAct_Ausstehende_Konten';
     } else {
         rows = [
             ...filtered.musicians.map(buildMusicianRow),
-            ...filtered.organizers.map(buildOrganizerRow)
+            ...filtered.organizers.map(buildOrganizerRow),
+            ...filtered.pending.map(buildPendingRow)
         ];
     }
 
     triggerDownload(`${filePrefix}_${rangeSuffix}_${dateStr}`, headers, rows);
 };
 
-function renderAdminKpiCards(contentEl) {
+function renderAdminKpiCards(contentEl, statsInput) {
+    const stats = statsInput || window.__adminKpiStats || {};
+    window.__adminKpiStats = stats;
+
     const st = window.__analyticsFilterState;
     const filtered = getFilteredAnalyticsAccounts();
     const musiciansCount = filtered.musicians.length;
     const organizersCount = filtered.organizers.length;
-    const totalCount = musiciansCount + organizersCount;
-
-    let musWidthPct = 50;
-    let orgWidthPct = 50;
-    if (totalCount > 0) {
-        musWidthPct = Math.round((musiciansCount / totalCount) * 100);
-        orgWidthPct = 100 - musWidthPct;
-        if (musiciansCount > 0 && musWidthPct < 18) {
-            musWidthPct = 18;
-            orgWidthPct = 82;
-        } else if (organizersCount > 0 && orgWidthPct < 18) {
-            orgWidthPct = 18;
-            musWidthPct = 82;
-        }
-    }
+    const pendingCount = filtered.pending.length;
+    const totalCount = musiciansCount + organizersCount + pendingCount;
 
     const isMusSelected = st.selectedRole === 'musician';
     const isOrgSelected = st.selectedRole === 'organizer';
+    const isPenSelected = st.selectedRole === 'pending';
+    const hasSelection = isMusSelected || isOrgSelected || isPenSelected;
 
-    const csvBtnLabel = isMusSelected
-        ? `Excel-Liste: Musiker (${musiciansCount}) (.csv)`
-        : (isOrgSelected
-            ? `Excel-Liste: Veranstalter (${organizersCount}) (.csv)`
-            : `Excel-Liste herunterladen (${totalCount}) (.csv)`);
+    // Y-Achse: 100 Konten als Standard-Maximum (skaliert automatisch hoch, falls > 100)
+    const maxVal = Math.max(musiciansCount, organizersCount, pendingCount);
+    const yMax = Math.max(100, Math.ceil(maxVal / 20) * 20);
+    const yTicks = [yMax, Math.round(yMax * 0.8), Math.round(yMax * 0.6), Math.round(yMax * 0.4), Math.round(yMax * 0.2), 0];
 
-    const csvBtnBg = isMusSelected
-        ? '#7c3aed'
-        : (isOrgSelected ? '#2563eb' : 'rgba(124, 58, 237, 0.12)');
-    const csvBtnColor = (isMusSelected || isOrgSelected) ? '#ffffff' : '#7c3aed';
-    const csvBtnBorder = isMusSelected
-        ? '#7c3aed'
-        : (isOrgSelected ? '#2563eb' : 'rgba(124, 58, 237, 0.35)');
+    const calcBarHeightPct = (val) => {
+        if (val <= 0) return 0;
+        const rawPct = (val / yMax) * 100;
+        return Math.max(rawPct, 14); // Mindesthöhe, damit die Konto-Zahl immer gut lesbar in der Fläche steht
+    };
+
+    const musHeightPct = calcBarHeightPct(musiciansCount);
+    const orgHeightPct = calcBarHeightPct(organizersCount);
+    const penHeightPct = calcBarHeightPct(pendingCount);
 
     const selectedAccounts = isMusSelected
         ? filtered.musicians
-        : (isOrgSelected ? filtered.organizers : []);
-    const selectedLabel = isMusSelected ? 'Musiker' : (isOrgSelected ? 'Veranstalter' : '');
-    const selectedColor = isMusSelected ? '#7c3aed' : '#2563eb';
+        : (isOrgSelected ? filtered.organizers : (isPenSelected ? filtered.pending : []));
+    const selectedLabel = isMusSelected ? 'Musiker' : (isOrgSelected ? 'Veranstalter' : (isPenSelected ? 'Ausstehend' : ''));
+    const selectedColor = isMusSelected ? '#7c3aed' : (isOrgSelected ? '#2563eb' : '#f59e0b');
 
     const formatShortDate = (val) => {
         const ts = parseItemTimestamp(val);
@@ -12259,24 +12438,33 @@ function renderAdminKpiCards(contentEl) {
     };
 
     contentEl.innerHTML = `
+        <!-- 1. Community & Benutzer-Wachstum (Vertikales Säulendiagramm) -->
         <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
-            <!-- Filter-Zeile + Einziger CSV-Button -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-users"></i> 1. Community & Benutzer-Wachstum
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.48rem 0.95rem; font-size: 0.8rem; font-weight: 800; border-radius: 8px; margin: 0; cursor: pointer; background: ${hasSelection ? selectedColor : 'rgba(124, 58, 237, 0.1)'}; color: ${hasSelection ? '#ffffff' : '#7c3aed'}; border: 1px solid ${hasSelection ? selectedColor : 'rgba(124, 58, 237, 0.3)'}; transition: 0.2s;">
+                    <i class="fa-solid fa-file-excel"></i> Excel-Liste
+                </button>
+            </div>
+
+            <!-- Zeitfilter: Start bis Heute | Letzte 4 Wochen | Personalisiert -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('all')" style="padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('all')" style="padding: 0.42rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'all' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'all' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'all' ? '#ffffff' : 'var(--text-main)'};">
                         Start bis Heute
                     </button>
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('4weeks')" style="padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === '4weeks' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === '4weeks' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === '4weeks' ? '#ffffff' : 'var(--text-main)'};">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('4weeks')" style="padding: 0.42rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === '4weeks' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === '4weeks' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === '4weeks' ? '#ffffff' : 'var(--text-main)'};">
                         Letzte 4 Wochen
                     </button>
-                    <button type="button" onclick="window.setAnalyticsTimeFilter('custom')" style="padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'custom' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'custom' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'custom' ? '#ffffff' : 'var(--text-main)'}; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <button type="button" onclick="window.setAnalyticsTimeFilter('custom')" style="padding: 0.42rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 999px; cursor: pointer; transition: 0.2s; border: 1px solid ${st.rangeMode === 'custom' ? '#7c3aed' : 'var(--border-color)'}; background: ${st.rangeMode === 'custom' ? '#7c3aed' : 'transparent'}; color: ${st.rangeMode === 'custom' ? '#ffffff' : 'var(--text-main)'}; display: inline-flex; align-items: center; gap: 0.4rem;">
                         <i class="fa-regular fa-calendar"></i> Personalisiert
                     </button>
                 </div>
-
-                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv()" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.52rem 1rem; font-size: 0.82rem; font-weight: 800; border-radius: 10px; margin: 0; cursor: pointer; background: ${csvBtnBg}; color: ${csvBtnColor}; border: 1.5px solid ${csvBtnBorder}; transition: 0.2s;">
-                    <i class="fa-solid fa-file-csv"></i> ${csvBtnLabel}
-                </button>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">
+                    Gesamt im Zeitraum: <strong style="color: var(--text-main);">${totalCount} Konten</strong> (Klicke auf eine Säule für Details & Excel-Liste)
+                </div>
             </div>
 
             ${st.rangeMode === 'custom' ? `
@@ -12292,68 +12480,84 @@ function renderAdminKpiCards(contentEl) {
             </div>
             ` : ''}
 
-            <!-- Balkendiagramm Header -->
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
-                <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-main);">
-                    Registrierte Konten (${totalCount} gesamt)
+            <!-- Vertikales Säulendiagramm mit Y-Achse (bis 100 Konten) und Beschriftung unter der X-Achse -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1.25rem 1.25rem 1rem 1rem; box-sizing: border-box;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; padding-left: 0.25rem;">
+                    Achsen-Einheit: Konten (max. ${yMax} Konten)
                 </div>
-                <div style="font-size: 0.78rem; color: var(--text-muted);">
-                    Klicke auf eine Fläche, um die Konten einzusehen und als Excel-Liste (.csv) zu exportieren
-                </div>
-            </div>
 
-            <!-- Gestapelter Balken: Musiker (Lila) & Veranstalter (Blau) -->
-            ${totalCount === 0 ? `
-                <div style="height: 82px; border-radius: 14px; border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.88rem; font-weight: 600;">
-                    Keine Konten im ausgewählten Zeitraum gefunden.
-                </div>
-            ` : `
-                <div style="display: flex; width: 100%; height: 88px; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); border: 1px solid rgba(255,255,255,0.1);">
-                    ${musiciansCount > 0 ? `
-                    <div onclick="window.selectAnalyticsBarSegment('musician')" title="Klicken, um Musiker-Konten (${musiciansCount}) auszuwählen" style="width: ${organizersCount === 0 ? 100 : musWidthPct}%; background: #7c3aed; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; user-select: none; opacity: ${isOrgSelected ? '0.55' : '1'}; box-shadow: ${isMusSelected ? 'inset 0 0 0 3px #ffffff' : 'none'};">
-                        <span style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.3px; opacity: 0.95;">Musiker</span>
-                        <span style="font-size: 1.65rem; font-weight: 900; line-height: 1.15; margin-top: 2px;">${musiciansCount}</span>
+                <div style="display: flex; align-items: stretch; gap: 0.75rem;">
+                    <!-- Y-Achse (Skala 0 bis 100 Konten) -->
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; height: 240px; min-width: 72px; text-align: right; padding-right: 0.35rem; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); user-select: none; box-sizing: border-box;">
+                        ${yTicks.map(tick => `<span style="line-height: 1; transform: translateY(-4px);">${tick} Konten</span>`).join('')}
                     </div>
-                    ` : ''}
-                    ${organizersCount > 0 ? `
-                    <div onclick="window.selectAnalyticsBarSegment('organizer')" title="Klicken, um Veranstalter-Konten (${organizersCount}) auszuwählen" style="width: ${musiciansCount === 0 ? 100 : orgWidthPct}%; background: #2563eb; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; user-select: none; opacity: ${isMusSelected ? '0.55' : '1'}; box-shadow: ${isOrgSelected ? 'inset 0 0 0 3px #ffffff' : 'none'};">
-                        <span style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.3px; opacity: 0.95;">Veranstalter</span>
-                        <span style="font-size: 1.65rem; font-weight: 900; line-height: 1.15; margin-top: 2px;">${organizersCount}</span>
-                    </div>
-                    ` : ''}
-                </div>
-            `}
 
-            <!-- Legende / Schnellauswahl unter dem Balken -->
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.85rem;">
-                <div style="display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
-                    <div onclick="window.selectAnalyticsBarSegment('musician')" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 8px; background: ${isMusSelected ? 'rgba(124, 58, 237, 0.12)' : 'transparent'}; border: 1px solid ${isMusSelected ? '#7c3aed' : 'transparent'};">
-                        <span style="width: 12px; height: 12px; border-radius: 4px; background: #7c3aed; display: inline-block;"></span>
-                        <span style="font-size: 0.83rem; font-weight: 700; color: var(--text-main);">Musiker: ${musiciansCount}</span>
-                    </div>
-                    <div onclick="window.selectAnalyticsBarSegment('organizer')" style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 8px; background: ${isOrgSelected ? 'rgba(37, 99, 235, 0.12)' : 'transparent'}; border: 1px solid ${isOrgSelected ? '#2563eb' : 'transparent'};">
-                        <span style="width: 12px; height: 12px; border-radius: 4px; background: #2563eb; display: inline-block;"></span>
-                        <span style="font-size: 0.83rem; font-weight: 700; color: var(--text-main);">Veranstalter: ${organizersCount}</span>
-                    </div>
-                </div>
-                ${(isMusSelected || isOrgSelected) ? `
-                    <button type="button" onclick="window.selectAnalyticsBarSegment('${st.selectedRole}')" style="background: none; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0;">
-                        Auswahl aufheben (Alle anzeigen)
-                    </button>
-                ` : ''}
-            </div>
+                    <!-- Diagramm-Fläche + X-Achse -->
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <!-- Plot-Bereich mit Hilfslinien und 3 vertikalen Säulen -->
+                        <div style="position: relative; height: 240px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); display: flex; align-items: flex-end; justify-content: space-around; padding: 0 1.5rem; box-sizing: border-box;">
+                            <!-- Horizontale Rasterlinien -->
+                            ${[0, 20, 40, 60, 80].map(pct => `
+                                <div style="position: absolute; left: 0; right: 0; top: ${pct}%; border-top: 1px dashed rgba(148, 163, 184, 0.22); pointer-events: none;"></div>
+                            `).join('')}
 
-            <!-- Detail-Vorschau beim Klick auf eine Fläche -->
-            ${(isMusSelected || isOrgSelected) ? `
-                <div style="margin-top: 1.15rem; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid ${selectedColor}40;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        <div style="font-size: 0.88rem; font-weight: 800; color: ${selectedColor}; display: flex; align-items: center; gap: 0.45rem;">
-                            <i class="fa-solid ${isMusSelected ? 'fa-guitar' : 'fa-calendar-check'}"></i>
-                            Ausgewählte Fläche: ${selectedLabel} (${selectedAccounts.length} ${selectedAccounts.length === 1 ? 'Konto' : 'Konten'})
+                            <!-- Säule 1: Musiker (Lila) -->
+                            <div onclick="window.selectAnalyticsBarSegment('musician')" title="Klicken für Musiker (${musiciansCount} Konten)" style="position: relative; z-index: 2; width: 24%; max-width: 110px; min-width: 64px; height: ${musiciansCount > 0 ? musHeightPct + '%' : '28px'}; background: #7c3aed; color: #ffffff; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; user-select: none; opacity: ${(hasSelection && !isMusSelected) ? '0.45' : '1'}; box-shadow: ${isMusSelected ? '0 0 0 3px #ffffff, 0 6px 18px rgba(124, 58, 237, 0.5)' : '0 4px 12px rgba(124, 58, 237, 0.28)'};">
+                                <span style="font-size: 1.25rem; font-weight: 900; line-height: 1;">${musiciansCount}</span>
+                            </div>
+
+                            <!-- Säule 2: Veranstalter (Blau) -->
+                            <div onclick="window.selectAnalyticsBarSegment('organizer')" title="Klicken für Veranstalter (${organizersCount} Konten)" style="position: relative; z-index: 2; width: 24%; max-width: 110px; min-width: 64px; height: ${organizersCount > 0 ? orgHeightPct + '%' : '28px'}; background: #2563eb; color: #ffffff; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; user-select: none; opacity: ${(hasSelection && !isOrgSelected) ? '0.45' : '1'}; box-shadow: ${isOrgSelected ? '0 0 0 3px #ffffff, 0 6px 18px rgba(37, 99, 235, 0.5)' : '0 4px 12px rgba(37, 99, 235, 0.28)'};">
+                                <span style="font-size: 1.25rem; font-weight: 900; line-height: 1;">${organizersCount}</span>
+                            </div>
+
+                            <!-- Säule 3: Ausstehend (Orange) -->
+                            <div onclick="window.selectAnalyticsBarSegment('pending')" title="Klicken für Ausstehend (${pendingCount} Konten)" style="position: relative; z-index: 2; width: 24%; max-width: 110px; min-width: 64px; height: ${pendingCount > 0 ? penHeightPct + '%' : '28px'}; background: #f59e0b; color: #ffffff; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; user-select: none; opacity: ${(hasSelection && !isPenSelected) ? '0.45' : '1'}; box-shadow: ${isPenSelected ? '0 0 0 3px #ffffff, 0 6px 18px rgba(245, 158, 11, 0.5)' : '0 4px 12px rgba(245, 158, 11, 0.28)'};">
+                                <span style="font-size: 1.25rem; font-weight: 900; line-height: 1;">${pendingCount}</span>
+                            </div>
                         </div>
-                        <span style="font-size: 0.76rem; color: var(--text-muted);">
-                            Über den CSV-Button oben erhältst du die vollständige Excel-Liste aller Account-Details.
-                        </span>
+
+                        <!-- Unter der X-Achse: Kategorien-Beschriftung -->
+                        <div style="display: flex; justify-content: space-around; align-items: flex-start; padding: 0.7rem 1.5rem 0 1.5rem;">
+                            <div onclick="window.selectAnalyticsBarSegment('musician')" style="width: 24%; max-width: 110px; min-width: 64px; text-align: center; cursor: pointer;">
+                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 800; color: ${isMusSelected ? '#7c3aed' : 'var(--text-main)'};">
+                                    <span style="width: 10px; height: 10px; border-radius: 3px; background: #7c3aed; display: inline-block;"></span>
+                                    Musiker
+                                </div>
+                            </div>
+                            <div onclick="window.selectAnalyticsBarSegment('organizer')" style="width: 24%; max-width: 110px; min-width: 64px; text-align: center; cursor: pointer;">
+                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 800; color: ${isOrgSelected ? '#2563eb' : 'var(--text-main)'};">
+                                    <span style="width: 10px; height: 10px; border-radius: 3px; background: #2563eb; display: inline-block;"></span>
+                                    Veranstalter
+                                </div>
+                            </div>
+                            <div onclick="window.selectAnalyticsBarSegment('pending')" style="width: 24%; max-width: 110px; min-width: 64px; text-align: center; cursor: pointer;">
+                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 800; color: ${isPenSelected ? '#f59e0b' : 'var(--text-main)'};">
+                                    <span style="width: 10px; height: 10px; border-radius: 3px; background: #f59e0b; display: inline-block;"></span>
+                                    Ausstehend
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail-Vorschau beim Klick auf eine der 3 Säulen -->
+            ${hasSelection ? `
+                <div style="margin-top: 1.15rem; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1.5px solid ${selectedColor}50;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.88rem; font-weight: 800; color: ${selectedColor}; display: flex; align-items: center; gap: 0.45rem;">
+                            <i class="fa-solid ${isMusSelected ? 'fa-guitar' : (isOrgSelected ? 'fa-calendar-check' : 'fa-hourglass-half')}"></i>
+                            Ausgewählte Säule: ${selectedLabel} (${selectedAccounts.length} ${selectedAccounts.length === 1 ? 'Konto' : 'Konten'})
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <button type="button" onclick="window.downloadAdminCsv('${st.selectedRole}')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: ${selectedColor}; color: #ffffff; border: none;">
+                                <i class="fa-solid fa-file-excel"></i> Excel-Liste
+                            </button>
+                            <button type="button" onclick="window.selectAnalyticsBarSegment('${st.selectedRole}')" style="background: none; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0;">
+                                Auswahl aufheben
+                            </button>
+                        </div>
                     </div>
                     <div style="max-height: 240px; overflow-y: auto; border-top: 1px solid var(--border-color);">
                         ${selectedAccounts.length === 0 ? `
@@ -12362,7 +12566,9 @@ function renderAdminKpiCards(contentEl) {
                             const fullName = `${acc.firstName || ''} ${acc.lastName || ''}`.trim() || acc.profile?.contactName || '–';
                             const entityName = isMusSelected
                                 ? (acc.profile?.name || acc.bandName || '–')
-                                : ((acc.events && acc.events.map(e => e.name).filter(Boolean).join(', ')) || acc.eventName || acc.company || '–');
+                                : (isOrgSelected
+                                    ? ((acc.events && acc.events.map(e => e.name).filter(Boolean).join(', ')) || acc.eventName || acc.company || '–')
+                                    : (acc.bandName || acc.eventName || (acc.role === 'musician' ? 'Musiker-Registrierung' : 'Veranstalter-Registrierung')));
                             return `
                                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 0.55rem 0.25rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; flex-wrap: wrap;">
                                     <div style="min-width: 180px;">
@@ -12373,7 +12579,7 @@ function renderAdminKpiCards(contentEl) {
                                         ${acc.email || '–'} ${acc.phone ? `· ${acc.phone}` : ''}
                                     </div>
                                     <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">
-                                        ${formatShortDate(acc.createdAt || acc.profile?.createdAt)}
+                                        ${formatShortDate(acc.createdAt || acc.updatedAt || acc.profile?.createdAt)}
                                     </div>
                                 </div>
                             `;
@@ -12381,6 +12587,127 @@ function renderAdminKpiCards(contentEl) {
                     </div>
                 </div>
             ` : ''}
+        </div>
+
+        <!-- 2. Vermittlungs-Performance & Reaktionen -->
+        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-handshake"></i> 2. Vermittlungs-Performance & Reaktionen
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('mediations')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <i class="fa-solid fa-file-excel"></i> Vermittlungen (.csv)
+                </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
+                <!-- Kuchendiagramm 1: Vermittlungs-Status -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-calendar-check" style="color: #7c3aed;"></i> Status aller Vermittlungen
+                    </div>
+                    ${generatePieChartHTML([
+                        { label: 'Erfolgreich vermittelt', value: stats.completedMediations || 0, color: '#10b981' },
+                        { label: 'Offen / In Prüfung', value: stats.openMediations || 0, color: '#7c3aed' },
+                        { label: 'Abgelaufen', value: stats.expiredMediations || 0, color: '#ef4444' }
+                    ], { centerText: stats.mediationsTotal || 0, centerSub: 'Anfragen' })}
+                </div>
+
+                <!-- Kuchendiagramm 2: Musiker Reaktionen -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-thumbs-up" style="color: #6366f1;"></i> Musiker-Rückmeldungen
+                    </div>
+                    ${generatePieChartHTML([
+                        { label: 'Angenommen (Zusage)', value: stats.acceptedResponses || 0, color: '#10b981' },
+                        { label: 'Abgesagt', value: stats.declinedResponses || 0, color: '#ef4444' },
+                        { label: 'Ausstehend / Offen', value: stats.pendingResponses || 0, color: '#f59e0b' }
+                    ], { centerText: (stats.totalResponses || 0) > 0 ? (stats.acceptanceRate || 0) + '%' : '–', centerSub: 'Zusagen' })}
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Postfach & Kommunikation -->
+        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-comments"></i> 3. Postfach & Kommunikation
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('chats')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(14, 165, 233, 0.1); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3);">
+                    <i class="fa-solid fa-file-excel"></i> Chats & Postfach (.csv)
+                </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
+                <!-- Kuchendiagramm: Chat Aktivität -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-chart-pie" style="color: #0ea5e9;"></i> Postfach-Aktivität
+                    </div>
+                    ${generatePieChartHTML([
+                        { label: 'Aktive Chats (mit Inhalt)', value: stats.chatsWithMessagesCount || 0, color: '#0ea5e9' },
+                        { label: 'Unbeantwortet / Neu', value: stats.chatsEmptyCount || 0, color: '#94a3b8' }
+                    ], { centerText: stats.realChatsCount || 0, centerSub: 'Chats' })}
+                </div>
+
+                <!-- Info-Kacheln für Chats -->
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
+                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Echte Konversationen</div>
+                            <div style="font-size: 1.6rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 0.2rem;">${stats.realChatsCount || 0}</div>
+                        </div>
+                        <i class="fa-solid fa-message" style="color: #0ea5e9; font-size: 1.6rem; opacity: 0.7;"></i>
+                    </div>
+
+                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 12px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Ausgetauschte Nachrichten</div>
+                            <div style="font-size: 1.6rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 0.2rem;">${stats.totalMessages || 0}</div>
+                        </div>
+                        <i class="fa-solid fa-paper-plane" style="color: #0ea5e9; font-size: 1.6rem; opacity: 0.7;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Musiker-Tarife & Abonnements -->
+        <div class="admin-kpi-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.35rem; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.85rem;">
+                <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-credit-card"></i> 4. Musiker-Tarife & Abonnements
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.downloadAdminCsv('subscriptions')" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; margin: 0; cursor: pointer; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border: 1px solid rgba(124, 58, 237, 0.3);">
+                    <i class="fa-solid fa-file-excel"></i> Abos & Tarife (.csv)
+                </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem;">
+                <!-- Kuchendiagramm 1: Tarif-Verteilung -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-chart-pie" style="color: #7c3aed;"></i> Gewählte Tarife
+                    </div>
+                    ${generatePieChartHTML([
+                        { label: 'Flex (9,99 €)', value: stats.plans?.flex || 0, color: '#7c3aed' },
+                        { label: 'Plus (7,99 €)', value: stats.plans?.plus || 0, color: '#6366f1' },
+                        { label: 'Pro (5,99 €)', value: stats.plans?.pro || 0, color: '#3b82f6' },
+                        { label: 'Premium (Promo)', value: stats.plans?.premium || 0, color: '#ec4899' },
+                        { label: 'Free / Basis', value: stats.plans?.free || 0, color: '#94a3b8' }
+                    ], { centerText: (stats.activeSubs || 0) + (stats.cancelledSubs || 0), centerSub: 'Tarife' })}
+                </div>
+
+                <!-- Kuchendiagramm 2: Vertragsstatus -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.1rem; box-sizing: border-box;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i> Vertrags-Status
+                    </div>
+                    ${generatePieChartHTML([
+                        { label: 'Aktive Abonnements', value: stats.activeSubs || 0, color: '#10b981' },
+                        { label: 'Gekündigte Verträge', value: stats.cancelledSubs || 0, color: '#ef4444' }
+                    ], { centerText: (stats.activeSubs || 0) + (stats.cancelledSubs || 0), centerSub: 'Verträge' })}
+                </div>
+            </div>
         </div>
     `;
 }
@@ -12397,15 +12724,21 @@ async function initAdminKpiDashboard(container) {
         if (contentEl) contentEl.style.display = 'none';
 
         try {
-            const [usersSnap, musSnap, evtSnap] = await Promise.all([
+            const [usersSnap, musSnap, evtSnap, medSnap, pendingSnap, chatsSnap] = await Promise.all([
                 db.collection('users').get().catch(err => { console.warn("Admin KPI users load failed:", err); return { docs: [] }; }),
                 db.collection('musicians').get().catch(err => { console.warn("Admin KPI musicians load failed:", err); return { docs: [] }; }),
-                db.collection('events').get().catch(err => { console.warn("Admin KPI events load failed:", err); return { docs: [] }; })
+                db.collection('events').get().catch(err => { console.warn("Admin KPI events load failed:", err); return { docs: [] }; }),
+                db.collection('mediations').get().catch(err => { console.warn("Admin KPI mediations load failed:", err); return { docs: [] }; }),
+                db.collection('pendingRegistrations').get().catch(err => { console.warn("Admin KPI pendingRegistrations load failed:", err); return { docs: [] }; }),
+                db.collection('chats').get().catch(err => { console.warn("Admin KPI chats load failed:", err); return { docs: [] }; })
             ]);
 
             const users = (usersSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
             const musicians = (musSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
             const events = (evtSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const mediations = (medSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const pending = (pendingSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
+            const chats = (chatsSnap.docs || []).map(d => ({ id: d.id, ...d.data() }));
 
             const isDemoM = (m) => {
                 if (!m) return true;
@@ -12459,14 +12792,81 @@ async function initAdminKpiDashboard(container) {
                     events: realEvents.filter(e => e.creatorId === u.id || (u.profileId && e.id === u.profileId) || (u.email && (e.email === u.email || e.clientEmail === u.email)))
                 }));
 
+            const verifiedUsers = [...organizerAccounts, ...musicianAccounts];
+
+            let acceptedResponses = 0;
+            let declinedResponses = 0;
+            let pendingResponses = 0;
+            mediations.forEach(m => {
+                const statuses = m.musicianStatuses || {};
+                Object.values(statuses).forEach(st => {
+                    if (st === 'accepted') acceptedResponses++;
+                    else if (st === 'declined') declinedResponses++;
+                    else if (st === 'pending') pendingResponses++;
+                });
+            });
+            const completedMediations = mediations.filter(m => m.status === 'completed').length;
+            const openMediations = mediations.filter(m => m.status === 'pending' || !m.status).length;
+            const expiredMediations = mediations.filter(m => m.status === 'expired').length;
+            const totalResponses = acceptedResponses + declinedResponses;
+            const acceptanceRate = totalResponses > 0 ? Math.round((acceptedResponses / totalResponses) * 100) : 0;
+
+            const realChats = chats.filter(c => c && c.participants && !c.participants.includes('system'));
+            const chatsWithMessages = realChats.filter(c => c && Array.isArray(c.messages) && c.messages.length > 0);
+            const chatsEmpty = realChats.filter(c => !c || !Array.isArray(c.messages) || c.messages.length === 0);
+            const totalMessages = realChats.reduce((sum, c) => sum + ((c.messages && Array.isArray(c.messages)) ? c.messages.length : 0), 0);
+
+            const plans = { flex: 0, plus: 0, pro: 0, premium: 0, free: 0, other: 0 };
+            let cancelledSubs = 0;
+            let activeSubs = 0;
+            musicianAccounts.forEach(u => {
+                const p = (u.subscriptionPlan || 'flex').toLowerCase();
+                if (plans[p] !== undefined) plans[p]++;
+                else plans.other++;
+                if (u.subscriptionCancelled) {
+                    cancelledSubs++;
+                } else {
+                    activeSubs++;
+                }
+            });
+
             window.__adminKpiData = {
                 musicianAccounts,
                 organizerAccounts,
                 realMusicians: realMusicianProfiles,
-                events: realEvents
+                organizerUsers: organizerAccounts,
+                events: realEvents,
+                mediations,
+                pending,
+                users: verifiedUsers,
+                realChats
             };
 
-            renderAdminKpiCards(contentEl);
+            const stats = {
+                usersCount: verifiedUsers.length,
+                musiciansCount: musicianAccounts.length,
+                organizersCount: organizerAccounts.length,
+                realEventsCount: realEvents.length,
+                pendingCount: pending.length,
+                mediationsTotal: mediations.length,
+                completedMediations,
+                openMediations,
+                expiredMediations,
+                acceptedResponses,
+                declinedResponses,
+                pendingResponses,
+                acceptanceRate,
+                totalResponses,
+                realChatsCount: realChats.length,
+                chatsWithMessagesCount: chatsWithMessages.length,
+                chatsEmptyCount: chatsEmpty.length,
+                totalMessages,
+                plans,
+                activeSubs,
+                cancelledSubs
+            };
+
+            renderAdminKpiCards(contentEl, stats);
 
             if (loadingEl) loadingEl.style.display = 'none';
             if (contentEl) {
