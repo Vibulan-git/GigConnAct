@@ -24460,7 +24460,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     eventDate: tempEventForMatch.date || null,
                     musicianIds: top5MusicianIds,
                     baseUrl: window.location.origin,
-                    subject: `Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
+                    subject: `Dein Event ist online! Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
                     customMessage: `Wir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anfragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`,
                     mediationData: mediationData,
                     eventData: primaryNewEvent
@@ -27127,7 +27127,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         const dateSuffix = dateStr ? ` am ${dateStr}` : '';
         const clientNameVal = activeEvt ? (activeEvt.clientName || activeEvt.contactName || 'Veranstalter') : 'Veranstalter';
         
-        inputSubject.value = `Hier ist unsere Musiker-Auswahl für Dein Event: ${nameVal || 'Dein Event'}${dateSuffix}`;
+        inputSubject.value = `Dein Event ist online! Hier ist unsere Musiker-Auswahl für Dein Event: ${nameVal || 'Dein Event'}${dateSuffix}`;
         txtMessage.value = defaultMsgTpl(clientNameVal, nameVal);
     };
 

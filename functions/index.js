@@ -2586,7 +2586,6 @@ exports.sendRecommendationList = functions
             }
 
             // 3. E-Mail-Inhalt generieren
-            const mailSubject = subject || `Passende Musiker-Vorschläge für dein Event: ${eventName} 🎵`;
             const recommendationLink = `${baseUrl}/#/recommendation/${mediationId}`;
 
             // Format date helper for email body
@@ -2600,6 +2599,7 @@ exports.sendRecommendationList = functions
             };
 
             const dateDisplay = eventDate ? ` am ${formatGermanDate(eventDate)}` : '';
+            const mailSubject = subject || `Dein Event ist online! Hier ist unsere Musiker-Auswahl für Dein Event: ${eventName}${dateDisplay}`;
             const defaultMessage = `Hallo, wir haben eine passende Auswahl an Musikern für dein Event <strong>"${eventName}"</strong>${dateDisplay} zusammengestellt! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und deinen Wunsch-Act direkt unverbindlich anzufragen.`;
             const messageHtml = customMessage ? customMessage.replace(/\n/g, '<br>') : defaultMessage;
 
