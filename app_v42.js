@@ -7977,7 +7977,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+                <div style="position: absolute; top: calc(100% + 16px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.95); font-size: clamp(0.92rem, 2.6vw, 1.06rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.75); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.95)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Musiker?
                     </a>
@@ -8005,7 +8005,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+                <div style="position: absolute; top: calc(100% + 16px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.95); font-size: clamp(0.92rem, 2.6vw, 1.06rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.75); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.95)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Veranstalter?
                     </a>
@@ -8120,13 +8120,11 @@ function renderLandingPage(container, onNavigate) {
             <!-- 1. Fullscreen 100vh Hero Background Section (Option 3: Single-Screen / App-Erlebnis ohne Scrollen) -->
             <div class="landing-hero" style="position: relative; width: 100%; min-height: 100vh; min-height: 100dvh; height: 100%; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: clamp(1.2rem, 3vh, 2.4rem) 1.2rem clamp(0.3rem, 1vh, 0.6rem); border-bottom: none; box-shadow: none; background-color: #0d0e12; box-sizing: border-box;">
                 
-                <!-- Live Concert Background Video -->
-                <video id="hero-bg-video" autoplay loop muted playsinline preload="auto" poster="hero_bg.jpg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; z-index: 1; pointer-events: none; background: url('hero_bg.jpg') no-repeat center top / cover;">
-                    <source src="konzert.mp4" type="video/mp4">
-                </video>
+                <!-- Live Concert Background: Singer, Stage & Crowd -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('hero_bg.jpg') no-repeat center top; background-size: cover; z-index: 1;"></div>
                 
                 <!-- Atmospheric dark overlay gradient with stage lighting transparency -->
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.32) 0%, rgba(10, 11, 22, 0.65) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.48) 0%, rgba(12, 10, 26, 0.20) 35%, rgba(10, 11, 24, 0.55) 70%, rgba(6, 7, 14, 0.86) 100%); z-index: 2;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Slogan (Die Plattform für / Live-Musik & Events) -->
                 <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 820px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
@@ -8205,14 +8203,7 @@ function renderLandingPage(container, onNavigate) {
         </div>
     `;
 
-    // Ensure hero background video plays seamlessly
-    const heroBgVideo = document.getElementById('hero-bg-video');
-    if (heroBgVideo) {
-        heroBgVideo.muted = true;
-        heroBgVideo.play().catch(() => {});
-    }
-
-    // Ensure hero logo is active and visible
+        // Ensure hero logo is active and visible
     const heroLogo = document.getElementById('hero-logo-svg');
     if (heroLogo) {
         heroLogo.style.opacity = '1';
@@ -22594,10 +22585,16 @@ function initGigConnActApp() {
                 // On standalone recommendation pages, stay on the view
                 return;
             }
-            const targetHash = '#/';
+            const isLoggedIn = Boolean(state && state.currentUser && state.currentUser.id);
+            const targetHash = isLoggedIn
+                ? (state.currentUser.role === 'musician' ? '#/events' : '#/musicians')
+                : '#/';
             window.heroCtaMode = 'initial';
+            if (isLoggedIn) {
+                window.currentMarketShowFavorites = false;
+            }
             
-            if (window.location.hash === targetHash || window.location.hash === '' || window.location.hash === '#') {
+            if (window.location.hash === targetHash || (!isLoggedIn && (window.location.hash === '' || window.location.hash === '#'))) {
                 if (typeof handleRouting === 'function') {
                     handleRouting();
                 }
