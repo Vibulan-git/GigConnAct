@@ -3627,8 +3627,8 @@ class StateManager {
                             this.authInitialized = true;
                             this.notify();
                         } else {
-                            if (window.isPaymentSuccessPending || window.location.hash.includes('payment=success') || window.location.search.includes('payment=success')) {
-                                console.log("Payment success pending: waiting for webhook to finalize user document.");
+                            if (window.isSignInLinkProcessing || window.isRegisteringRedirecting || window.isPaymentSuccessPending || window.location.hash.includes('payment=success') || window.location.search.includes('payment=success')) {
+                                console.log("Auth redirect or payment success pending: waiting to finalize user document.");
                                 this.authInitialized = true;
                                 this.notify();
                                 return;
@@ -3657,7 +3657,7 @@ class StateManager {
                             } else {
                                 setTimeout(() => {
                                     if (typeof auth !== 'undefined' && !auth.currentUser) return;
-                                    if (window.isPaymentSuccessPending || window.location.hash.includes('payment=success') || window.location.search.includes('payment=success')) {
+                                    if (window.isSignInLinkProcessing || window.isRegisteringRedirecting || window.isPaymentSuccessPending || window.location.hash.includes('payment=success') || window.location.search.includes('payment=success')) {
                                         return;
                                     }
                                     const currentHash = window.location.hash || '';
@@ -3869,6 +3869,12 @@ class StateManager {
             if (!email) {
                 const urlParams = new URLSearchParams(window.location.search);
                 email = urlParams.get('email');
+                if (!email && urlParams.get('continueUrl')) {
+                    try {
+                        const contUrl = new URL(urlParams.get('continueUrl'));
+                        email = contUrl.searchParams.get('email');
+                    } catch (e) {}
+                }
             }
             if (!email) {
                 const hashParts = window.location.hash.split('?');
@@ -3876,6 +3882,9 @@ class StateManager {
                     const hashParams = new URLSearchParams(hashParts[1]);
                     email = hashParams.get('email');
                 }
+            }
+            if (!email && auth.currentUser && auth.currentUser.email) {
+                email = auth.currentUser.email;
             }
             if (!email) {
                 email = window.prompt('Bitte gib deine E-Mail-Adresse zur Bestätigung ein:');
@@ -4065,7 +4074,9 @@ class StateManager {
                         const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                         const res = await createStripeSession({ 
                             planKey: targetPlan,
-                            baseUrl: window.location.origin
+                            baseUrl: window.location.origin,
+                            userId: (user && user.uid) ? user.uid : (pendingReg && pendingReg.uid ? pendingReg.uid : null),
+                            email: email.toLowerCase().trim()
                         });
                         if (res.data && res.data.url) {
                             window.location.href = res.data.url;
@@ -4095,6 +4106,60 @@ class StateManager {
                 navigateAfterLogin();
             } catch (err) {
                 console.error("Sign in link verification failed:", err);
+                window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
+
+                // Recovery for second click / pre-fetched one-time link:
+                // 1) Check if this email has a pending registration in Firestore -> redirect straight to Stripe!
+                // 2) Or if user already exists in Firestore 'users' -> log them in!
+                if (email) {
+                    const emailLower = email.toLowerCase().trim();
+                    try {
+                        const userSnap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                        if (!userSnap.empty) {
+                            const doc = userSnap.docs[0];
+                            state.currentUser = { id: doc.id, ...doc.data() };
+                            if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
+                                state.currentUser.role = 'organizer';
+                            }
+                            localStorage.setItem('GigConnAct_current_user', JSON.stringify(state.currentUser));
+                            await state.fetchUserOwnData().catch(e => console.warn(e));
+                            state.saveState();
+                            state.notify();
+                            navigateAfterLogin();
+                            return;
+                        }
+
+                        const pendingDoc = await db.collection('pendingRegistrations').doc(emailLower).get();
+                        if (pendingDoc.exists) {
+                            const pendingData = pendingDoc.data() || {};
+                            if (pendingData.role !== 'organizer') {
+                                const targetPlan = pendingData.subscriptionPlan || (pendingData.isPromoCodeApplied ? 'premium' : 'flex');
+                                localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(pendingData));
+                                localStorage.setItem('emailForSignIn', emailLower);
+                                window.isRegisteringRedirecting = true;
+                                showToast({
+                                    title: "Weiterleitung zur Zahlung... 💳",
+                                    message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
+                                });
+                                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                                const res = await createStripeSession({
+                                    planKey: targetPlan,
+                                    baseUrl: window.location.origin,
+                                    userId: pendingData.uid || null,
+                                    email: emailLower
+                                });
+                                if (res.data && res.data.url) {
+                                    window.location.href = res.data.url;
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (recErr) {
+                        console.warn("Link recovery check failed:", recErr);
+                        window.isRegisteringRedirecting = false;
+                    }
+                }
+
                 showToast({
                     title: "Anmeldung fehlgeschlagen ❌",
                     message: "Der Link ist ungültig oder abgelaufen."
@@ -5955,7 +6020,27 @@ class StateManager {
             }
 
             // Save pending registration payload to Firestore for cross-device support (e.g. mobile mail links)
-            await db.collection('pendingRegistrations').doc(emailLower).set(payload);
+            await db.collection('pendingRegistrations').doc(emailLower).set(payload, { merge: true });
+            window.localStorage.setItem('emailForSignIn', emailTrimmed);
+            window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(payload));
+
+            const isOrganizer = payload.role === 'organizer';
+            if (!isOrganizer) {
+                // Musicians go directly to Stripe Checkout BEFORE receiving any confirmation email!
+                const targetPlan = payload.subscriptionPlan || (payload.isPromoCodeApplied ? 'premium' : 'flex');
+                window.isRegisteringRedirecting = true;
+                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                const stripeRes = await createStripeSession({
+                    planKey: targetPlan,
+                    baseUrl: window.location.origin,
+                    email: emailLower
+                });
+                if (stripeRes.data && stripeRes.data.url) {
+                    return { success: true, redirectUrl: stripeRes.data.url };
+                }
+                window.isRegisteringRedirecting = false;
+                return { success: false, message: "Es gab ein Problem bei der Weiterleitung zur Bezahlseite." };
+            }
 
             const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
             await sendCustomSignInEmail({
@@ -5965,8 +6050,6 @@ class StateManager {
                 role: payload.role
             });
 
-            window.localStorage.setItem('emailForSignIn', emailTrimmed);
-            window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(payload));
             return { success: true };
         } catch (err) {
             console.error("registerPasswordless failed:", err);
@@ -6049,10 +6132,65 @@ class StateManager {
             }
             
             if (!matchedUser) {
+                try {
+                    const pendingDoc = await db.collection('pendingRegistrations').doc(emailLower).get();
+                    if (pendingDoc.exists) {
+                        const pendingData = pendingDoc.data() || {};
+                        if (pendingData.role !== 'organizer') {
+                            const targetPlan = pendingData.subscriptionPlan || (pendingData.isPromoCodeApplied ? 'premium' : 'flex');
+                            window.localStorage.setItem('emailForSignIn', emailTrimmed);
+                            window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(pendingData));
+                            window.isRegisteringRedirecting = true;
+                            showToast({
+                                title: "Weiterleitung zur Zahlung... 💳",
+                                message: "Wir leiten dich zur Bezahlseite weiter, um deine gespeicherte Registrierung abzuschließen..."
+                            });
+                            const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                            const stripeRes = await createStripeSession({
+                                planKey: targetPlan,
+                                baseUrl: window.location.origin,
+                                userId: pendingData.uid || null,
+                                email: emailLower
+                            });
+                            if (stripeRes.data && stripeRes.data.url) {
+                                window.location.href = stripeRes.data.url;
+                                return { success: true, redirectingToStripe: true };
+                            }
+                            window.isRegisteringRedirecting = false;
+                        }
+                    }
+                } catch (pendErr) {
+                    console.warn("loginPasswordless pendingRegistration check failed:", pendErr);
+                    window.isRegisteringRedirecting = false;
+                }
                 return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert oder der Bezahlvorgang wurde noch nicht abgeschlossen." };
             }
 
             if (matchedUser.role === 'musician' && (!matchedUser.isPremium && !matchedUser.subscriptionId && !matchedUser.stripeCustomerId)) {
+                try {
+                    const targetPlan = matchedUser.subscriptionPlan || 'flex';
+                    window.localStorage.setItem('emailForSignIn', emailTrimmed);
+                    window.isRegisteringRedirecting = true;
+                    showToast({
+                        title: "Weiterleitung zur Zahlung... 💳",
+                        message: "Wir leiten dich zur Bezahlseite weiter, um dein Abonnement abzuschließen..."
+                    });
+                    const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                    const stripeRes = await createStripeSession({
+                        planKey: targetPlan,
+                        baseUrl: window.location.origin,
+                        userId: matchedUser.id,
+                        email: emailLower
+                    });
+                    if (stripeRes.data && stripeRes.data.url) {
+                        window.location.href = stripeRes.data.url;
+                        return { success: true, redirectingToStripe: true };
+                    }
+                    window.isRegisteringRedirecting = false;
+                } catch (uStripeErr) {
+                    console.warn("loginPasswordless unpaid musician redirect failed:", uStripeErr);
+                    window.isRegisteringRedirecting = false;
+                }
                 return {
                     success: false,
                     message: "Dein Bezahlvorgang für das Musiker-Abonnement wurde noch nicht abgeschlossen. Bitte schließe zuerst die Registrierung und Zahlung vollständig ab."
@@ -6687,7 +6825,7 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provision</h4>
                     </div>
                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell mit kostenloser Testphase</p>
                 </div>
@@ -6749,7 +6887,7 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provision</h4>
                     </div>
                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
                 </div>
@@ -7642,7 +7780,7 @@ window.renderInfoPage = function(container, type) {
         if (isDirektkontakt) {
             benefitsData = [
                 { icon: 'fa-comments', text: 'Direkter<br>Kontakt' },
-                { icon: 'fa-percent', text: 'Keine<br>Provisionskosten' },
+                { icon: 'fa-percent', text: 'Keine<br>Provision' },
                 { icon: 'fa-tags', text: 'Preiswertes<br>Abo-Modell' }
             ];
         } else {
@@ -7684,10 +7822,10 @@ window.renderInfoPage = function(container, type) {
                 const bDelay = (4.0 + idx * 0.6).toFixed(2);
                 return `
                     <div class="flow-anim-card" style="animation-delay: ${bDelay}s; aspect-ratio: 1 / 1; min-width: 0; overflow: hidden; background: ${benefitCardBg}; border: ${benefitCardBorder}; border-radius: 18px; box-shadow: ${benefitCardShadow}; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.5rem clamp(0.08rem, 0.8vw, 0.35rem); box-sizing: border-box; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px ${isMusician ? 'rgba(124, 58, 237, 0.16)' : 'rgba(37, 99, 235, 0.16)'}';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='${benefitCardShadow}';">
-                        <div style="width: clamp(26px, 7vw, 36px); height: clamp(26px, 7vw, 36px); border-radius: 50%; background: #ffffff; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.35rem; flex-shrink: 0; box-shadow: 0 2px 6px ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'};">
-                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: clamp(0.8rem, 2.3vw, 0.98rem);"></i>
+                        <div style="width: clamp(30px, 7.5vw, 38px); height: clamp(30px, 7.5vw, 38px); border-radius: 50%; background: #ffffff; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.4rem; flex-shrink: 0; box-shadow: 0 2px 6px ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'};">
+                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: clamp(0.9rem, 2.5vw, 1.08rem);"></i>
                         </div>
-                        <span style="font-family: var(--font-heading); font-size: clamp(0.72rem, 2.15vw, 0.88rem); font-weight: 800; color: #0f172a; line-height: 1.2; display: block; white-space: nowrap; width: 100%;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.88rem, 2.85vw, 1.08rem); font-weight: 800; color: #0f172a; line-height: 1.22; display: block; white-space: nowrap; width: 100%;">
                             ${b.text}
                         </span>
                     </div>
@@ -7727,10 +7865,6 @@ window.renderInfoPage = function(container, type) {
             <!-- 1. Top Section: Slogan "2 Wege. ..." + Buttons darunter -->
             <div class="info-top-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin-top: 0.5rem; margin-bottom: 1.5rem; box-sizing: border-box;">
                 
-                <!-- Back to Homepage Link -->
-                <button type="button" onclick="window.appNavigate('')" style="align-self: flex-start; background: none; border: none; color: ${themeColor}; cursor: pointer; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0; margin-bottom: 0.8rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
-                    <i class="fa-solid fa-arrow-left"></i> Zurück zur Startseite
-                </button>
 
                 <!-- Slogan: 2 Wege. Mehr Gigs / Dein Act (bleibt permanent oben stehen) -->
                 <h1 style="margin: 0 0 1.65rem; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; line-height: 1.2;">
@@ -7771,6 +7905,8 @@ window.renderInfoPage = function(container, type) {
 
         </div>
     `;
+    const authAreaEl = document.getElementById('auth-area');
+    if (authAreaEl) authAreaEl.innerHTML = '';
 };
 
 window.toggleHowItWorks = function(type) {
@@ -7841,11 +7977,8 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.9rem; flex-wrap: wrap; pointer-events: auto;">
-                    <button type="button" onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: clamp(0.82rem, 2vw, 0.92rem); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.95rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.24)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
-                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück</span>
-                    </button>
-                    <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
+                <div style="position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+                    <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.95); font-size: clamp(0.92rem, 2.6vw, 1.06rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.75); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.95)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Musiker?
                     </a>
                 </div>
@@ -7872,11 +8005,8 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.9rem; flex-wrap: wrap; pointer-events: auto;">
-                    <button type="button" onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: clamp(0.82rem, 2vw, 0.92rem); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.95rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.24)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
-                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück</span>
-                    </button>
-                    <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
+                <div style="position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+                    <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.95); font-size: clamp(0.92rem, 2.6vw, 1.06rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.75); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.95)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Veranstalter?
                     </a>
                 </div>
@@ -7990,11 +8120,13 @@ function renderLandingPage(container, onNavigate) {
             <!-- 1. Fullscreen 100vh Hero Background Section (Option 3: Single-Screen / App-Erlebnis ohne Scrollen) -->
             <div class="landing-hero" style="position: relative; width: 100%; min-height: 100vh; min-height: 100dvh; height: 100%; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: clamp(1.2rem, 3vh, 2.4rem) 1.2rem clamp(0.3rem, 1vh, 0.6rem); border-bottom: none; box-shadow: none; background-color: #0d0e12; box-sizing: border-box;">
                 
-                <!-- Live Concert Background: Singer, Stage & Crowd -->
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('hero_bg.jpg') no-repeat center top; background-size: cover; z-index: 1;"></div>
+                <!-- Live Concert Background Video -->
+                <video id="hero-bg-video" autoplay loop muted playsinline preload="auto" poster="hero_bg.jpg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; z-index: 1; pointer-events: none; background: url('hero_bg.jpg') no-repeat center top / cover;">
+                    <source src="konzert.mp4" type="video/mp4">
+                </video>
                 
                 <!-- Atmospheric dark overlay gradient with stage lighting transparency -->
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.32) 0%, rgba(10, 11, 22, 0.65) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.48) 0%, rgba(12, 10, 26, 0.20) 35%, rgba(10, 11, 24, 0.55) 70%, rgba(6, 7, 14, 0.86) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Slogan (Die Plattform für / Live-Musik & Events) -->
                 <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 820px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
@@ -8073,7 +8205,14 @@ function renderLandingPage(container, onNavigate) {
         </div>
     `;
 
-        // Ensure hero logo is active and visible
+    // Ensure hero background video plays seamlessly
+    const heroBgVideo = document.getElementById('hero-bg-video');
+    if (heroBgVideo) {
+        heroBgVideo.muted = true;
+        heroBgVideo.play().catch(() => {});
+    }
+
+    // Ensure hero logo is active and visible
     const heroLogo = document.getElementById('hero-logo-svg');
     if (heroLogo) {
         heroLogo.style.opacity = '1';
@@ -11694,6 +11833,7 @@ try {
     const redirectToParam = urlParams.get('redirect');
 
     if (hasPaymentSuccess) {
+        const paidEmailParam = (urlParams.get('email') || window.localStorage.getItem('emailForSignIn') || '').toLowerCase().trim();
         window.isPaymentSuccessPending = true;
         window.showSubscriptionSuccessModal = true;
         showToast({
@@ -11703,6 +11843,38 @@ try {
         setTimeout(() => {
             window.isPaymentSuccessPending = false;
         }, 12000);
+
+        if (paidEmailParam) {
+            let attempts = 0;
+            const pollPaidUser = async () => {
+                attempts++;
+                try {
+                    if (typeof db !== 'undefined' && typeof state !== 'undefined') {
+                        const snap = await db.collection('users').where('email', '==', paidEmailParam).limit(1).get();
+                        if (!snap.empty) {
+                            const doc = snap.docs[0];
+                            const uData = doc.data() || {};
+                            if (uData.isPremium === true || uData.subscriptionId || attempts >= 6) {
+                                state.currentUser = { id: doc.id, ...uData };
+                                localStorage.setItem('GigConnAct_current_user', JSON.stringify(state.currentUser));
+                                localStorage.removeItem('GigConnAct_pending_registration');
+                                await state.fetchUserOwnData().catch(() => {});
+                                state.authInitialized = true;
+                                state.saveState();
+                                state.notify();
+                                return;
+                            }
+                        }
+                    }
+                } catch (pollErr) {
+                    console.warn("Payment success user poll error:", pollErr);
+                }
+                if (attempts < 8) {
+                    setTimeout(pollPaidUser, 1500);
+                }
+            };
+            setTimeout(pollPaidUser, 1000);
+        }
         
         // Remove query parameters from URL without reload
         if (window.location.search) {
@@ -19843,7 +20015,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                         const res = await createStripeSession({ 
                             planKey: pendingPayload.subscriptionPlan,
-                            baseUrl: window.location.origin
+                            baseUrl: window.location.origin,
+                            userId: user.uid,
+                            email: normEmail
                         });
                         if (res.data && res.data.url) {
                             window.location.href = res.data.url;
@@ -19984,6 +20158,18 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         }
 
         const res = await state.registerPasswordless(payload);
+        if (res.success && res.redirectUrl) {
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
+            }
+            showToast({
+                title: "Weiterleitung zur Zahlung... 💳",
+                message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
+            });
+            window.location.href = res.redirectUrl;
+            return;
+        }
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnHtml;
@@ -21491,7 +21677,13 @@ window.updateHeaderActionPills = function() {
 
     const hash = window.location.hash || '';
     const cleanHash = hash.replace('#', '').split('?')[0].replace(/^\//, '');
-    const isLanding = (!hash || hash === '#/' || hash === '#') && !document.body.classList.contains('landing-inactive');
+    const activePage = (window.currentActivePage || cleanHash || '').toLowerCase();
+    const isInfoPage = cleanHash === 'info-musician' || cleanHash === 'info-organizer' || activePage === 'info-musician' || activePage === 'info-organizer' || Boolean(document.querySelector('.info-page-container'));
+    if (isInfoPage) {
+        authArea.innerHTML = '';
+        return;
+    }
+    const isLanding = (!hash || hash === '#/' || hash === '#') && !document.body.classList.contains('landing-inactive') && !isInfoPage;
     const isStandalonePage = hash.includes('recommendation/') || 
                              hash.includes('mediation-response/') || 
                              hash.includes('feedback') ||
