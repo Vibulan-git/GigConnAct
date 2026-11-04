@@ -77,13 +77,21 @@ body {
     width: 100% !important;
     height: 70px !important;
     z-index: 1000 !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.98) 0%, rgba(79, 70, 229, 0.98) 50%, rgba(37, 99, 235, 0.98) 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.16) !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
     transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-header:not(.transparent-header) .logo-title-nav {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
 }
 
 .transparent-header {
@@ -152,7 +160,7 @@ body {
     font-size: 1.18rem !important;
     font-weight: 700 !important;
     color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
     cursor: pointer !important;
     text-decoration: none !important;
     white-space: nowrap !important;
