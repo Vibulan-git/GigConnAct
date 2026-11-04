@@ -7975,7 +7975,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 16px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+                <div style="position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.95); font-size: clamp(0.92rem, 2.6vw, 1.06rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.75); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.95)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Musiker?
                     </a>
@@ -8003,7 +8003,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
-                <div style="position: absolute; top: calc(100% + 16px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+                <div style="position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.95); font-size: clamp(0.92rem, 2.6vw, 1.06rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.75); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.95)'; this.style.transform='translateY(0)';">
                         Wie funktioniert GigConnAct für Veranstalter?
                     </a>
@@ -8125,7 +8125,7 @@ function renderLandingPage(container, onNavigate) {
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Slogan (Wo Musiker und Veranstalter zusammenfinden.) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.15rem, 0.6vh, 0.35rem); width: 100%; max-width: 860px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.15rem, 0.6vh, 0.35rem); width: 100%; max-width: 860px; margin-top: clamp(3.8rem, 8.5vh, 5.8rem); margin-bottom: 0; box-sizing: border-box;">
                     <span style="font-family: var(--font-heading); font-size: clamp(1.32rem, 5.1vw, 3.35rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.18; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
                         Wo <span style="color: #8b5cf6;">Musiker</span> und <span style="color: #3b82f6;">Veranstalter</span>
                     </span>
@@ -8135,7 +8135,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- 2/3: CTA Buttons (Positioned directly below slogan) -->
-                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(0.6rem, 1.5vh, 1.2rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: clamp(-1.2rem, -2.5vh, -0.6rem) auto clamp(1.8rem, 4vh, 2.8rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
