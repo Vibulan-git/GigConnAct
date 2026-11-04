@@ -11538,20 +11538,34 @@ window.toggleMarketContactDetails = function(itemId, btn) {
     const detailsBox = document.getElementById(`contact-details-${itemId}`);
     if (!detailsBox) return;
     
+    const isPurple = Boolean(btn && (btn.dataset.theme === 'purple' || btn.closest('.event-card') || (btn.closest('.theme-musician') && !btn.closest('.musician-card'))));
     const isHidden = detailsBox.style.display === 'none' || detailsBox.style.display === '';
     if (isHidden) {
         detailsBox.style.display = 'block';
         if (btn) {
-            btn.innerHTML = `<i class="fa-solid fa-eye-slash"></i> <span>Kontaktdaten verbergen</span>`;
+            const activeColor = isPurple ? '#7c3aed' : '#2563eb';
+            const activeShadow = isPurple ? '0 2px 10px rgba(124, 58, 237, 0.16)' : '0 2px 10px rgba(37, 99, 235, 0.16)';
+            btn.innerHTML = `<i class="fa-solid fa-eye-slash" style="color: ${activeColor} !important;"></i> <span style="color: ${activeColor} !important;">Kontaktdaten verbergen</span>`;
             btn.classList.add('active');
             btn.setAttribute('title', 'Kontaktdaten verbergen');
+            btn.style.setProperty('background', '#ffffff', 'important');
+            btn.style.setProperty('color', activeColor, 'important');
+            btn.style.setProperty('border', `2px solid ${activeColor}`, 'important');
+            btn.style.setProperty('box-shadow', activeShadow, 'important');
         }
     } else {
         detailsBox.style.display = 'none';
         if (btn) {
-            btn.innerHTML = `<i class="fa-solid fa-address-card"></i> <span>Kontaktdaten anzeigen</span>`;
+            const defaultGrad = isPurple ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
+            const defaultBorder = isPurple ? '#7c3aed' : '#1e40af';
+            const defaultShadow = isPurple ? '0 4px 14px rgba(124, 58, 237, 0.35)' : '0 4px 14px rgba(37, 99, 235, 0.35)';
+            btn.innerHTML = `<i class="fa-solid fa-address-card" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important;">Kontaktdaten anzeigen</span>`;
             btn.classList.remove('active');
             btn.setAttribute('title', 'Kontaktdaten anzeigen');
+            btn.style.setProperty('background', defaultGrad, 'important');
+            btn.style.setProperty('color', '#ffffff', 'important');
+            btn.style.setProperty('border', `1px solid ${defaultBorder}`, 'important');
+            btn.style.setProperty('box-shadow', defaultShadow, 'important');
         }
     }
 };
@@ -25289,6 +25303,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
                         <button class="btn btn-primary btn-toggle-contact-details" 
                                 id="btn-toggle-contact-${item.id}" 
+                                data-theme="${btnIsPurple ? 'purple' : 'blue'}" 
                                 onclick="event.stopPropagation(); window.toggleMarketContactDetails('${item.id}', this)" 
                                 style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important; cursor: pointer;"
                                 title="Kontaktdaten anzeigen">
