@@ -8142,7 +8142,7 @@ function renderLandingPage(container, onNavigate) {
                     <div class="logo-marquee-track" style="animation-duration: 38s; gap: 1rem;">
                         <!-- Set 1 -->
                         <!-- 1. Musiker-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('musicians')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=160&q=75" alt="Band" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8155,7 +8155,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 2. Event-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('events')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=160&q=75" alt="Hochzeit" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8168,7 +8168,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 3. Musiker-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('musicians')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=160&q=75" alt="Duo" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8181,7 +8181,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 4. Event-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('events')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=160&q=75" alt="Firmenfeier" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8194,7 +8194,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 5. Musiker-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('musicians')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=160&q=75" alt="Sängerin" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8207,7 +8207,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 6. Event-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('events')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=160&q=75" alt="Stadtfest" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8220,7 +8220,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                         <!-- Set 2 -->
                         <!-- 1. Musiker-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('musicians')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=160&q=75" alt="Band" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8233,7 +8233,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 2. Event-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('events')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=160&q=75" alt="Hochzeit" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8246,7 +8246,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 3. Musiker-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('musicians')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=160&q=75" alt="Duo" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8259,7 +8259,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 4. Event-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('events')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=160&q=75" alt="Firmenfeier" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8272,7 +8272,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 5. Musiker-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('musicians')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=160&q=75" alt="Sängerin" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
@@ -8285,7 +8285,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
 
                         <!-- 6. Event-Kachel -->
-                        <div class="hero-mini-tile" onclick="window.appNavigate('events')" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: pointer; user-select: none;">
+                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
                             <div style="display: flex; align-items: center; gap: 0.55rem;">
                                 <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=160&q=75" alt="Stadtfest" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                                 <div style="min-width: 0; flex: 1;">
