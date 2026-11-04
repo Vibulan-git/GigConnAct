@@ -8016,20 +8016,20 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     return `
         <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
             <!-- Button 1: Musiker -->
-            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
-                    <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.65rem; color: #ffffff;"></i>
-                    <span style="font-size: clamp(0.95rem, 2.1vw, 1.1rem); font-weight: 600; color: rgba(255, 255, 255, 0.92);">Ich suche</span>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(2rem, 4.8vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin-top: 0.15rem; color: #ffffff;">Gigs</span>
+            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.65rem 1.25rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 192px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.22;">
+                    <i class="fa-solid fa-guitar" style="font-size: clamp(2.4rem, 5.4vw, 3.1rem); margin-bottom: 0.65rem; color: #ffffff;"></i>
+                    <span style="font-size: clamp(1.15rem, 2.7vw, 1.4rem); font-weight: 700; color: rgba(255, 255, 255, 0.94);">Ich suche</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(2.45rem, 5.8vw, 3.3rem); font-weight: 900; letter-spacing: -0.6px; line-height: 1.1; margin-top: 0.18rem; color: #ffffff;">Gigs</span>
                 </div>
             </button>
 
             <!-- Button 2: Veranstalter -->
-            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
-                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.65rem; color: #ffffff;"></i>
-                    <span style="font-size: clamp(0.95rem, 2.1vw, 1.1rem); font-weight: 600; color: rgba(255, 255, 255, 0.92);">Ich suche</span>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(2rem, 4.8vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin-top: 0.15rem; color: #ffffff;">Acts</span>
+            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.65rem 1.25rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 192px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.22;">
+                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(2.4rem, 5.4vw, 3.1rem); margin-bottom: 0.65rem; color: #ffffff;"></i>
+                    <span style="font-size: clamp(1.15rem, 2.7vw, 1.4rem); font-weight: 700; color: rgba(255, 255, 255, 0.94);">Ich suche</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(2.45rem, 5.8vw, 3.3rem); font-weight: 900; letter-spacing: -0.6px; line-height: 1.1; margin-top: 0.18rem; color: #ffffff;">Acts</span>
                 </div>
             </button>
         </div>
@@ -8123,22 +8123,22 @@ function renderLandingPage(container, onNavigate) {
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Slogan (Wo Musiker und Veranstalter zusammenfinden.) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.15rem, 0.6vh, 0.35rem); width: 100%; max-width: 860px; margin-top: clamp(3.8rem, 8.5vh, 5.8rem); margin-bottom: 0; box-sizing: border-box;">
-                    <span style="font-family: var(--font-heading); font-size: clamp(1.22rem, 4.7vw, 3.1rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.22; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.7vh, 0.4rem); width: 100%; max-width: 1040px; margin-top: clamp(3.6rem, 7.5vh, 5.2rem); margin-bottom: 0; box-sizing: border-box;">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.5rem, 5.8vw, 3.85rem); font-weight: 900; letter-spacing: -0.4px; color: #ffffff; line-height: 1.22; display: block; width: 100%; text-align: center; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
                         Wo <span style="color: #a855f7; font-size: 1.16em; font-weight: 900; text-shadow: 0 0 18px rgba(168, 85, 247, 0.75), 0 0 34px rgba(139, 92, 246, 0.45), 0 4px 14px rgba(0,0,0,0.6);">Musiker</span> und <span style="color: #3b82f6; font-size: 1.16em; font-weight: 900; text-shadow: 0 0 18px rgba(59, 130, 246, 0.75), 0 0 34px rgba(37, 99, 235, 0.45), 0 4px 14px rgba(0,0,0,0.6);">Veranstalter</span>
                     </span>
-                    <span style="font-family: var(--font-heading); font-size: clamp(1.22rem, 4.7vw, 3.1rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.22; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.5rem, 5.8vw, 3.85rem); font-weight: 900; letter-spacing: -0.4px; color: #ffffff; line-height: 1.22; display: block; width: 100%; text-align: center; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
                         zusammenfinden.
                     </span>
                 </div>
 
-                <!-- 2/3: CTA Buttons (Positioned directly below slogan) -->
-                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: clamp(-1.2rem, -2.5vh, -0.6rem) auto clamp(1.8rem, 4vh, 2.8rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
+                <!-- 2/3: CTA Buttons (Lowered slightly while keeping space for bottom marquee) -->
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: clamp(0.6rem, 1.8vh, 1.4rem) auto clamp(0.2rem, 0.6vh, 0.6rem); width: 100%; max-width: 580px; box-sizing: border-box; display: flex; justify-content: center;">
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
-                <!-- 3/3: Infinite Scrolling Example Cards Marquee (Alternating Musiker & Event Kacheln) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(0.4rem, 1.2vh, 1rem); width: 100%; max-width: 960px; padding: 0.35rem 0.5rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);">
+                <!-- 3/3: Infinite Scrolling Example Cards Marquee (Moved further down) -->
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: clamp(1.8rem, 4.2vh, 3.2rem) auto 0; width: 100%; max-width: 960px; padding: 0.35rem 0.5rem 0.1rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);">
                     <div class="logo-marquee-track" style="animation-duration: 38s; gap: 1rem;">
                         <!-- Set 1 -->
                         <!-- 1. Musiker-Kachel -->
@@ -8300,7 +8300,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- 5. Sleek Discreet Hero Footer / Legal Bar (Perfect Optical & Geometrical Centering) -->
-                <div style="position: relative; z-index: 3; margin-top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; margin-bottom: clamp(0.3rem, 1vh, 0.6rem); width: 100%; text-align: center;">
+                <div style="position: relative; z-index: 3; margin-top: 0.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; margin-bottom: clamp(0.1rem, 0.4vh, 0.3rem); width: 100%; text-align: center;">
                     <div class="hero-legal-bar" style="display: flex; align-items: center; justify-content: center; gap: clamp(0.6rem, 2vw, 1.2rem); flex-wrap: wrap; font-size: clamp(0.74rem, 1.5vw, 0.84rem); color: rgba(255, 255, 255, 0.7); font-weight: 500; margin: 0 auto; padding: 0.1rem 0.5rem; user-select: none;">
                         <a href="#/agb" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">AGB</a>
                         <span style="color: rgba(255,255,255,0.25);">&bull;</span>
