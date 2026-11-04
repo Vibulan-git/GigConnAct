@@ -8018,20 +8018,18 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
             <!-- Button 1: Musiker -->
             <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
-                    <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
-                    <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.85rem, 4.4vw, 2.45rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Musiker</span>
-                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.2rem;">und suche Gigs</span>
+                    <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.65rem; color: #ffffff;"></i>
+                    <span style="font-size: clamp(0.95rem, 2.1vw, 1.1rem); font-weight: 600; color: rgba(255, 255, 255, 0.92);">Ich suche</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(2rem, 4.8vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin-top: 0.15rem; color: #ffffff;">Gigs</span>
                 </div>
             </button>
 
             <!-- Button 2: Veranstalter -->
             <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
-                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
-                    <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.85rem, 4.4vw, 2.45rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Veranstalter</span>
-                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.2rem;">und suche Acts</span>
+                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.65rem; color: #ffffff;"></i>
+                    <span style="font-size: clamp(0.95rem, 2.1vw, 1.1rem); font-weight: 600; color: rgba(255, 255, 255, 0.92);">Ich suche</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(2rem, 4.8vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin-top: 0.15rem; color: #ffffff;">Acts</span>
                 </div>
             </button>
         </div>
@@ -8126,10 +8124,10 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 1/3: Slogan (Wo Musiker und Veranstalter zusammenfinden.) -->
                 <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.15rem, 0.6vh, 0.35rem); width: 100%; max-width: 860px; margin-top: clamp(3.8rem, 8.5vh, 5.8rem); margin-bottom: 0; box-sizing: border-box;">
-                    <span style="font-family: var(--font-heading); font-size: clamp(1.32rem, 5.1vw, 3.35rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.18; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
-                        Wo <span style="color: #8b5cf6;">Musiker</span> und <span style="color: #3b82f6;">Veranstalter</span>
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.22rem, 4.7vw, 3.1rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.22; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
+                        Wo <span style="color: #a855f7; font-size: 1.16em; font-weight: 900; text-shadow: 0 0 18px rgba(168, 85, 247, 0.75), 0 0 34px rgba(139, 92, 246, 0.45), 0 4px 14px rgba(0,0,0,0.6);">Musiker</span> und <span style="color: #3b82f6; font-size: 1.16em; font-weight: 900; text-shadow: 0 0 18px rgba(59, 130, 246, 0.75), 0 0 34px rgba(37, 99, 235, 0.45), 0 4px 14px rgba(0,0,0,0.6);">Veranstalter</span>
                     </span>
-                    <span style="font-family: var(--font-heading); font-size: clamp(1.32rem, 5.1vw, 3.35rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.18; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.22rem, 4.7vw, 3.1rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.22; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
                         zusammenfinden.
                     </span>
                 </div>
