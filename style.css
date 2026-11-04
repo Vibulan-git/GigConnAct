@@ -2593,7 +2593,8 @@ body {
  * Clean Human-Crafted Platform Styles (Less AI/Glow)
  * ------------------------------------------------------------- */
 body {
-    background-image: linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%) !important;
+    background-color: #f8fafc !important;
+    background-image: none !important;
     background-attachment: fixed !important;
 }
 
@@ -3502,7 +3503,7 @@ html.page-recommendation.landing-page-active {
     min-height: 100vh !important;
     min-height: 100dvh !important;
     background-color: #f8fafc !important;
-    background-image: linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%) !important;
+    background-image: none !important;
 }
 
 body.page-recommendation .app-container,
@@ -5024,12 +5025,9 @@ input[type="range"].input-field {
     margin: 0 !important;
 }
 
-.info-page-container.theme-musician {
-    background: linear-gradient(180deg, #f6f0ff 0%, #ede0fd 28%, #f8f3ff 60%, #ffffff 100%) !important;
-}
-
+.info-page-container.theme-musician,
 .info-page-container.theme-organizer {
-    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 28%, #f0f7ff 60%, #ffffff 100%) !important;
+    background: #f8fafc !important;
 }
 
 @keyframes heroCtaFlyInRight {

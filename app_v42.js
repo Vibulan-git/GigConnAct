@@ -7729,9 +7729,7 @@ window.renderInfoPage = function(container, type) {
         }
     }
 
-    const pageBgGradient = isMusician
-        ? 'linear-gradient(180deg, #f6f0ff 0%, #ede0fd 28%, #f8f3ff 60%, #ffffff 100%)'
-        : 'linear-gradient(180deg, #eff6ff 0%, #dbeafe 28%, #f0f7ff 60%, #ffffff 100%)';
+    const pageBgGradient = '#f8fafc';
 
     let stepsCardsHTML = '';
     stepsData.forEach((step, i) => {
@@ -21032,25 +21030,7 @@ function renderSubscriptionExpiredPage(container) {
 window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 
 window.updateBodyBackground = function(page) {
-    let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
-    const role = (state && state.currentUser) ? state.currentUser.role : null;
-    const pageStr = String(page || '').toLowerCase();
-    
-    if (pageStr.startsWith('recommendation') || pageStr.startsWith('mediation') || pageStr.startsWith('feedback')) {
-        gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue for recommendation / mediation
-    } else if (role === 'organizer') {
-        gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
-    } else if (role === 'musician') {
-        gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
-    } else {
-        if (page === 'events') {
-            gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
-        } else if (page === 'musicians' || page === 'matchmaking-choice') {
-            gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
-        }
-    }
-    
-    document.body.style.setProperty('background-image', gradient, 'important');
+    document.body.style.setProperty('background-image', 'none', 'important');
     document.body.style.setProperty('background-color', '#f8fafc', 'important');
     document.documentElement.style.setProperty('background-color', '#f8fafc', 'important');
 };
