@@ -8124,17 +8124,14 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Atmospheric dark overlay gradient with stage lighting transparency -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
-                <!-- 1/3: Slogan (Die Plattform für / Live-Musik & Events) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 820px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
-                    <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.8vw, 3.4rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-                        Die Plattform für
+                <!-- 1/3: Slogan (Wo Musiker und Veranstalter zusammenfinden.) -->
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.15rem, 0.6vh, 0.35rem); width: 100%; max-width: 860px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.32rem, 5.1vw, 3.35rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.18; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
+                        Wo <span style="color: #8b5cf6;">Musiker</span> und <span style="color: #3b82f6;">Veranstalter</span>
                     </span>
-                    <span style="font-family: var(--font-heading); font-size: clamp(2.4rem, 7.8vw, 5.0rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-                        Live-Musik & Events
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.32rem, 5.1vw, 3.35rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.18; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.65);">
+                        zusammenfinden.
                     </span>
-                    <p class="hero-sub-slogan" style="font-family: var(--font-body); font-size: clamp(0.72rem, 2.9vw, 1.18rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); text-align: center; margin: clamp(0.35rem, 1vh, 0.75rem) 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.7); letter-spacing: 0.1px; line-height: 1.35; white-space: nowrap; max-width: 100%; box-sizing: border-box;">
-                        GigConnAct verbindet Musiker und Veranstalter.
-                    </p>
                 </div>
 
                 <!-- 2/3: CTA Buttons (Positioned directly below slogan) -->
