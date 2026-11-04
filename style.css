@@ -160,7 +160,7 @@ body {
     font-size: 1.18rem !important;
     font-weight: 700 !important;
     color: #ffffff !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    border: none !important;
     cursor: pointer !important;
     text-decoration: none !important;
     white-space: nowrap !important;
@@ -170,34 +170,34 @@ body {
     outline: none !important;
 }
 
-/* Musician Theme: Lila / Purple */
+/* Musician Theme: Darker Lila / Purple (matches/darker than Kontaktdaten freischalten) */
 .header-action-pills.theme-musician .header-action-pill,
 .header-action-pill.theme-musician {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.32) !important;
+    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%) !important;
+    box-shadow: 0 4px 12px rgba(76, 29, 149, 0.38) !important;
 }
 .header-action-pills.theme-musician .header-action-pill:hover,
 .header-action-pill.theme-musician:hover {
-    background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%) !important;
+    background: linear-gradient(135deg, #5b21b6 0%, #4c1d95 100%) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
+    box-shadow: 0 6px 16px rgba(76, 29, 149, 0.5) !important;
 }
 .header-action-pills.theme-musician .header-action-pill:active,
 .header-action-pill.theme-musician:active {
     transform: translateY(0) scale(0.96) !important;
 }
 
-/* Organizer Theme: Blau / Blue */
+/* Organizer Theme: Darker Blau / Blue (matches/darker than Kontaktdaten freischalten) */
 .header-action-pills.theme-organizer .header-action-pill,
 .header-action-pill.theme-organizer {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.32) !important;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.38) !important;
 }
 .header-action-pills.theme-organizer .header-action-pill:hover,
 .header-action-pill.theme-organizer:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    background: linear-gradient(135deg, #172554 0%, #1e3a8a 100%) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
+    box-shadow: 0 6px 16px rgba(30, 58, 138, 0.5) !important;
 }
 .header-action-pills.theme-organizer .header-action-pill:active,
 .header-action-pill.theme-organizer:active {
@@ -4722,15 +4722,15 @@ html {
 
 /* Sticky Filter Header styling (glowing blue capsule globally!) */
 .filter-header-sticky {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    position: sticky !important;
+    top: 0.5rem !important;
+    z-index: 50 !important;
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: calc(100% - 1.2rem) !important;
     padding: 0.8rem 1.4rem !important; /* shifted inwards! */
-    margin: 0.6rem 0.6rem 1rem 0.6rem !important; /* floated/rounded capsule look */
+    margin: 0.5rem 0.6rem 1rem 0.6rem !important; /* floated/rounded capsule look */
     box-sizing: border-box !important;
     border-radius: 12px !important;
     color: #ffffff !important;
@@ -4740,13 +4740,13 @@ html {
 .filter-header-sticky {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
     border: 2px solid rgba(196, 181, 253, 0.45) !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important;
+    box-shadow: 0 -20px 0 20px #ffffff, 0 8px 25px rgba(124, 58, 237, 0.35) !important;
 }
 
 .theme-organizer .filter-header-sticky {
     background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
     border: 2px solid rgba(147, 197, 253, 0.45) !important;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35) !important;
+    box-shadow: 0 -20px 0 20px #ffffff, 0 8px 25px rgba(37, 99, 235, 0.35) !important;
 }
 
 .filter-header-title, .filter-header-title i {
