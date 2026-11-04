@@ -4037,29 +4037,62 @@ class StateManager {
                             message: "Dein Profil wurde erfolgreich erstellt."
                         });
                     }
-                } else if (userDoc.exists) {
-                    console.log("Existing user signed in successfully!");
-                    state.currentUser = { id: userDoc.id, ...userDoc.data() };
-                    if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
-                        state.currentUser.role = 'organizer';
-                    }
-                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(state.currentUser));
-                    await state.fetchUserOwnData().catch(e => console.warn(e));
-                    state.saveState();
-                    state.notify();
                 } else {
-                    console.log("No existing user and no pending registration found for link sign-in. Opening registration modal.");
-                    window.googleRegistrationUser = user;
-                    showModal('auth');
-                    setTimeout(() => {
-                        const regTab = document.getElementById('tab-register-btn');
-                        if (regTab) regTab.click();
-                        const regForm = document.getElementById('auth-register-form');
-                        if (regForm && regForm.elements.email) {
-                            regForm.elements.email.value = email;
-                            regForm.elements.email.disabled = true;
+                    let existingUserDoc = userDoc.exists ? userDoc : null;
+                    if (!existingUserDoc && email) {
+                        const emailLower = email.toLowerCase().trim();
+                        const emailTrimmed = email.trim();
+                        let snap = await db.collection('users').where('email', '==', emailLower).limit(1).get().catch(() => ({ empty: true }));
+                        if (snap.empty) {
+                            snap = await db.collection('users').where('email', '==', emailTrimmed).limit(1).get().catch(() => ({ empty: true }));
                         }
-                    }, 150);
+                        if (!snap.empty) {
+                            existingUserDoc = snap.docs[0];
+                        } else {
+                            // Fallback: check musicians or events by email
+                            const [musSnap, evtSnap] = await Promise.all([
+                                db.collection('musicians').where('email', '==', emailLower).limit(1).get().catch(() => ({ empty: true })),
+                                db.collection('events').where('email', '==', emailLower).limit(1).get().catch(() => ({ empty: true }))
+                            ]);
+                            if (!musSnap.empty && musSnap.docs[0]?.data()?.creatorId) {
+                                const uDoc = await db.collection('users').doc(musSnap.docs[0].data().creatorId).get().catch(() => null);
+                                if (uDoc && uDoc.exists) existingUserDoc = uDoc;
+                            } else if (!evtSnap.empty && evtSnap.docs[0]?.data()?.creatorId) {
+                                const uDoc = await db.collection('users').doc(evtSnap.docs[0].data().creatorId).get().catch(() => null);
+                                if (uDoc && uDoc.exists) existingUserDoc = uDoc;
+                            }
+                        }
+                    }
+
+                    if (existingUserDoc) {
+                        console.log("Existing user signed in successfully via email link!");
+                        state.currentUser = { id: existingUserDoc.id, ...existingUserDoc.data() };
+                        if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
+                            state.currentUser.role = 'organizer';
+                        }
+                        localStorage.setItem('GigConnAct_current_user', JSON.stringify(state.currentUser));
+                        await state.fetchUserOwnData().catch(e => console.warn(e));
+                        state.saveState();
+                        state.notify();
+                        closeModal();
+                        showToast({
+                            title: "Erfolgreich angemeldet! 🎉",
+                            message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
+                        });
+                    } else {
+                        console.log("No existing user and no pending registration found for link sign-in. Opening registration modal.");
+                        window.googleRegistrationUser = user;
+                        showModal('auth');
+                        setTimeout(() => {
+                            const regTab = document.getElementById('tab-register-btn');
+                            if (regTab) regTab.click();
+                            const regForm = document.getElementById('auth-register-form');
+                            if (regForm && regForm.elements.email) {
+                                regForm.elements.email.value = email;
+                                regForm.elements.email.disabled = true;
+                            }
+                        }, 150);
+                    }
                 }
                 
                 window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
@@ -4114,7 +4147,10 @@ class StateManager {
                 if (email) {
                     const emailLower = email.toLowerCase().trim();
                     try {
-                        const userSnap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                        let userSnap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                        if (userSnap.empty) {
+                            userSnap = await db.collection('users').where('email', '==', email.trim()).limit(1).get();
+                        }
                         if (!userSnap.empty) {
                             const doc = userSnap.docs[0];
                             state.currentUser = { id: doc.id, ...doc.data() };
@@ -4125,6 +4161,11 @@ class StateManager {
                             await state.fetchUserOwnData().catch(e => console.warn(e));
                             state.saveState();
                             state.notify();
+                            closeModal();
+                            showToast({
+                                title: "Erfolgreich angemeldet! 🎉",
+                                message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
+                            });
                             navigateAfterLogin();
                             return;
                         }
@@ -6062,14 +6103,11 @@ class StateManager {
             const emailLower = email.toLowerCase().trim();
             const emailTrimmed = email.trim();
 
-            // 1. Admin account handling
+            // 1. Ensure admin user document exists if admin email requests login link
             if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(emailLower)) {
                 let adminSnap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
-                let adminUser = null;
-                if (!adminSnap.empty) {
-                    adminUser = { id: adminSnap.docs[0].id, ...adminSnap.docs[0].data() };
-                } else {
-                    adminUser = {
+                if (adminSnap.empty) {
+                    const adminUser = {
                         id: 'admin_info_gigconnact',
                         email: emailLower,
                         firstName: 'GigConnAct',
@@ -6080,15 +6118,6 @@ class StateManager {
                     };
                     await db.collection('users').doc(adminUser.id).set(adminUser).catch(e => console.warn(e));
                 }
-                adminUser.role = 'organizer';
-                this.currentUser = adminUser;
-                const adminEvt = (this.events || []).find(e => e && (e.creatorId === adminUser.id || e.email === adminUser.email || e.clientEmail === adminUser.email));
-                this.activeEventId = adminEvt ? adminEvt.id : (this.events[0]?.id || null);
-                localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
-                this.saveState();
-                this.authInitialized = true;
-                this.notify();
-                return { success: true, instantLogin: true, isNewUser: false, user: this.currentUser };
             }
             
             // 2. Query Firestore users collection
@@ -6197,37 +6226,17 @@ class StateManager {
                 };
             }
 
-            // Direct instant sign-in for seamless experience!
-            this.currentUser = matchedUser;
-            if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
-                this.currentUser.role = 'organizer';
-            }
-
-            if (this.currentUser.role === 'musician') {
-                this.activeMusicianId = (this.musicians || []).find(m => m.creatorId === this.currentUser.id || m.id === this.currentUser.profileId)?.id || null;
-            } else {
-                const isAgencyAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
-                this.activeEventId = (this.events || []).find(e => e.creatorId === this.currentUser.id || (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) || (isAgencyAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com' || e.isAgencyRequest === true || e.isMediation === true)))?.id || null;
-            }
-
-            localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
-            this.saveState();
-            await this.fetchUserOwnData().catch(e => console.warn(e));
-            this.authInitialized = true;
-            this.notify();
-
-            // Background email sending without blocking user login
-            try {
-                const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
-                sendCustomSignInEmail({
-                    email: emailTrimmed,
-                    name: this.currentUser.firstName || 'Nutzer',
-                    isNewUser: false
-                }).catch(e => console.warn("Background email notification:", e));
-            } catch (e) {}
-
+            // Send sign-in link via email — user must click the link in their email to sign in!
             window.localStorage.setItem('emailForSignIn', emailTrimmed);
-            return { success: true, instantLogin: true, isNewUser: false, user: this.currentUser };
+            const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
+            await sendCustomSignInEmail({
+                email: emailTrimmed,
+                name: matchedUser.firstName || matchedUser.name || 'Nutzer',
+                isNewUser: false,
+                role: matchedUser.role
+            });
+
+            return { success: true, instantLogin: false, isNewUser: false };
         } catch (err) {
             console.error("loginPasswordless failed:", err);
             const errMsg = err.message || "";
@@ -18998,7 +19007,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldung läuft...`;
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldelink wird gesendet...`;
             }
 
             // Trigger direct passwordless sign-in
@@ -19064,12 +19073,12 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
             if (successContainer) {
                 successContainer.innerHTML = `
-                    <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
-                        <i class="fa-solid fa-circle-check"></i>
+                    <div style="text-align: center; color: var(--color-green); font-size: 2rem; margin-bottom: 0.6rem;">
+                        <i class="fa-solid fa-envelope-circle-check"></i>
                     </div>
-                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Angemeldet!</h4>
-                    <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
-                        Du wurdest erfolgreich angemeldet.
+                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
+                    <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.1rem; line-height: 1.45;">
+                        Wir haben einen Anmeldelink an <strong style="color: var(--text-main);">${email}</strong> gesendet.<br>Bitte klicke auf den Link in der E-Mail, um dich einzuloggen. Prüfe ggf. auch deinen Spam-Ordner.
                     </p>
                 `;
                 successContainer.style.display = 'block';
