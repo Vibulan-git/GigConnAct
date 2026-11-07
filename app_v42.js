@@ -8146,165 +8146,124 @@ function renderLandingPage(container, onNavigate) {
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
-                <!-- 3/3: Infinite Scrolling Example Cards Marquee (Moved further down) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: clamp(1.8rem, 4.2vh, 3.2rem) auto 0; width: 100%; max-width: 960px; padding: 0.35rem 0.5rem 0.1rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);">
-                    <div class="logo-marquee-track" style="animation-duration: 38s; gap: 1rem;">
-                        <!-- Set 1 -->
-                        <!-- 1. Musiker-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=160&q=75" alt="Band" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid rgba(37,99,235,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Musiker &bull; Band</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Sunset Groove Band</div>
-                                </div>
+                <!-- 3/3: Infinite Scrolling Partner & Band Logos Marquee -->
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: clamp(1.8rem, 4.2vh, 3.2rem) auto 0; width: 100%; max-width: 1020px; padding: 0.45rem 0.5rem 0.2rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
+                    <div class="logo-marquee-track" style="animation-duration: 36s; gap: 0; align-items: center;">
+                        ${[1, 2].map(() => `
+                        <!-- 1. MIAMI PINK (Band Logo) -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; gap: 0.75rem; user-select: none; cursor: default; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.5));">
+                            <div style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 18px rgba(236, 72, 153, 0.4); border: 1.5px solid rgba(244, 114, 182, 0.45); background: #000;">
+                                <img src="miami_pink_logo.jpg" alt="Miami Pink" style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.03); display: block;">
                             </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 12px;"></i> München &bull; Pop, Soul & Funk</div>
-                            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
                         </div>
 
-                        <!-- 2. Event-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=160&q=75" alt="Hochzeit" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #7c3aed; background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Event &bull; Hochzeit</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Sommer-Hochzeit am See</div>
-                                </div>
+                        <!-- 2. AURELIA – Weddings & Fine Events (Hochzeitsplaner) -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.55rem 1.15rem; background: rgba(15, 17, 26, 0.72); border: 1px solid rgba(212, 175, 55, 0.38); border-radius: 14px; backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); user-select: none; cursor: default;">
+                            <svg width="38" height="38" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                                <circle cx="18" cy="22" r="10" stroke="#e5c158" stroke-width="2.2"/>
+                                <circle cx="26" cy="22" r="10" stroke="#f3e5ab" stroke-width="2.2"/>
+                                <path d="M22 9L23.8 12.6L27.8 13.2L24.9 16L25.6 20L22 18.1L18.4 20L19.1 16L16.2 13.2L20.2 12.6L22 9Z" fill="#e5c158"/>
+                            </svg>
+                            <div style="text-align: left; line-height: 1.15;">
+                                <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 1.05rem; font-weight: 700; letter-spacing: 2.5px; color: #f8fafc;">AURELIA</div>
+                                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1.8px; color: #e5c158; text-transform: uppercase; margin-top: 2px;">Weddings &amp; Events</div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-coins" style="color: #7c3aed; width: 12px;"></i> Starnberg &bull; 1.500 – 2.500 €</div>
-                            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
                         </div>
 
-                        <!-- 3. Musiker-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=160&q=75" alt="Duo" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid rgba(37,99,235,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Musiker &bull; Duo</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Acoustic Soul Duo</div>
-                                </div>
+                        <!-- 3. NORDLICHT – Eventagentur -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.55rem 1.15rem; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); user-select: none; cursor: default;">
+                            <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                                <polygon points="20,3 35,31 20,25 5,31" fill="url(#nordGrad)" stroke="#38bdf8" stroke-width="1.5"/>
+                                <defs>
+                                    <linearGradient id="nordGrad" x1="5" y1="3" x2="35" y2="31" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#38bdf8"/>
+                                        <stop offset="1" stop-color="#6366f1"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div style="text-align: left; line-height: 1.15;">
+                                <div style="font-family: var(--font-heading); font-size: 1.02rem; font-weight: 900; letter-spacing: 1.5px; color: #ffffff;">NORDLICHT</div>
+                                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1.6px; color: #38bdf8; text-transform: uppercase; margin-top: 2px;">Eventagentur</div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 12px;"></i> Köln &bull; Acoustic & Lounge</div>
-                            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
                         </div>
 
-                        <!-- 4. Event-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=160&q=75" alt="Firmenfeier" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #7c3aed; background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Event &bull; Firmenfeier</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Sommerfest & Corporate Gala</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-coins" style="color: #7c3aed; width: 12px;"></i> Frankfurt &bull; 2.000 – 3.500 €</div>
-                            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
+                        <!-- 4. THE VELVET GROOVES (Live Soul & Funk Band Emblem) -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; user-select: none; cursor: default; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.5));">
+                            <svg width="72" height="72" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="velvetBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#3b0764"/>
+                                        <stop offset="1" stop-color="#831843"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="40" cy="40" r="38" fill="url(#velvetBg)" stroke="#f59e0b" stroke-width="2.5"/>
+                                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(245,158,11,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+                                <circle cx="40" cy="27" r="9" fill="#1e1b4b" stroke="#fbbf24" stroke-width="1.5"/>
+                                <circle cx="40" cy="27" r="3" fill="#fbbf24"/>
+                                <text x="40" y="49" text-anchor="middle" fill="#fef3c7" font-family="Outfit, sans-serif" font-weight="900" font-size="9.5" letter-spacing="0.8">VELVET</text>
+                                <text x="40" y="59" text-anchor="middle" fill="#fbbf24" font-family="Outfit, sans-serif" font-weight="800" font-size="8" letter-spacing="1.2">GROOVES</text>
+                                <text x="40" y="67.5" text-anchor="middle" fill="#f9a8d4" font-family="Inter, sans-serif" font-weight="700" font-size="5" letter-spacing="1.4">LIVE BAND</text>
+                            </svg>
                         </div>
 
-                        <!-- 5. Musiker-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=160&q=75" alt="Sängerin" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid rgba(37,99,235,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Musiker &bull; Solo</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Laura – Live Vocalist</div>
-                                </div>
+                        <!-- 5. HERZBLATT – Hochzeitsplanung -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.55rem 1.15rem; background: rgba(24, 16, 28, 0.75); border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 14px; backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); user-select: none; cursor: default;">
+                            <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                                <path d="M20 33C20 33 8 24.5 8 15.5C8 11.4 11.2 8 15.2 8C17.6 8 19.7 9.2 20 11C20.3 9.2 22.4 8 24.8 8C28.8 8 32 11.4 32 15.5C32 24.5 20 33 20 33Z" stroke="#f472b6" stroke-width="2.2" fill="rgba(244,114,182,0.15)"/>
+                                <path d="M20 14V28M20 20L15 16M20 23L25 18" stroke="#fbcfe8" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                            <div style="text-align: left; line-height: 1.15;">
+                                <div style="font-family: Georgia, serif; font-size: 1.02rem; font-weight: 700; letter-spacing: 1.8px; color: #fdf2f8;">HERZBLATT</div>
+                                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1.4px; color: #f472b6; text-transform: uppercase; margin-top: 2px;">Hochzeitsplanung</div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 12px;"></i> Hamburg &bull; Jazz, Soul & Pop</div>
-                            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
                         </div>
 
-                        <!-- 6. Event-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=160&q=75" alt="Stadtfest" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #7c3aed; background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Event &bull; Stadtfest</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Stadtfest Open-Air Bühne</div>
-                                </div>
+                        <!-- 6. KLANGWERK – Events & Booking -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.55rem 1.15rem; background: rgba(17, 15, 32, 0.75); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 14px; backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); user-select: none; cursor: default;">
+                            <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                                <rect x="5" y="16" width="4" height="10" rx="2" fill="#a855f7"/>
+                                <rect x="12" y="9" width="4" height="22" rx="2" fill="#c084fc"/>
+                                <rect x="19" y="5" width="4" height="30" rx="2" fill="#3b82f6"/>
+                                <rect x="26" y="11" width="4" height="18" rx="2" fill="#a855f7"/>
+                                <rect x="33" y="15" width="4" height="10" rx="2" fill="#60a5fa"/>
+                            </svg>
+                            <div style="text-align: left; line-height: 1.15;">
+                                <div style="font-family: var(--font-heading); font-size: 1.02rem; font-weight: 900; letter-spacing: 1.4px; color: #ffffff;">KLANGWERK</div>
+                                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; color: #c084fc; text-transform: uppercase; margin-top: 2px;">Events &amp; Booking</div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-coins" style="color: #7c3aed; width: 12px;"></i> Berlin &bull; 1.800 – 3.000 €</div>
-                            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
-                        </div>
-                        <!-- Set 2 -->
-                        <!-- 1. Musiker-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=160&q=75" alt="Band" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid rgba(37,99,235,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Musiker &bull; Band</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Sunset Groove Band</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 12px;"></i> München &bull; Pop, Soul & Funk</div>
-                            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
                         </div>
 
-                        <!-- 2. Event-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=160&q=75" alt="Hochzeit" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #7c3aed; background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Event &bull; Hochzeit</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Sommer-Hochzeit am See</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-coins" style="color: #7c3aed; width: 12px;"></i> Starnberg &bull; 1.500 – 2.500 €</div>
-                            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
+                        <!-- 7. SUNSET ACOUSTICS (Duo Emblem) -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; user-select: none; cursor: default; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.5));">
+                            <svg width="72" height="72" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="sunsetDuoBg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#0f172a"/>
+                                        <stop offset="1" stop-color="#134e4a"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="40" cy="40" r="38" fill="url(#sunsetDuoBg)" stroke="#2dd4bf" stroke-width="2.5"/>
+                                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(45,212,191,0.35)" stroke-width="1"/>
+                                <path d="M28 28 Q40 16 52 28" stroke="#f59e0b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                                <circle cx="40" cy="27" r="5" fill="#f59e0b"/>
+                                <text x="40" y="48" text-anchor="middle" fill="#ffffff" font-family="Outfit, sans-serif" font-weight="900" font-size="9.5" letter-spacing="1">SUNSET</text>
+                                <text x="40" y="58" text-anchor="middle" fill="#2dd4bf" font-family="Outfit, sans-serif" font-weight="800" font-size="7.5" letter-spacing="1.1">ACOUSTICS</text>
+                                <text x="40" y="67" text-anchor="middle" fill="#cbd5e1" font-family="Inter, sans-serif" font-weight="700" font-size="5" letter-spacing="1.4">LIVE DUO</text>
+                            </svg>
                         </div>
 
-                        <!-- 3. Musiker-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=160&q=75" alt="Duo" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid rgba(37,99,235,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Musiker &bull; Duo</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Acoustic Soul Duo</div>
-                                </div>
+                        <!-- 8. LUMINA – Gala & Eventdesign -->
+                        <div class="hero-brand-logo" style="flex-shrink: 0; margin-right: 2.8rem; display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.55rem 1.15rem; background: rgba(15, 20, 32, 0.75); border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 14px; backdrop-filter: blur(10px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); user-select: none; cursor: default;">
+                            <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                                <polygon points="20,4 25,15 36,20 25,25 20,36 15,25 4,20 15,15" stroke="#e2e8f0" stroke-width="1.8" fill="rgba(59,130,246,0.25)"/>
+                                <circle cx="20" cy="20" r="3.5" fill="#ffffff"/>
+                            </svg>
+                            <div style="text-align: left; line-height: 1.15;">
+                                <div style="font-family: var(--font-heading); font-size: 1.02rem; font-weight: 800; letter-spacing: 2.2px; color: #ffffff;">LUMINA</div>
+                                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; color: #93c5fd; text-transform: uppercase; margin-top: 2px;">Gala &amp; Eventdesign</div>
                             </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 12px;"></i> Köln &bull; Acoustic & Lounge</div>
-                            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
                         </div>
-
-                        <!-- 4. Event-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=160&q=75" alt="Firmenfeier" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #7c3aed; background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Event &bull; Firmenfeier</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Sommerfest & Corporate Gala</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-coins" style="color: #7c3aed; width: 12px;"></i> Frankfurt &bull; 2.000 – 3.500 €</div>
-                            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
-                        </div>
-
-                        <!-- 5. Musiker-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(37, 99, 235, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=160&q=75" alt="Sängerin" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid rgba(37,99,235,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Musiker &bull; Solo</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Laura – Live Vocalist</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 12px;"></i> Hamburg &bull; Jazz, Soul & Pop</div>
-                            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
-                        </div>
-
-                        <!-- 6. Event-Kachel -->
-                        <div class="hero-mini-tile" style="width: 230px; flex-shrink: 0; background: rgba(255, 255, 255, 0.95); border: 1.5px solid rgba(124, 58, 237, 0.45); border-radius: 14px; padding: 0.55rem 0.7rem; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 0.38rem; text-align: left; cursor: default; user-select: none;">
-                            <div style="display: flex; align-items: center; gap: 0.55rem;">
-                                <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=160&q=75" alt="Stadtfest" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
-                                <div style="min-width: 0; flex: 1;">
-                                    <span style="display: inline-block; font-size: 0.6rem; font-weight: 800; color: #7c3aed; background: #f5f3ff; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.3px;">Event &bull; Stadtfest</span>
-                                    <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-top: 1px;">Stadtfest Open-Air Bühne</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.72rem; color: #475569; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-coins" style="color: #7c3aed; width: 12px;"></i> Berlin &bull; 1.800 – 3.000 €</div>
-                            <div style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; font-family: var(--font-heading); font-size: 0.72rem; font-weight: 800; padding: 0.32rem 0.5rem; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i class="fa-solid fa-lock" style="font-size: 0.66rem;"></i> Kontaktdaten freischalten</div>
-                        </div>
+                        `).join('')}
                     </div>
                 </div>
 
